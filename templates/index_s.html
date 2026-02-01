@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+
+    <style>
+
+        body {
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+
+            /* Varias capas de fondo */
+            background: 
+                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            background-size: 550px, cover; /* primero imagen, luego gradiente */
+            background-attachment: fixed;
+
+            /* Aquí controlas la posición de cada capa */
+            background-position: calc(50% - 550px) center, center;
+        }
+
+        .box{
+            box-shadow: 5px 5px 5px rgba(59, 59, 59, 0.384);
+            transition: transform 0.3s ease;  /* Transición suave */
+            border-radius: 20px;
+        }
+
+        .grid-container{
+            display: grid;
+            grid-template-columns: 500px 1000px; 
+            grid-template-rows: 150px 150px 150px 150px 150px; 
+            gap: 1em;
+            grid-template-areas: 
+            "box-4 box-2"
+            "box-1 box-2"
+            "box-1 box-2"
+            "box-1 box-2"
+            "box-0 box-3";
+        }
+
+        .box-1 { background-color: #dbe2e9c0;
+            backdrop-filter: blur(10px);
+        } 
+        .box-2 { background-color: #dbe2e9; }  
+
+        .logo {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="text"], input[type="url"] {
+            width: 80%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            margin-left: 5%;
+        }
+        
+        input[type="text"]:focus, input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 80%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .success {
+            color: rgb(0, 0, 0);
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .suspended {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+            color: white;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-error {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .status-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .status-suspended {
+            background: #ff8c00;
+            color: white;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .flash-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .flash-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .mochila-alert {
+            background: linear-gradient(135deg, #9ac9ff 0%, #cff1fe 100%);
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 2px solid #9ac9ff;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .foto{
+            width: 150px;
+            left: 50%;
+        }
+        .subtitulo{
+            font-size: 18px;
+            font-weight: bold;  
+            color: #000;
+            text-align: center;
+        }
+        .foto_credencial{
+            width: 250px;
+            margin-top: 20px;
+            left: 50%;
+            position: relative;
+        }
+
+        .aceptado{
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 2px solid #38f9d7;
+            margin-left: 10%;
+            margin-right: 10%;            
+        }
+        .denegado{
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 2px solid #fa709a;
+            margin-left: 10%;
+            margin-right: 10%;
+
+        }
+        .suspendido{
+            background: linear-gradient(135deg, #ffeebd 0%, #ffd000 100%);
+            color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 2px solid #ff8c00;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        .mochila{
+            background: linear-gradient(135deg, #9ac9ff 0%, #cff1fe 100%);
+            color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 2px solid #9ac9ff;
+            width: 500px;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+        
+        /* ============================================================
+            ESTILOS PARA ESTADOS DE INSCRIPCIÓN - CORREGIDOS
+           ============================================================ */
+        .inscrito-card {
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+
+            /* Ajuste dinámico de altura */
+            min-height: 500px;       /* un poco más alta que antes */
+            height: 100%;            /* permite que crezca si hay contenido */
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+
+            transition: all 0.3s ease;
+        }
+
+        /* Cuando no hay datos escaneados */
+        .inscrito-card.no-data {
+            justify-content: center;      /* centra el texto verticalmente */
+            align-items: center;          /* centra horizontalmente */
+            min-height: 500px;            /* asegura que tenga una buena altura base */
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+        }
+
+        /* Texto dentro de la tarjeta vacía */
+        .no-data-message {
+            font-size: 1.3rem;
+            color: rgba(0, 0, 0, 0.7);
+            text-align: center;
+            padding: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+
+        /* Imagen de fondo - CORREGIDA */
+        .background-logo {
+            position: absolute;
+            top: 50%;
+            left: 80%;
+            transform: translate(-50%, -50%);
+            opacity: 0.15; /* Reducida para que no interfiera */
+            width: 300px;
+            height: auto;
+            z-index: 0; /* Siempre detrás */
+            pointer-events: none; /* No interfiere con clicks */
+        }
+
+        .inscrito-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="2"/></svg>');
+            background-size: 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Inscrito (verde) */
+        .inscrito-activo {
+            background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%);
+            color: #ffffff;
+        }
+
+        /* Suspendido (amarillo) */
+        .inscrito-suspendido {
+            background: linear-gradient(145deg, #ffffff 0%, #fbbf24 100%);
+            color: #92400e;
+        }
+
+        /* No inscrito (rojo) */
+        .inscrito-inactivo {
+            background: linear-gradient(145deg, #bd6161 0%, #760000 100%);
+            color: #ffffff;
+        }
+
+        /* Elementos internos (LIA) */
+        .inscrito-LIA {
+            background: linear-gradient(90deg,rgba(66, 19, 41, 1) 0%, #6c1d45 45%, rgba(255, 255, 255, 1) 150%);
+            color: #ffffff;
+        }
+        
+        /* Boletas especiales */
+        .inscrito-Especial {
+            background: linear-gradient(90deg,rgb(59, 87, 49) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%);
+            color: #ffffff;
+        }
+
+        /* HEADER INFO - CORREGIDO */
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            flex-shrink: 0; /* No se comprime */
+        }
+
+        .boleta-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .status-display {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px 25px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* ACCESS INFO - CORREGIDO */
+        .access-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .access-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .access-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* PHOTO SECTION - CORREGIDO */
+        .photo-section {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            flex-shrink: 0;
+        }
+        
+        .photo-section img {
+            width: 200px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .photo-section img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* MOCHILA OPERATION - CORREGIDO */
+        .mochila-operation {
+            background: rgba(255, 255, 255, 0.2);
+            color: inherit;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: auto; /* Empuja hacia abajo */
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            flex-shrink: 0;
+        }
+
+        .error-message {
+            background: linear-gradient(90deg,rgb(143, 145, 27) 0%, #646c1d 35%, rgba(255, 255, 255, 1) 125%);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+        .master {
+            background: linear-gradient(90deg,rgb(18, 17, 83) 0%, #221d6c 35%, rgba(255, 255, 255, 1) 125%);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .inscrito-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header-info {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .boleta-display, .status-display {
+                font-size: 1.8rem;
+            }
+            
+            .access-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+        }
+
+        .Salida_LIA {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <!-- Formulario -->
+        <div class="box box-1" style="grid-area: box-1;">
+            <div class="logo">🎓 Salida por QR</div>
+            <div class="subtitle">Sistema de Verificación de Credenciales y Horarios del IPN</div>
+            
+            <!-- Mensajes Flash -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <div class="flash-message flash-{{ 'success' if 'exitosamente' in message else 'error' }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Formulario Manual -->
+            <div class="form-section">
+                <form method="POST" id="qrForm">
+                    <div class="form-group">
+                        <label class="subtitulo" for="qr_url">Enlace de Credencial DAE u Horario del SAES:</label>
+                        <input 
+                            type="url" 
+                            id="qr_url" 
+                            name="qr_url" 
+                            placeholder="https://servicios.dae.ipn.mx/vcred/?h=..." 
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+                    <button type="submit" class="btn" id="submitBtn">
+                        🔍 Verificar Credencial
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div class="box box-2" style="grid-area: box-2;">
+
+            <!-- Caso: Error en la URL -->
+            {% if error %}
+                <div class="error-message">
+                    <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                        <br><br>
+                        <div class="header-info">
+                            <div class="boleta-display">⚠️ Error ⚠️</div>                                
+                            <div class="status-display">⚠️ Espera unos pocos segundos ⚠️ </div>
+                        </div>
+                        <div class="access-info">
+                            <div class="access-item"><h4> Escanea una vez se reinicie </h4></div>
+                        </div>
+                        <br>
+                        <br><br>
+                        <div class="mochila-operation"> Lamentamos las molestias 💔</div>
+                </div>
+
+            <!-- Caso: Llave maestra -->
+            {% elif acceso_directo%}
+                {% if tipo_acceso == "administrativo" %}
+                <div class="master">
+                    <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                        <br><br>
+                        <div class="header-info">
+                            <div class="boleta-display"> Administrativo</div>                                
+                            <div class="status-display"> Acceso admitido</div>
+                        </div>
+                        <div class="access-info">
+                            <div class="access-item"><h4> Hasta luego :) </h4></div>
+                        </div>
+                        <br>
+                        <br><br><br><br>
+                </div>
+                {% elif tipo_acceso == "guardia" %}
+                <div class="master">
+                    <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                        <br><br>
+                        <div class="header-info">
+                            <div class="boleta-display"> Llave Maestra</div>                                
+                            <div class="status-display"> Acceso admitido </div>
+                        </div>
+                        <div class="access-info">
+                            <div class="access-item"><h4> Hasta luego :)  </h4></div>
+                        </div>
+                        <br>
+                        <br><br><br><br>
+                </div>
+                {% endif %}
+            <!-- Caso: No hay datos -->
+            {% elif not boleta %}
+
+                <div class="inscrito-card no-data">
+                    <div class="no-data-message">
+                        <h1>📱 Escanea o ingresa un código QR para verificar la Salida</h1>
+                    </div>
+                </div>
+
+            <!-- Caso: Inscrito activo (inscrito == 1) -->
+            {% elif inscrito == 1 %}
+
+                <!-- NO PUEDE SALIR - Fuera de horario -->
+                {% if not salir and bloquear_b == 0 %}
+                    <div class="inscrito-card inscrito-inactivo">
+                        <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                        
+                        <div class="header-info">
+                            <div class="boleta-display">{{ boleta }}</div>                                
+                            <div class="status-display">❌ No puedes salir</div>
+                        </div>
+                        
+                        <div class="access-info">
+                            <div class="access-item"><h4>🚫 Aún no es tu hora de Salida 🚫</h4></div>
+                        </div>
+                        
+                        <div class="photo-section">
+                            <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                        </div>
+                        
+                        <div class="mochila-operation">⚠️ Comunicate con alguien del personal si crees que es un error ⚠️</div>
+                    </div>
+
+                <!-- BLOQUEADO - Ya escaneado -->
+                {% elif bloquear_b == 1 %}
+                    <div class="inscrito-card inscrito-inactivo">
+                        <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                        
+                        <div class="header-info">
+                            <div class="boleta-display">{{ boleta }}</div>                                
+                            <div class="status-display">❌ No puedes salir</div>
+                        </div>
+                        
+                        <div class="access-info">
+                            <div class="access-item"><h4>🚫 Alguien ya escaneó tu credencial 🚫</h4></div>
+                        </div>
+                        
+                        <div class="photo-section">
+                            <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                        </div>
+                        
+                        <div class="mochila-operation">⚠️ Comunicate con alguien del personal si crees que es un error ⚠️</div>
+                    </div>
+
+                <!-- PUEDE SALIR - Verificar casos especiales -->
+                {% elif salir %}
+                    
+                    <!-- BOLETA ESPECIAL GENÉRICA -->
+                    {% if boleta_especial %}
+                        <div class="inscrito-card inscrito-Especial">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes salir</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Hasta luego</h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">
+                                {{ mensaje_especial if mensaje_especial else "Boleta especial" }}
+                            </div>
+                        </div>
+
+                    <!-- BOLETA LIA - Ebani -->
+                    {% elif boleta == "2024160324" %}
+                        <div class="inscrito-card inscrito-LIA">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            <img src="/static/images/Logo_LIA.png" alt="logo fondo" class="background-logo" style="left: 20%;">
+
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes salir</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Integrante de LIA - <samp>Ebani</samp> </h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">🔧 Lead Técnico -- Tester 💻</div>
+                        </div>
+
+                    <!-- BOLETA LIA - André -->
+                    {% elif boleta == "2024160385" %}
+                        <div class="inscrito-card inscrito-LIA">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            <img src="/static/images/Logo_LIA.png" alt="logo fondo" class="background-logo" style="left: 20%;">
+
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes salir</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Integrante de LIA - <samp>André</samp></h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">🔧 Lead Coder -- Frontend & Backend -- Data Base -- Técnico -- Tester -- GOD 💻</div>
+                        </div>
+
+                    <!-- BOLETA LIA - Mati -->
+                    {% elif boleta == "2024160550" %}
+                        <div class="inscrito-card inscrito-LIA">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            <img src="/static/images/Logo_LIA.png" alt="logo fondo" class="background-logo" style="left: 20%;">
+
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes salir</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Integrante de LIA - <samp>Mati</samp></h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">Matilolazo</div>
+                        </div>
+
+                    <!-- BOLETA LIA - Ashley -->
+                    {% elif boleta == "2024160383" %}
+                        <div class="inscrito-card inscrito-LIA">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            <img src="/static/images/Logo_LIA.png" alt="logo fondo" class="background-logo" style="left: 20%;">
+
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes salir</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Integrante de LIA - <samp>Ashley</samp></h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">🔧 Tesis -- Tester 💻</div>
+                        </div>
+
+                    <!-- BOLETA LIA - Sofi -->
+                    {% elif boleta == "2024160344" %}
+                        <div class="inscrito-card inscrito-LIA">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            <img src="/static/images/Logo_LIA.png" alt="logo fondo" class="background-logo" style="left: 20%;">
+
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes entrar</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Integrante de LIA - <samp>Sofi</samp></h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">⚠️ Oye cuidado con los jojo's 🗣️🙏 ⚠️</div>
+                        </div>
+
+                    <!-- BOLETA LIA - Andrew -->
+                    {% elif boleta == "2024160095" %}
+                        <div class="inscrito-card inscrito-LIA">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            <img src="/static/images/Logo_LIA.png" alt="logo fondo" class="background-logo" style="left: 20%;">
+
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">
+                                    <div class="Salida_LIA">✅ Puedes salir</div>
+                                </div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item"><h4>Integrante de LIA - <samp>Andrew</samp></h4></div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">⚠️ El del saberes y sus ##### ⚠️</div>
+                        </div>
+
+                    <!-- BOLETA NORMAL - Puede salir -->
+                    {% else %}
+                        <div class="inscrito-card inscrito-activo">
+                            <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                            
+                            <div class="header-info">
+                                <div class="boleta-display">{{ boleta }}</div>
+                                <div class="status-display">✅ Puedes salir</div>
+                            </div>
+                            
+                            <div class="access-info">
+                                <div class="access-item">✅ Salida autorizada</div>
+                            </div>
+                            
+                            <div class="photo-section">
+                                <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                            </div>
+                            
+                            <div class="mochila-operation">Hasta luego. :D </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            
+            <!-- Caso: Suspendido (inscrito == 2) -->
+            {% elif inscrito == 2 %}
+                <div class="inscrito-card inscrito-suspendido">
+                    <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                    
+                    <div class="header-info">
+                        <div class="boleta-display">{{ boleta }}</div>
+                        <div class="status-display">⚠️ Suspendido ⚠️</div>
+                    </div>
+                    
+                    <div class="access-info">
+                        <div class="access-item"><h4>Tu boleta está suspendida</h4></div>
+                    </div>
+                    
+                    <div class="photo-section">
+                        <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                    </div>
+                    
+                    <div class="mochila-operation">⚠️ Comunicate con alguien del personal si crees que es un error ⚠️</div>
+                </div>
+            
+            <!-- Caso: No inscrito (inscrito == 0) -->
+            {% elif inscrito == 0 %}
+                <div class="inscrito-card inscrito-inactivo">
+                    <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                    
+                    <div class="header-info">
+                        <div class="boleta-display">{{ boleta }}</div>
+                        <div class="status-display">❌ No estás inscrito</div>
+                    </div>
+                    
+                    <div class="access-info">
+                        <div class="access-item"><h4>No tienes registro en el sistema</h4></div>
+                    </div>
+                    
+                    <div class="photo-section">
+                        <img src="/static/image/{{boleta}}.jpg" alt="Foto del estudiante">
+                    </div>
+                    
+                    <div class="mochila-operation">⚠️ Comunicate con alguien del personal si crees que es un error ⚠️</div>
+                </div>
+            
+            <!-- Caso: Error desconocido -->
+            {% else %}
+                <div class="error-message">
+                    <img src="/static/images/logo-ipn-blanco.png" alt="logo fondo" class="background-logo">
+                    ⚠️ Error <br>
+                    ⚠️ Comunicate con alguien del personal para ayuda ⚠️
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+
+    <script>
+            // ========== AUTO-REINICIO EN CASO DE ERROR ==========
+            const errorMessage = document.querySelector('.error-message');
+            let errorReloadTimer;
+
+            // Si hay un mensaje de error visible
+            if (errorMessage) {
+                // Función para recargar la página
+                function reloadPage() {
+                    window.location.href = window.location.pathname; // Recarga sin parámetros
+                }
+
+                // Timer de 10 segundos para recargar automáticamente
+                errorReloadTimer = setTimeout(reloadPage, 5000);
+
+                // También recargar si el input se borra manualmente
+                qrInput.addEventListener('input', function() {
+                    if (qrInput.value.trim() === '') {
+                        clearTimeout(errorReloadTimer); // Cancelar el timer automático
+                        reloadPage(); // Recargar inmediatamente
+                    }
+                });
+            }
+
+            // ========== AUTO-BORRADO DEL INPUT DESPUÉS DE 5 SEGUNDOS ==========
+            let inputTimer;
+            const INPUT_TIMEOUT = 5000; // 5 segundos en milisegundos
+
+            const qrInput = document.getElementById('qr_url');
+
+            // Función para resetear el timer
+            function resetInputTimer() {
+                // Limpiar el timer anterior si existe
+                clearTimeout(inputTimer);
+                
+                // Solo iniciar el timer si hay texto en el input
+                if (qrInput.value.trim() !== '') {
+                    inputTimer = setTimeout(() => {
+                        qrInput.value = ''; // Borrar el contenido
+                        console.log('Input limpiado por inactividad');
+                        
+                        // Si hay error visible, recargar la página al borrar el input
+                        if (errorMessage) {
+                            clearTimeout(errorReloadTimer);
+                            window.location.href = window.location.pathname;
+                        }
+                    }, INPUT_TIMEOUT);
+                }
+            }
+
+            // Eventos que resetean el timer
+            qrInput.addEventListener('input', resetInputTimer);
+            qrInput.addEventListener('keydown', resetInputTimer);
+            qrInput.addEventListener('paste', resetInputTimer);
+
+            // Limpiar el timer cuando se hace submit del formulario
+            document.getElementById('qrForm').addEventListener('submit', () => {
+                clearTimeout(inputTimer);
+                if (errorReloadTimer) {
+                    clearTimeout(errorReloadTimer);
+                }
+            });
+
+            // ========== FOCO AUTOMÁTICO ==========
+            // Poner el foco al cargar la página
+            window.onload = () => {
+                qrInput.focus();
+            };
+            
+            // Si el usuario hace clic fuera, volver a enfocar automáticamente
+            document.addEventListener("click", () => {
+                qrInput.focus();
+            });
+            
+            // También si se pierde el foco por cualquier otra razón
+            qrInput.addEventListener("blur", () => {
+                setTimeout(() => qrInput.focus(), 0);
+            });
+    </script>
+    <script>
+            // ========== ACTUALIZAR HORA ACTUAL ==========
+            function updateTime() {
+                const element = document.getElementById('currentTime');
+                if (element) {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('es-MX', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    element.textContent = timeString;
+                }
+            }
+            
+            // Actualizar cada segundo
+            setInterval(updateTime, 1000);
+            updateTime(); // Llamar inmediatamente
+
+            // ========== MANEJAR ENVÍO DEL FORMULARIO ==========
+            document.getElementById('qrForm').addEventListener('submit', function(e) {
+                const submitBtn = document.getElementById('submitBtn');
+                const loading = document.getElementById('loading');
+                
+                // Mostrar loading
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Procesando...';
+                if (loading) {
+                    loading.style.display = 'block';
+                }
+            });
+
+            // ========== LIMPIAR MENSAJES FLASH ==========
+            setTimeout(function() {
+                const flashMessages = document.querySelector('.flash-messages');
+                if (flashMessages) {
+                    flashMessages.style.opacity = '0';
+                    flashMessages.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => flashMessages.remove(), 500);
+                }
+            }, 5000);
+    </script>
+</body>
+</html>

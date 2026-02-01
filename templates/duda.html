@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleccionar Ciclo Escolar</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            padding-left: 5%;
+            margin: 0;
+            text-align: left;
+            background: 
+            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+            linear-gradient(170deg, #6c1d45, #ffffff 80%);
+
+            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-attachment: fixed;
+
+            /* imagen centrada horizontal, 70% vertical (más abajo) 
+            gradiente sigue centrado */
+            background-position: center 150px, center;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 400ms;
+        }
+
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .imagenes img {
+            width: 200px;
+            height: auto;
+        }
+        .logo {
+            position: absolute;
+            left: 5%;
+        }
+        .LIA {
+            position: absolute;
+            right: 2%;
+            
+        }
+        .grupos {
+            margin-top: 20px;
+            text-align: left;
+        }
+        h3 {
+            text-align: center;
+            color: #000000;
+            margin-top: 20px;
+        }
+        a{
+            text-decoration: none;
+            color: #fff;
+        } 
+        .return{
+            width: 50%;
+            margin: 0 auto;
+        }
+        .remember{
+            width: 50%;
+            background-color: #ffffff;
+            margin-top: 10px;
+            margin-left: 50%; ;
+            color: #6c1d45;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .panel {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .titulo {
+            padding: 10px;
+            background: #eee;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .contenido {
+            display: none;
+            padding: 10px;
+        }
+
+        .dentro{
+            width: 80%;
+            height: auto;
+            margin-left: 10%;
+        }
+    </style>
+</head>
+<body>
+    <div class="imagenes">
+        <img class="logo" src="../static/images/Cecyt16.png" alt="">
+        <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
+    </div>
+    
+    <br> 
+    <br>
+    <h2> Diferencias entre el metodo Manual y Automatico:</h2>
+    <form >
+        <h1>Al escoger la opcion de registrar alumnos te redirige hacia la seleccion de metodo</h1>
+        <img class="dentro" src="../static/images/Seleccion_metodo.png" alt="">
+        <p> Hay 2 metodos de registro el manual y el automatico, ambos son totalmente funcionales es cuestion de como es que quieres registrar a los alumnos, aqui podras ver sobre las diferencias y el procedimiento basico de cada metodo, <b>presionando el titulo</b> se desplegara el texto de cada uno.</p>
+                <p class="remember">Para mas informacion acudir al manual de pracitcas donde se detalla paso a paso todo el procedimiento.</p>
+        
+        <div class="panel">
+            <div class="titulo" onclick="togglePanel(this)"><h1>Metodo Manual</h1></div>
+            <div class="contenido">
+                <h3>Seleccionar el grupo e insertar los links directamente</h3>
+                <p>Al seleccionar la opcion manual y aceptar, enviara a la pagina de seleccion de grupo donde se tiene que escoger el grupo al que se va registrar en ese momento, ejepmlo 5MM2. </p>
+                <img class="dentro" src="../static/images/Seleccionar_Manual.png" alt="">
+                <p>Una vez seleccionado el grupo y aceptar lo redirigira a una pagina donde tendra que ir insertando link por link tanto de credenciales como horarios de ese grupo. </p>
+                <img class="dentro" src="../static/images/Registro_Manual.png" alt="">
+                
+                
+                <p class="remember">Para mas informacion acudir al manual de pracitcas donde se detalla paso a paso todo el procedimiento.</p>
+            </div>
+        </div>
+        <hr>
+        <br>
+        <hr>
+        <div class="panel">
+            <div class="titulo" onclick="togglePanel(this)"><h1>Metodo Automatico</h1></div>
+            <div class="contenido">
+                <h3>Seleccionar el grupo e insertar una carpeta donde se 
+                    almacenen todos los links del grupo seleccionado</h3>
+                <p>Al seleccionar la opcion automatico y aceptar, enviara a la pagina de seleccion de grupo donde se tiene que escoger el grupo al que se va registrar en ese momento, ejepmlo 5MM2. </p>
+                <img class="dentro" src="../static/images/Seleccion_Gurpos_automatico.png" alt="">
+                <p> Una vez seleccionado el grupo en el formulario y aceptar lo redirigira a una pagina donde tendra que seleccionar todos los archios 
+                    en formato png, jpg, jpeg o bmp de los qr del grupo seleccionado, se puede seleccionar todas de una o uno por uno. </p>
+                <img class="dentro" src="../static/images/Sin_Seleccion_Automatico.png" alt="">
+                <p> Una vez seleccionado presionar el boton de subir y seleccionar y esperar hasta que la barra llegue al 100% una vez llegue al 100% lo redirigira de vuelta al formulario de seleccionar metodo</p>
+                <img class="dentro" src="../static/images/Seleccion_Automatico.png" alt="">
+                <img class="dentro" src="../static/images/Proceso_Automatico.png" alt="">
+                
+                <p>El sistema se encargara de registrar a todos los alumnos uno a uno sin necesidad de intervencion, se recomienda que mientras se registra no reiniciar la pagina ni hacer algun cambio en cual lugar</p>
+                <img class="dentro" src="../static/images/Completado_Auto_terminal.png" alt="">
+
+                <p>Una vez que la barra llegue al 100% saldra una tabla donde se muestran cuantos links fueron escaneados correctamente y si hubo algunos con fallas los mostrara ahi tambien</p>
+                <img class="dentro" src="../static/images/Completado_Automatico.png" alt="">
+
+                <p> En caso de que haya codigos qr con errores intentar de nuevo despues de un tiempo, si la falla sigue esperar 1 a 2 dias para intentarlo de nuevo. Si continua sera necesario entrar al codigo y ver la terminal para saber con exactitud el error. En todo caso en el manual hay varios tipos de posibles errores y su solucion asi que se recomienda checar el manual en caso de fallas.</p>
+                <p class="remember">Para mas informacion acudir al manual de pracitcas donde se detalla paso a paso todo el procedimiento.</p>
+
+
+            </div>
+        </div>
+    </form>
+    <br>
+    <br><br><br>
+
+    <a href="/seleccionar_metodo"><button class="return">Regresar la seleccion de metodos</button></a>
+
+<script>
+function togglePanel(el) {
+    const contenido = el.nextElementSibling;
+    contenido.style.display =
+        (contenido.style.display === "block") ? "none" : "block";
+}
+</script>
+
+</body>
+</html>

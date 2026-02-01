@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+
+    <title>Suspensiones</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        padding: 20px;
+        padding-left: 5%;
+        margin: 0;
+
+        background: 
+            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+            linear-gradient(170deg, #6c1d45, #ffffff 75%);
+
+        background-size: 750px, cover; /* primero imagen, luego gradiente */
+        background-attachment: fixed;
+
+        /* imagen centrada horizontal, 70% vertical (más abajo) 
+        gradiente sigue centrado */
+        background-position: center 100px, center;
+    }
+
+
+
+        h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 400ms;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .imagenes img {
+            width: 200px;
+            height: auto;
+        }
+        .logo {
+            position: absolute;
+            left: 5%;
+        }
+        .LIA {
+            position: absolute;
+            right: 2%;
+            
+        }
+        .grupos {
+            margin-top: 20px;
+            text-align: left;
+        }
+        h3 {
+            text-align: center;
+            color: #fff;
+            margin-top: 20px; 
+            font-weight: bold;
+        }
+        .regreso {
+            margin-top: 50px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            width: 50%;
+            justify-content: center;
+            display: block;
+            margin: 0 auto;
+            
+        }
+
+        a {
+            text-decoration: none;
+            
+        }
+        hr{
+            border: 0.7px solid #fff;
+            margin: 20px 0;
+        }
+        form hr{
+            margin: 0;
+            border: 0.7px solid #6c1d45;
+        }
+
+        .subtitulo{
+            color: #6c1d45;
+            font-weight: bold;
+
+        }
+        h3{
+            color: #6c1d45;
+        }
+
+</style>
+
+</head>
+<body>
+    <div class="imagenes">
+            <img class="logo" src="../static/images/Cecyt16.png" alt="">
+            <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
+        </div>
+        <h2>Suspensiones</h2>
+        
+        <form method="POST" action="/suspensiones">
+            <!-- Selección del grupo -->
+            <div class="grupos">
+                <label for="grupo">Grupo:</label>
+                <select name="grupo" required>
+                    <option value="">-- Selecciona un grupo --</option>
+                    {% for grupo in grupos %}
+                    <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br>
+
+            {% if grupo_seleccionado %}
+            <!-- Selección de boleta -->
+            <hr>
+            <h3>Selecciona la boleta del suspendido:</h3>
+            <div class="grupos">
+                <label for="boleta">Boleta:</label>
+                <select name="boleta" required>
+                    <option value="">-- Selecciona una boleta --</option>
+                    {% for boleta in boletas %}
+                    <option value="{{ boleta }}" {% if boleta == boleta_suspendida %}selected{% endif %}>{{ boleta }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br>
+            <hr>
+            <!-- Fechas de suspensión -->
+            <h3 class="subtitulo">Selecciona la fecha de inicio y fin de la suspensión</h3>
+
+            <label for="fecha_inicio">Inicio de la suspensión:</label><br>
+            <input type="date" name="fecha_inicio" value="{{ hoy }}" required><br><br>
+
+            <label for="fecha_fin">Fin de la suspensión:</label><br>
+            <input type="date" name="fecha_fin" value="{{ hoy }}" required><br><br>
+            {% endif %}
+
+            <button type="submit">Continuar</button>
+        </form>
+
+        <br>
+        <br>
+        <a href="/"><button class="regreso" type="button" > Regresar a la pagina principal </button></a>
+</body> 
+</html>

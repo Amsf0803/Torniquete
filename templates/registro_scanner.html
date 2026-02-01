@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro con Escáner QR</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+
+            background: 
+            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+            linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            background-size: 500px, cover; /* primero imagen, luego gradiente */
+            background-attachment: fixed;
+
+            /* imagen centrada horizontal, 70% vertical (más abajo) 
+            gradiente sigue centrado */
+            background-position: center, center;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .main-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .scanner-section {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .scanner-section h2 {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .scanner-input-container {
+            margin-bottom: 2rem;
+        }
+
+        .scanner-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .scanner-input:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .scanner-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.disconnected {
+            background: #f56565;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .log-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .log-header h2 {
+            color: #4a5568;
+            font-size: 1.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4299e1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .log-container {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .log-entry:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .log-entry.success {
+            border-left: 4px solid #48bb78;
+        }
+
+        .log-entry.error {
+            border-left: 4px solid #f56565;
+        }
+
+        .log-time {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .log-data {
+            flex: 1;
+            margin: 0 1rem;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+
+        .log-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-processing {
+            background: #fef5e7;
+            color: #744210;
+        }
+
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .home-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .instruction {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #234e52;
+        }
+
+        .instruction-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .finalizar {
+            width: 100%;
+            padding: 1rem;
+            background: #38a169;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📱 Sistema de Registro con Escáner QR</h1>
+    </div>
+
+
+    <div class="main-container">
+        <!-- Sección del Escáner -->
+        <div class="scanner-section">
+            <h2>🔍 Escáner QR</h2>
+            
+            <div class="instruction">
+                <div class="instruction-title">📋 Instrucciones:</div>
+                <div>1. Acerca tu credencial y horario (Se recomienda que el primero en escanear sea un alumno con carga completa sin materias recursadas)</div>
+                <div>2. Una vez escaneado espera hasta que se comfirme el registro en la parte inferior </div>
+                <div>3. El sistema procesará automáticamente la información</div>
+            </div>
+
+            <div class="scanner-input-container">
+                <input 
+                    type="text" 
+                    id="qrInput" 
+                    class="scanner-input" 
+                    placeholder="Escanea aquí el código QR..."
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+            </div>
+
+            <div class="scanner-status">
+                <div id="statusIndicator" class="status-indicator"></div>
+                <span id="statusText">Esperando escáner...</span>
+            </div>
+
+        </div>
+
+        <br>
+            <form action="/registro" method="POST"> 
+                <button class="finalizar" type="submit" name="finalizar" value="true"> Finalizar Registro</button>
+            </form>
+    </div>
+
+<script>
+    let qrInput = document.getElementById('qrInput');
+let logContainer = document.getElementById('logContainer');
+let statusIndicator = document.getElementById('statusIndicator');
+let statusText = document.getElementById('statusText');
+
+// Variables para control de escáner
+let scannerTimer = null;
+let isScanning = false;
+let scanStartTime = null;
+let expectedUrlLength = 150; // Longitud mínima esperada para URLs completas
+
+// Enfocar automáticamente el input al cargar
+window.onload = function() {
+    focusInput();
+    updateStats();
+    updateLogs();
+};
+
+// Mantener siempre el foco en el input
+document.addEventListener('click', function() {
+    setTimeout(focusInput, 100);
+});
+
+// Event listener principal para el escáner
+qrInput.addEventListener('input', function(e) {
+    let currentValue = e.target.value.trim();
+    let currentLength = currentValue.length;
+    
+    // Cancelar timer anterior si existe
+    if (scannerTimer) {
+        clearTimeout(scannerTimer);
+        scannerTimer = null;
+    }
+    
+    // Detectar inicio de escaneo
+    if (!isScanning && currentLength > 10 && currentValue.startsWith('http')) {
+        isScanning = true;
+        scanStartTime = Date.now();
+        updateStatus('processing', 'Escaneando QR...');
+        console.log('🔍 Inicio de escaneo detectado');
+    }
+    
+    // Si estamos escaneando
+    if (isScanning) {
+        // Mostrar progreso visual
+        if (currentLength < expectedUrlLength) {
+            updateStatus('processing', `Escaneando... ${currentLength} caracteres`);
+        } else {
+            updateStatus('processing', `URL completa recibida (${currentLength} chars) - Verificando...`);
+        }
+        
+        // Programar procesamiento después de pausa en la entrada
+        scannerTimer = setTimeout(function() {
+            finalizeScan();
+        }, 300); // 300ms de pausa para considerar escaneo completo
+    }
+    
+    // Si se borra el campo, resetear estado
+    if (currentLength === 0) {
+        resetScannerState();
+    }
+});
+
+// Procesar con Enter (modo manual)
+qrInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        if (qrInput.value.trim().length > 0) {
+            console.log('🔄 Procesamiento manual con Enter');
+            finalizeScan(true);
+        }
+    }
+});
+
+// Finalizar proceso de escaneo
+function finalizeScan(manual = false) {
+    let finalUrl = qrInput.value.trim();
+    let scanDuration = scanStartTime ? Date.now() - scanStartTime : 0;
+    
+    console.log(`📊 Escaneo ${manual ? 'manual' : 'automático'} finalizado:
+    - Duración: ${scanDuration}ms
+    - URL: "${finalUrl.substring(0, 50)}..."
+    - Longitud: ${finalUrl.length} caracteres`);
+    
+    // Validaciones antes de procesar
+    if (finalUrl.length < 50) {
+        updateStatus('error', `URL muy corta: ${finalUrl.length} caracteres`);
+        setTimeout(resetScannerState, 2000);
+        return;
+    }
+    
+    if (!finalUrl.match(/^https?:\/\/.+\..+/)) {
+        updateStatus('error', 'URL incompleta o malformada');
+        setTimeout(resetScannerState, 2000);
+        return;
+    }
+    
+    // Verificar que sea URL válida del sistema
+    const esSAES = /saes.*ipn\.mx|ValidaHorario/i.test(finalUrl);
+    const esDAE = /dae.*ipn\.mx|vcred/i.test(finalUrl);
+    
+    if (!esSAES && !esDAE) {
+        updateStatus('error', 'URL no reconocida como SAES o DAE');
+        setTimeout(resetScannerState, 3000);
+        return;
+    }
+    
+    // URL válida, procesar
+    processValidUrl(finalUrl);
+}
+
+// Procesar URL válida
+function processValidUrl(qrUrl) {
+    const esSAES = /saes.*ipn\.mx|ValidaHorario/i.test(qrUrl);
+    const tipo = esSAES ? 'horario SAES' : 'credencial DAE';
+    
+    updateStatus('processing', `Procesando ${tipo}...`);
+    
+    // Limpiar input inmediatamente para preparar siguiente escaneo
+    qrInput.value = '';
+    resetScannerState();
+    
+    fetch('/procesar_url', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: qrUrl })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateStatus('ready', `✅ ${data.message}`);
+            playSuccessSound();
+        } else {
+            updateStatus('error', `❌ ${data.message}`);
+            playErrorSound();
+        }
+        
+        // Actualizar interfaz después de procesar
+        setTimeout(() => {
+            updateLogs();
+            updateStats();
+            focusInput();
+            // Limpiar mensaje de estado después de 3 segundos
+            setTimeout(() => {
+                if (statusText.textContent.includes('✅') || statusText.textContent.includes('❌')) {
+                    updateStatus('ready', 'Listo para escanear');
+                }
+            }, 3000);
+        }, 500);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        updateStatus('error', 'Error de comunicación con servidor');
+        setTimeout(() => {
+            updateStatus('ready', 'Listo para escanear');
+            focusInput();
+        }, 3000);
+    });
+}
+
+// Resetear estado del escáner
+function resetScannerState() {
+    if (scannerTimer) {
+        clearTimeout(scannerTimer);
+        scannerTimer = null;
+    }
+    isScanning = false;
+    scanStartTime = null;
+    updateStatus('ready', 'Listo para escanear');
+}
+
+// Funciones de utilidad
+function focusInput() {
+    qrInput.focus();
+    qrInput.select();
+    if (!isScanning) {
+        updateStatus('ready', 'Listo para escanear');
+    }
+}
+
+function clearInput() {
+    qrInput.value = '';
+    resetScannerState();
+    focusInput();
+}
+
+function updateStatus(type, message) {
+    statusText.textContent = message;
+    statusIndicator.className = 'status-indicator';
+    
+    switch(type) {
+        case 'processing':
+            statusIndicator.classList.add('processing');
+            break;
+        case 'error':
+            statusIndicator.classList.add('disconnected');
+            break;
+        case 'ready':
+            // Estado por defecto
+            break;
+    }
+}
+
+// Funciones para logs y estadísticas (mantener las existentes)
+function updateLogs() {
+    fetch('/get_updates_registro')
+        .then(response => response.json())
+        .then(logs => {
+            if (logs.length === 0) {
+                logContainer.innerHTML = '<div style="text-align: center; color: #718096; padding: 2rem;">📝 Esperando registros...</div>';
+                return;
+            }
+
+            let html = '';
+            logs.slice(-10).reverse().forEach(log => {
+                let statusClass = '';
+                let statusLabel = '';
+                let entryClass = '';
+
+                switch(log.status) {
+                    case 'Aceptado':
+                        statusClass = 'status-success';
+                        statusLabel = '✅ Aceptado';
+                        entryClass = 'success';
+                        break;
+                    case 'Error':
+                        statusClass = 'status-error';
+                        statusLabel = '❌ Error';
+                        entryClass = 'error';
+                        break;
+                    default:
+                        statusClass = 'status-processing';
+                        statusLabel = '⏳ Procesando';
+                        entryClass = '';
+                }
+
+                html += `
+                    <div class="log-entry ${entryClass}">
+                        <div class="log-time">${log.timestamp}</div>
+                        <div class="log-data">${log.data}</div>
+                        <div class="log-status ${statusClass}">${statusLabel}</div>
+                    </div>
+                `;
+            });
+
+            logContainer.innerHTML = html;
+        })
+        .catch(error => console.error('Error actualizando logs:', error));
+}
+
+function updateStats() {
+    fetch('/stats_registro')
+        .then(response => response.json())
+        .then(stats => {
+            document.getElementById('totalScans').textContent = stats.total_scans;
+            document.getElementById('acceptedScans').textContent = stats.accepted;
+            document.getElementById('errorScans').textContent = stats.denied;
+        })
+        .catch(error => console.error('Error actualizando stats:', error));
+}
+
+function clearLogs() {
+    fetch('/clear_logs_registro', { method: 'GET' })
+        .then(response => response.json())
+        .then(data => {
+            updateLogs();
+            updateStats();
+            focusInput();
+        });
+}
+
+function exportLogs() {
+    alert('Función de exportación por implementar');
+}
+
+function playSuccessSound() {
+    try {
+        audio.play().catch(() => {});
+    } catch(e) {}
+}
+
+function playErrorSound() {
+    try {
+        audio.play().catch(() => {});
+    } catch(e) {}
+}
+
+// Intervalos para actualizar interfaz
+setInterval(updateLogs, 2000);
+setInterval(updateStats, 5000);
+
+// Mantener el foco en el input
+setInterval(function() {
+    if (document.activeElement !== qrInput && !isScanning) {
+        focusInput();
+    }
+}, 1000);
+
+// Debug: Mostrar estado actual (útil para desarrollo)
+function showScannerStatus() {
+    console.log(`Scanner Status:
+    - Is scanning: ${isScanning}
+    - Timer active: ${scannerTimer !== null}
+    - Input length: ${qrInput.value.length}
+    - Scan duration: ${scanStartTime ? Date.now() - scanStartTime : 0}ms`);
+}
+</script>
+</body>
+</html>

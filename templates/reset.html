@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reseteo</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+
+<style>
+    body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            padding-left: 5%;
+            margin: 0;
+            text-align: left;
+            color: #6c1d45;
+            font-weight: bold;
+            background: 
+                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+                linear-gradient(170deg, #6c1d45, #ffffff 75%);
+
+            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-attachment: fixed;
+
+            /* imagen centrada horizontal, 70% vertical (más abajo) 
+            gradiente sigue centrado */
+            background-position: center 100px, center;
+    }
+        
+        h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 400ms;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .imagenes img {
+            width: 200px;
+            height: auto;
+        }
+        .logo {
+            position: absolute;
+            left: 5%;
+        }
+        .LIA {
+            position: absolute;
+            right: 2%;
+            
+        }
+        .grupos {
+            margin-top: 20px;
+            text-align: left;
+        }
+        h3 {
+            text-align: center;
+            color: #fff;
+            margin-top: 20px; 
+            font-weight: bold;
+        }
+        .regreso {
+            margin-top: 50px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            width: 50%;
+            justify-content: center;
+            display: block;
+            margin: 0 auto;
+            
+        }
+
+        a {
+            text-decoration: none;
+            
+        }
+        hr{
+            border: 0.7px solid #fff;
+            margin: 20px 0;
+        }
+        form hr{
+            margin: 0;
+            border: 0.7px solid #6c1d45;
+        }
+
+        .subtitulo{
+            color: #6c1d45;
+            font-weight: bold;
+
+        }
+        h3{
+            color: #6c1d45;
+        }
+
+        .ciclo {
+            text-align: center;
+            color: #6c1d45;
+        }
+        .exitoso {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: auto;
+            width: 60%;
+            
+        }
+        button:disabled {
+            background-color: rgba(128, 128, 128, 0.315);
+            cursor: not-allowed;
+        }
+</style>
+
+</head>
+<body>
+    <div class="imagenes">
+        <img class="logo" src="../static/images/Cecyt16.png" alt="">
+        <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
+    </div>
+
+    <h2>Resetear Base de Datos</h2>
+
+    {% if borrado_exitoso %}
+        <br><br><br><br><hr>
+        <div class="exitoso"> <p style="color: green;">✅ La base de datos se reinicio exitosamente.</p>
+
+        </div>
+        <hr>
+    {% endif %}
+
+    {% if not confirmacion %}
+    <form method="POST" action="/confirmacion">
+        <h3>¿Seguro que quieres borrar la base de datos?</h3>
+        <label><input type="radio" name="confirmación" value="1"> Sí</label>
+        <label><input type="radio" name="confirmación" value="2"> No</label>
+        <br><br>
+        <button type="submit">Continuar</button>
+    </form>
+    {% endif %}
+
+    {% if confirmacion and not segunda_confirmacion %}
+    <br>
+    <form method="POST" action="/confirmacion">
+        <h3>⚠️ Todos los datos se borrarán y no se pueden recuperar</h3>
+        <label><input type="radio" name="segunda_confirmación" value="1"> Lo entiendo</label>
+        <label><input type="radio" name="segunda_confirmación" value="2"> Cancelar borrado</label>
+        <br><br>
+        <button type="submit">Continuar</button>
+    </form>
+    {% endif %}
+
+{% if segunda_confirmacion and not contra_inicial and not semestre %}
+    <br>
+    <form method="POST" action="/confirmacion">
+        <h3 class="ciclo">🔐 Acceso Restringido</h3>
+        <p style="text-align: center; color: #6c1d45;">Introduce la contraseña de administrador:</p>
+        
+        <div style="text-align: center;">
+            <input type="password" name="password_input" required 
+                    style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; width: 80%;">
+        </div>
+        <br>
+        <button type="submit">Verificar Contraseña</button>
+    </form>
+    {% endif %}
+
+    {% if contra_inicial and not semestre %}
+    <br>
+    <form method="POST" action="/confirmacion">
+        <h3 class="ciclo">Selecciona el ciclo escolar</h3>
+        <br>
+        <label><input type="radio" name="semestre" value="1" {% if semestre == 1 %}checked{% endif %}> Semestre 1 (Nones)</label>
+        <label><input type="radio" name="semestre" value="2" {% if semestre == 2 %}checked{% endif %}> Semestre 2 (Pares)</label>
+        <br><br><br>
+        <button type="submit">Seleccionar Semestre</button>
+    </form>
+    {% endif %} 
+
+    {% if semestre and not grupos %}
+    <br>
+    <!-- Formulario para seleccionar grupos -->
+    <form method="POST" action="/confirmacion">
+        <h3>Selecciona la cantidad de grupos que habrá en cada nivel y carrera</h3>
+
+        {% set materias = [
+            ("1 y/o 2 semestre", "1_2_TM"),
+            ("3 y/o 4 semestre de Comercio", "3_4_CM"),
+            ("3 y/o 4 semestre de Administración", "3_4_AM"),
+            ("3 y/o 4 semestre de Máquinas", "3_4_MM"),
+            ("3 y/o 4 semestre de Mantenimiento", "3_4_IM"),
+            ("3 y/o 4 semestre de Procesos", "3_4_PM"),
+            ("3 y/o 4 semestre de Enfermería", "3_4_EM"),
+            ("3 y/o 4 semestre de Laboratorista", "3_4_LM"),
+            ("5 y/o 6 semestre de Comercio", "5_6_CM"),
+            ("5 y/o 6 semestre de Administración", "5_6_AM"),
+            ("5 y/o 6 semestre de Máquinas", "5_6_MM"),
+            ("5 y/o 6 semestre de Mantenimiento", "5_6_IM"),
+            ("5 y/o 6 semestre de Procesos", "5_6_PM"),
+            ("5 y/o 6 semestre de Enfermería", "5_6_EM"),
+            ("5 y/o 6 semestre de Laboratorista", "5_6_LM")
+        ] %}
+
+        {% for materia, nombre in materias %}
+            <hr>
+            <h4>{{ materia }}</h4>
+            <label><input type="text" name="{{ nombre }}" class="grupo-input" value="{{ request.form[nombre]|default('') }}"></label>
+        {% endfor %}
+
+        <br><br>
+        <button type="submit" id="btn" disabled>Subir Grupos</button>    
+    </form>
+    {% endif %}
+
+    {% if grupos%}
+    <br>
+    <form action="/segunda_confirmacion" method="POST">
+        <p>Introduce la contraseña:</p>
+        <input type="password" name="contraseña" required>
+        <br><br>
+        <button type="submit">Eliminar Bases de Datos</button>
+    </form>
+
+    {% endif %}
+    <br><br><br>
+    <hr>
+    <a href="/"><button>Regresar al menu principal</button></a>
+    
+    <script>
+        window.addEventListener("load", function () {
+            if (performance.navigation.type === 1) { // 1 = reload
+                window.location.href = "/"; 
+            }
+        });
+
+        function habilitar() {
+            const inputs = document.querySelectorAll('.grupo-input');
+            let allFilled = true;
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    allFilled = false;
+                }
+            });
+            document.getElementById('btn').disabled = !allFilled;
+        }
+
+        // Agregar listener a todos los inputs
+        document.querySelectorAll('.grupo-input').forEach(input => {
+            input.addEventListener('input', habilitar);
+        });
+
+        // Mensaje de confirmación
+        document.getElementById('btn').addEventListener('click', () => {
+            alert("✅ Grupos guardados correctamente");
+        });
+    </script>
+
+</body>
+

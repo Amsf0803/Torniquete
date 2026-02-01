@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+<style>
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        padding: 20px;
+        padding-left: 5%;
+        margin: 0;
+
+        background: 
+            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+            linear-gradient(170deg, #6c1d45, #ffffff 60%);
+
+        background-size: 750px, cover; /* primero imagen, luego gradiente */
+        background-attachment: fixed;
+
+        /* imagen centrada horizontal, 70% vertical (más abajo) 
+        gradiente sigue centrado */
+        background-position: center 100px, center;
+    }
+
+
+    h1 {
+        text-align: center;
+        color: #fff;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        padding-bottom: 50px;
+    }
+
+    .img {
+        width: 400px;
+        height: 200px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45);
+        margin: 20px 10px;
+        max-width: 90vw; /* Asegura que se escale en pantallas pequeñas */
+        height: auto;
+        transition: transform 400ms
+    }
+    img:hover {
+        transform: scale(1.05);
+    }
+    .services {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap; /* Permite que los elementos salten a otra línea */
+        gap: 20px;
+    }
+
+    .service {
+        text-align: center;
+        max-width: 500px;
+    }
+
+    /* Responsividad: una columna en pantallas pequeñas */
+    @media (max-width: 800px) {
+        .services {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .img {
+            width: 90%;
+        }
+    }
+
+</style>
+
+</head>
+<body>
+    <h1>Servicios Disponibles para el Registro</h1>
+    <section class="services">
+        <div class="service">
+            <h2>Grupo a seleccionar para el registro</h2>
+            <p>Establece el grupo a registrar para posteriormente registrar la credencial y el horario.</p>
+            <a href="/seleccionar_metodo"><img class="img" src="../static/images/Seleccionar.png" alt=""></a>
+        </div>
+
+
+        <div class="service">
+            <h2>Manejo de Pases de salida</h2>
+            <p>Establece pases de salida temporales para un grupo especifico con su horario correspondiente al dia.</p>
+            <a href="/admin_cambios"><img class="img" src="../static/images/Admin.png" alt=""></a>
+        </div>
+
+        <div class="service">
+            <h2>Manejo de Suspensiones</h2>
+            <p>Maneja las suspensiones mediante elegir el grupo y posteriormente la boleta del suspendido.</p>
+            <a href="/suspension"><img class="img" src="../static/images/Suspension.png" alt=""></a>
+        </div>  
+        
+        <div class="service">
+            <h2>Grafica de entrada y salida de alumnos</h2>
+            <p> Visualizacion grafica de cuantos alumnos entran y salen cada semana, para tener un conteo real y practico. </p>
+            <a href="/grafica"><img class="img" src="../static/images/Graficas.png" alt=""></a>
+        </div>        
+        
+        <div class="service">
+            <h2>Reinicio de la base de datos</h2>
+            <p>
+                
+                Se BORRA TODO los registros, usar con cuidado. De igual forma se selecciona el nuevo semestre y se establece la cantidad de grupos de este mismo</p>
+            <a href="/reset"><img class="img" src="../static/images/Reset.png" alt=""></a>
+        </div>  
+    </section>
+</body>
+</html>
