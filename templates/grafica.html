@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Gráfica Semestral</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
 </head>
 <style>
-    /* --- CAMBIO 1: CONTENEDOR DE GRÁFICAS --- */
+    /* --- ESTILOS (IGUALES A LOS TUYOS) --- */
     .grafica-container {
-        width: 80%;           /* Más ancho ahora que están una sobre otra */
-        max-width: 800px;     /* Límite para que no se vean gigantes en PC */
-        display: block;       /* Comportamiento de bloque (una por línea) */
-        margin: 20px auto;    /* Auto a los lados para centrar, 20px arriba/abajo */
+        width: 80%;           
+        max-width: 800px;     
+        display: block;       
+        margin: 20px auto;    
         background-color: rgba(255, 255, 255, 0.7); 
         padding: 20px;
         border-radius: 15px;
@@ -21,23 +21,22 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         min-height: 100vh;
         padding: 20px;
-        /* padding-left: 5%;  <-- Quité esto para que las gráficas queden bien centradas */
         margin: 0;
         text-align: center;
         color: #6c1d45;
         font-weight: bold;
+        /* Asegúrate de que tus imágenes también estén en static/images localmente */
         background: 
-            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+            url("{{ url_for('static', filename='images/logo-ipn-blanco.png') }}") no-repeat center center,
             linear-gradient(170deg, #6c1d45, #ffffff 75%);
         background-size: 750px, cover;
         background-attachment: fixed;
         background-position: center 100px, center;
     }
     
-    /* --- CAMBIO 2: COLOR DEL TÍTULO --- */
     h2 {
         text-align: center;
-        color: #000; /* Antes era #fff (blanco), ahora es Negro */
+        color: #000; 
         font-size: 2.5em;
         margin-bottom: 20px;
     }
@@ -51,10 +50,7 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    label {
-        display: block;
-        margin-bottom: 10px;
-    }
+    label { display: block; margin-bottom: 10px; }
 
     button {
         display: block;
@@ -68,26 +64,12 @@
         transition: transform 400ms;
     }
 
-    button:hover {
-        transform: scale(1.05);
-    }
+    button:hover { transform: scale(1.05); }
 
-    .imagenes img {
-        width: 200px;
-        height: auto;
-    }
-    .logo {
-        position: absolute;
-        left: 5%;
-        top: 20px; /* Agregué top para asegurar posición */
-    }
-    .LIA {
-        position: absolute;
-        right: 2%;
-        top: 20px;
-    }
+    .imagenes img { width: 200px; height: auto; }
+    .logo { position: absolute; left: 5%; top: 20px; }
+    .LIA { position: absolute; right: 2%; top: 20px; }
     
-    /* Resto de tus estilos originales... */
     .grupos { margin-top: 20px; text-align: left; }
     h3 { text-align: center; color: #6c1d45; margin-top: 20px; font-weight: bold; }
     .regreso {
@@ -128,8 +110,8 @@
 <body>
 
     <div class="imagenes">
-        <img class="logo" src="../static/images/Cecyt16.png" alt="Logo Cecyt">
-        <img class="LIA" src="../static/images/Logo_LIA.png" alt="Logo LIA">
+        <img class="logo" src="{{ url_for('static', filename='images/Cecyt16.png') }}" alt="Logo Cecyt">
+        <img class="LIA" src="{{ url_for('static', filename='images/Logo_LIA.png') }}" alt="Logo LIA">
     </div>
     
     <h1 style="font-size: 50px; color: rgb(255, 255, 255);"><b> Monitoreo de Accesos </b></h1>

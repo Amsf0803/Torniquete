@@ -15,7 +15,7 @@ from urllib3.util.retry import Retry
 import time
 import json
 import os
-
+#Debe de salir
 # ============================================================================
 # CONFIGURACIÓN GLOBAL
 # ============================================================================
@@ -213,6 +213,8 @@ esp32 = ConexionESP32()
 # LÓGICA DE PROCESAMIENTO DUAL (CON TUS REGLAS PERSONALIZADAS)
 # ============================================================================
 
+
+
 def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     """
     Procesa QR, determina permisos y DEFINE EL ESTILO VISUAL para el HTML.
@@ -221,99 +223,108 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     comando_esp = "1" if es_lado_izquierdo else "2"
     
     print(f"\n🔄 [PROCESANDO {lado_key.upper()}] Código recibido...")
+    print(f"🔗 URL: {url_codigo[:80]}...")
 
     # --- 1. EXTRACCIÓN Y VERIFICACIÓN ---
-    # Usamos la lógica de tu verificador
     try:
-        # Llamamos al verificador en modo solo lectura
-        resultado = verificador.procesar_qr(url_codigo, solo_verificar=True)
+        # Llamamos al verificador pasando el lado para que sepa qué torniquete abrir
+        resultado = verificador.procesar_qr(
+            url_codigo, 
+            solo_verificar=False,  # Sí queremos abrir torniquete
+            lado_izquierdo=es_lado_izquierdo  # Nuevo parámetro
+        )
         
         acceso_concedido = resultado.get('puede_entrar', False)
         nombre_alumno = resultado.get('nombre', 'Desconocido')
         mensaje_estado = resultado.get('mensaje', 'Procesando...')
-        foto_url = resultado.get('foto', '/static/img/placeholder.png')
-        boleta = str(resultado.get('boleta', '')) # Aseguramos que sea string
+        foto_url = resultado.get('foto', '/static/images/placeholder.png')
+        boleta = str(resultado.get('boleta', ''))
         
     except Exception as e:
         print(f"❌ Error en verificador: {e}")
+        import traceback
+        traceback.print_exc()
         acceso_concedido = False
         nombre_alumno = "Error Sistema"
-        mensaje_estado = "Fallo en verificación"
+        mensaje_estado = f"Fallo en verificación: {str(e)}"
         foto_url = ""
         boleta = ""
 
-    # --- 2. DETERMINAR ESTILO VISUAL (TUS REGLAS DE CSS) ---
-    # Por defecto
+    # --- 2. DETERMINAR ESTILO VISUAL ---
     estilo_css = "inscrito-inactivo"
     titulo_tarjeta = "Acceso Denegado"
-    mensaje_mochila = "Comunicate con personal"
+    mensaje_mochila = "Comunícate con personal"
 
     # A) ADMINISTRATIVOS Y GUARDIAS
-    if "administrativo" in mensaje_estado.lower() or "guardia" in mensaje_estado.lower():
+    if "administrativo" in mensaje_estado.lower() or "personal administrativo" in mensaje_estado.lower():
         estilo_css = "master"
         titulo_tarjeta = "Acceso Administrativo"
         mensaje_mochila = "Bienvenid@"
-        acceso_concedido = True # Forzamos True por si acaso
+        acceso_concedido = True
 
-    # B) BOLETAS ESPECIALES (Tus Huevos de Pascua)
-    elif boleta == "2024160324": # Ebani
+    elif "guardia" in mensaje_estado.lower() or "personal de guardia" in mensaje_estado.lower():
+        estilo_css = "master"
+        titulo_tarjeta = "Personal de Guardia"
+        mensaje_mochila = "Bienvenid@"
+        acceso_concedido = True
+
+    # B) BOLETAS ESPECIALES
+    elif boleta == "2024160324":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Ebani"
         mensaje_mochila = "🔧 Lead Técnico -- Tester 💻"
-    elif boleta == "2024160385": # André
+    elif boleta == "2024160385":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - André"
         mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻"
-    elif boleta == "2024160550": # Mati
+    elif boleta == "2024160550":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Mati"
         mensaje_mochila = "Matilolazo"
-    elif boleta == "2024160383": # Ashley
+    elif boleta == "2024160383":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Ashley"
         mensaje_mochila = "🔧 Tesis -- Tester 💻"
-    elif boleta == "2024160344": # Sofi
+    elif boleta == "2024160344":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Sofi"
         mensaje_mochila = "⚠️ Oye cuidado con los jojo's 🗣️🙏 ⚠️"
-    elif boleta == "2024160095": # Andrew
+    elif boleta == "2024160095":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Andrew"
         mensaje_mochila = "⚠️ El del saberes ⚠️"
-        
-    # C) BOLETAS CURIOSAS (Portal / Cake)
     elif boleta == "2024160330":
         estilo_css = "inscrito-Especial"
         mensaje_mochila = "The cake is a lie"
     
-    # D) ALUMNOS NORMALES (Verdes/Rojos)
+    # C) ALUMNOS NORMALES
     elif acceso_concedido:
         estilo_css = "inscrito-activo"
         titulo_tarjeta = "Entrada Autorizada"
         mensaje_mochila = "Bienvenido de nuevo."
     else:
-        # Si falló, ver si es por suspensión o error normal
         if "suspendido" in mensaje_estado.lower():
             estilo_css = "inscrito-suspendido"
             titulo_tarjeta = "Cuenta Suspendida"
+        elif "ya ingresó" in mensaje_estado.lower() or "bloqueada" in mensaje_estado.lower():
+            estilo_css = "inscrito-inactivo"
+            titulo_tarjeta = "Ya ingresaste"
+            mensaje_mochila = "Solo una entrada por día"
         else:
-            estilo_css = "inscrito-inactivo" # Rojo
+            estilo_css = "inscrito-inactivo"
             titulo_tarjeta = "No puedes entrar"
 
-    # --- 3. ABRIR EL TORNIQUETE ---
+    # --- 3. SONIDOS ---
     if acceso_concedido:
-        if esp32:
-            print(f"🔓 Abriendo torniquete {lado_key.upper()} (Comando: {comando_esp})")
-            esp32.enviar_comando(comando_esp)
-        
-        # Sonidos
         try:
             pygame.mixer.Sound("static/sounds/success.wav").play()
-        except: pass
+        except:
+            pass
     else:
         try:
             pygame.mixer.Sound("static/sounds/error.wav").play()
-        except: pass
+        except:
+            pass
 
     # --- 4. ACTUALIZAR MEMORIA GLOBAL ---
     datos_accesos[lado_key] = {
@@ -321,13 +332,17 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         "nombre": nombre_alumno,
         "mensaje": mensaje_estado,
         "foto": foto_url,
-        "estilo": estilo_css,      # <--- CLAVE: Enviamos la clase CSS al HTML
-        "titulo": titulo_tarjeta,  # <--- Texto del encabezado
-        "mochila": mensaje_mochila, # <--- Texto de abajo
+        "estilo": estilo_css,
+        "titulo": titulo_tarjeta,
+        "mochila": mensaje_mochila,
         "timestamp": time.time()
     }
     
+    print(f"{'✅' if acceso_concedido else '❌'} [{lado_key.upper()}] {nombre_alumno} - {mensaje_estado}")
+    
     return acceso_concedido
+
+
 
 
 
@@ -336,7 +351,7 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
 # ============================================================================
 
 def servidor_escaneres_background():
-    HOST = '0.0.0.0'
+    HOST = '201.66.195.124'
     PORT = 65432
     
     print(f"🔄 Iniciando servicio de escucha de Escáneres en puerto {PORT}...")
@@ -755,43 +770,55 @@ class QRHorarioVerificador:
         return None
     
 
-# En class QRHorarioVerificador...
 
-    def procesar_qr(self, url, solo_verificar=False): # <--- CAMBIO AQUÍ
+
+    def procesar_qr(self, url, solo_verificar=False, lado_izquierdo=True):
         """
         Procesa un QR. 
         Si solo_verificar=True, NO abre el torniquete, solo devuelve si puede entrar.
+        lado_izquierdo: True para izquierda (comando 1), False para derecha (comando 2)
         """
         print(f"\n{'='*60}")
         print(f"🔍 PROCESANDO QR (Modo {'Verificación' if solo_verificar else 'Activo'})")
+        print(f"📍 Lado: {'IZQUIERDO' if lado_izquierdo else 'DERECHO'}")
         print(f"{'='*60}")
+        
+        comando_torniquete = "1" if lado_izquierdo else "2"
         
         # --- LÓGICA ADMINISTRATIVA ---
         if self.es_qr_administrativo(url):
             print("🏢 QR ADMINISTRATIVO - ACCESO DIRECTO")
             self.play_success_sound()
-            if not solo_verificar: self.activar_torniquete(2) # <--- SOLO ABRE SI NO ES VERIFICACIÓN
+            if not solo_verificar:
+                if esp32 and esp32.conectado:
+                    esp32.enviar_comando(comando_torniquete)
+                    print(f"✅ Torniquete {comando_torniquete} activado (Administrativo)")
             return {
                 "tipo": "administrativo",
                 "status": "OK", 
                 "puede_entrar": True, 
                 "mensaje": "Personal Administrativo",
-                "nombre": "Administrativo",   # Agregado para el HTML
-                "foto": "/static/img/admin.png" # Agregado para el HTML
+                "nombre": "Administrativo",
+                "foto": "/static/img/admin.png",
+                "boleta": "ADMIN"
             }
 
         # --- LÓGICA GUARDIA ---
         if self.es_qr_guardia(url):
             print("🛡️ QR GUARDIA - ACCESO DIRECTO")
             self.play_success_sound()
-            if not solo_verificar: self.activar_torniquete(3)
+            if not solo_verificar:
+                if esp32 and esp32.conectado:
+                    esp32.enviar_comando(comando_torniquete)
+                    print(f"✅ Torniquete {comando_torniquete} activado (Guardia)")
             return {
                 "tipo": "guardia", 
                 "status": "OK", 
                 "puede_entrar": True, 
                 "mensaje": "Personal de Guardia",
                 "nombre": "Guardia",
-                "foto": "/static/img/guardia.png"
+                "foto": "/static/img/guardia.png",
+                "boleta": "GUARDIA"
             }
 
         # --- LÓGICA ALUMNOS (DAE / SAES) ---
@@ -800,55 +827,128 @@ class QRHorarioVerificador:
         
         # 1. Identificar Boleta y Grupo
         if self.es_enlace_dae(url):
+            print("📇 Enlace DAE detectado")
             base_datos_grupo, boleta = self.buscar_credencial_dae_optimizado(url)
             tipo_qr = "dae"
         elif self.es_enlace_saes(url):
+            print("📋 Enlace SAES detectado")
             boleta = self.extraer_boleta_de_url_saes(url)
-            base_datos_grupo = self.buscar_grupo_por_boleta(boleta)
+            if boleta:
+                base_datos_grupo = self.buscar_grupo_por_boleta(boleta)
             tipo_qr = "saes"
         else:
+            print("⚠️ Tipo de QR no reconocido")
             self.play_error_sound()
-            return {"status": "Error", "puede_entrar": False, "mensaje": "QR No válido", "nombre": "Error", "foto": ""}
+            return {
+                "status": "Error", 
+                "puede_entrar": False, 
+                "mensaje": "QR No válido", 
+                "nombre": "Error", 
+                "foto": "",
+                "boleta": ""
+            }
 
         # Validaciones básicas
-        if not boleta or not base_datos_grupo:
+        if not boleta:
+            print("❌ No se pudo extraer la boleta")
             self.play_error_sound()
-            return {"status": "Error", "puede_entrar": False, "mensaje": "Alumno no encontrado", "nombre": "Desconocido", "foto": ""}
+            return {
+                "status": "Error", 
+                "puede_entrar": False, 
+                "mensaje": "No se pudo leer la boleta", 
+                "nombre": "Desconocido", 
+                "foto": "",
+                "boleta": ""
+            }
+        
+        if not base_datos_grupo:
+            print(f"❌ No se encontró el grupo para boleta {boleta}")
+            self.play_error_sound()
+            return {
+                "status": "Error", 
+                "puede_entrar": False, 
+                "mensaje": "Alumno no encontrado en sistema", 
+                "nombre": str(boleta), 
+                "foto": "",
+                "boleta": boleta
+            }
 
-        # 2. Buscar Horario
+        print(f"✅ Boleta: {boleta}")
+        print(f"✅ Grupo: {base_datos_grupo}")
+
+        # 2. Obtener nombre del alumno
+        nombre_alumno = boleta  # Default
+        foto_url = f"/static/image/{boleta}.jpg"  # Ruta local por defecto
+        
+        try:
+            db_config_temp = self.db_config.copy()
+            db_config_temp['database'] = base_datos_grupo
+            
+            with mysql.connector.connect(**db_config_temp, connection_timeout=5) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"SELECT nombre, imagen_path FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
+                    resultado = cursor.fetchone()
+                    if resultado:
+                        if resultado[0]:
+                            nombre_alumno = resultado[0]
+                            print(f"✅ Nombre: {nombre_alumno}")
+                        # Si existe imagen_path en BD, usarla
+                        if resultado[1] and resultado[1].strip():
+                            foto_url = resultado[1]
+                            print(f"✅ Foto local: {foto_url}")
+        except Exception as e:
+            print(f"⚠️ No se pudo obtener el nombre: {e}")
+
+        # 3. Buscar Horario
         base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
         if not base_datos_horario:
             self.play_error_sound()
-            return {"status": "Error", "puede_entrar": False, "mensaje": "Sin horario registrado", "nombre": str(boleta), "foto": ""}
+            return {
+                "status": "Error", 
+                "puede_entrar": False, 
+                "mensaje": "Sin horario registrado", 
+                "nombre": nombre_alumno,
+                "foto": foto_url,
+                "boleta": boleta
+            }
 
-        # 3. Validar día y hora
+        # 4. Validar día
         dia_actual = datetime.now().weekday()
-        dia_nombre = self.dias_semana.get(dia_actual, 'desconocido')
         
-        if dia_actual >= 5: # Fin de semana
+        if dia_actual >= 5:  # Fin de semana
             self.play_error_sound()
-            return {"status": "Fin de semana", "puede_entrar": False, "mensaje": "No hay clases hoy", "nombre": str(boleta), "foto": ""}
+            return {
+                "status": "Fin de semana", 
+                "puede_entrar": False, 
+                "mensaje": "No hay clases hoy", 
+                "nombre": nombre_alumno,
+                "foto": foto_url,
+                "boleta": boleta
+            }
 
-        # Obtener estado final (Inscrito / Horario)
-        # Nota: Asumo que get_inscrito y obtener_estado existen en tu clase original
+        # 5. Obtener estado final (Inscrito / Horario)
         inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
-        estado = self.obtener_estado_acceso_salida(boleta, inscrito_valor=inscrito_valor, grupo=base_datos_grupo)
+        
+        # PASAR EL LADO AL MÉTODO DE VERIFICACIÓN
+        estado = self.obtener_estado_acceso_salida(
+            boleta, 
+            inscrito_valor=inscrito_valor, 
+            grupo=base_datos_grupo,
+            lado_izquierdo=lado_izquierdo,
+            solo_verificar=solo_verificar
+        )
         
         puede_entrar = estado.get("acceso", False)
-        
-        # DATOS PARA EL HTML (Nombre y Foto)
-        # Intentamos sacar el nombre real si tu método buscar_credencial lo guardó, si no usamos la boleta
-        nombre_mostrar = estado.get("nombre", str(boleta)) 
         
         if puede_entrar:
             print("✅ ACCESO PERMITIDO")
             self.play_success_sound()
-            if not solo_verificar: self.activar_torniquete(2) # <--- BLOQUEO IMPORTANTE
             
-            # Registrar en Excel/SQL (Opcional: puedes dejarlo o moverlo)
+            # Registrar en Excel/SQL
             try:
-                self.registrar_acceso_excel(boleta, "", base_datos_grupo, puede_entrar, False)
-            except: pass
+                self.registrar_acceso_excel(boleta, nombre_alumno, base_datos_grupo, puede_entrar, False)
+            except Exception as e:
+                print(f"⚠️ Error registrando en Excel: {e}")
         else:
             print("❌ ACCESO DENEGADO")
             self.play_error_sound()
@@ -859,19 +959,11 @@ class QRHorarioVerificador:
             "status": "OK" if puede_entrar else "Denegado",
             "puede_entrar": puede_entrar,
             "mensaje": estado.get("mensaje", "Acceso Denegado"),
-            "nombre": nombre_mostrar,
-            "foto": f"https://www.saes.ipn.mx/Alumnos/Fotos/{boleta}.jpg" # Ejemplo de foto
+            "nombre": nombre_alumno,
+            "foto": foto_url
         }
 
-    def precargar_todos_los_indices(self):
-        """Precarga todos los índices"""
-        print("\n🚀 PRECARGANDO ÍNDICES...")
-        
-        for grupo in self.bases_datos:
-            self.precargar_indices_grupo(grupo)
-        
-        print(f"\n✅ Precarga completada: {len(self._indices_ordenados)} grupos")
-    
+
     def crear_indices_sql_optimizacion(self):
         """Crea índices SQL para búsquedas rápidas"""
         print("\n" + "="*70)
@@ -1200,22 +1292,39 @@ class QRHorarioVerificador:
                 conexion_registro.close()
         
 
-    def obtener_estado_acceso_salida(self, boleta, inscrito_valor=None, grupo=None):
-        """Verifica acceso/salida con control de horario"""
+
+
+    def obtener_estado_acceso_salida(self, boleta, inscrito_valor=None, grupo=None, 
+                                        lado_izquierdo=True, solo_verificar=False):
+        """
+        Verifica acceso/salida con control de horario
+        lado_izquierdo: True para torniquete izquierdo (1), False para derecho (2)
+        solo_verificar: True si solo queremos verificar sin abrir torniquete
+        """
         acceso = False
         bloquear_a = 0
-        
+        comando_torniquete = "1" if lado_izquierdo else "2"
         
         if grupo is None:
             grupo = self.buscar_grupo_por_boleta(boleta)
             if not grupo:
                 print(f"❌ No se encontró grupo para boleta {boleta}")
-                return {"salir": False, "bloquear_a": bloquear_a, "acceso": acceso}
+                return {
+                    "salir": False, 
+                    "bloquear_a": bloquear_a, 
+                    "acceso": acceso,
+                    "mensaje": "Grupo no encontrado"
+                }
         
         base_datos = self.buscar_horario_en_mismo_grupo(boleta, grupo)
         if not base_datos:
             print(f"❌ No se encontró horario para boleta {boleta}")
-            return {"salir": False, "bloquear_a": bloquear_a, "acceso": acceso}
+            return {
+                "salir": False, 
+                "bloquear_a": bloquear_a, 
+                "acceso": acceso,
+                "mensaje": "Sin horario registrado"
+            }
         
         if inscrito_valor is None:
             inscrito = self.get_inscrito(boleta, grupo)
@@ -1223,17 +1332,33 @@ class QRHorarioVerificador:
             inscrito = inscrito_valor
         
         if inscrito != 1:
-            return {"salir": False, "bloquear_a": bloquear_a, "acceso": acceso}
+            return {
+                "salir": False, 
+                "bloquear_a": bloquear_a, 
+                "acceso": acceso,
+                "mensaje": "No estás inscrito"
+            }
         
         dia_actual = datetime.now().weekday()
         dia_nombre = self.dias_semana.get(dia_actual, 'desconocido')
+        
         horarios_dia = self.obtener_horario_dia(boleta, base_datos, dia_nombre)
         if not horarios_dia:
-            return {"salir": False, "bloquear_a": bloquear_a, "acceso": acceso}
+            return {
+                "salir": False, 
+                "bloquear_a": bloquear_a, 
+                "acceso": acceso,
+                "mensaje": "Sin clases hoy"
+            }
         
         primera_info, ultima_info = self.obtener_primera_y_ultima_hora(horarios_dia)
         if not (primera_info and ultima_info):
-            return {"salir": False, "bloquear_a": bloquear_a, "acceso": acceso}
+            return {
+                "salir": False, 
+                "bloquear_a": bloquear_a, 
+                "acceso": acceso,
+                "mensaje": "Error en horario"
+            }
         
         ahora = datetime.now()
         hoy = ahora.date()
@@ -1250,8 +1375,37 @@ class QRHorarioVerificador:
         hora_salida_minima = hora_salida_dt - timedelta(minutes=15)
         
         salir = False
+        mensaje = "Acceso denegado"
         
         try:
+            # Verificar si ya abrió
+            conexion_grupo = mysql.connector.connect(
+                host=self.db_config['host'],
+                user=self.db_config['user'],
+                password=self.db_config['password'],
+                database=grupo
+            )
+            cursor_grupo = conexion_grupo.cursor(dictionary=True)
+
+            cursor_grupo.execute(f"SELECT abrio FROM {grupo} WHERE boleta = %s", (boleta,))
+            resultado_abrio = cursor_grupo.fetchone()
+            
+            if resultado_abrio:
+                abrio_actual = int(resultado_abrio["abrio"]) if resultado_abrio["abrio"] is not None else 0
+                if abrio_actual == 1:
+                    bloquear_a = 1
+                    mensaje = "Ya ingresaste hoy"
+                    print("❌ Entrada bloqueada (ya ingresó)")
+                    cursor_grupo.close()
+                    conexion_grupo.close()
+                    return {
+                        "salir": salir,
+                        "bloquear_a": bloquear_a,
+                        "acceso": acceso,
+                        "mensaje": mensaje
+                    }
+
+            # Verificar pases temporales
             conexion_pase = mysql.connector.connect(
                 host=self.db_config['host'],
                 user=self.db_config['user'],
@@ -1270,27 +1424,6 @@ class QRHorarioVerificador:
             cursor_pase.close()
             conexion_pase.close()
 
-            conexion_grupo = mysql.connector.connect(
-                host=self.db_config['host'],
-                user=self.db_config['user'],
-                password=self.db_config['password'],
-                database=base_datos
-            )
-            cursor_grupo = conexion_grupo.cursor(dictionary=True)
-
-            cursor_grupo.execute(f"SELECT abrio FROM {base_datos} WHERE boleta = %s", (boleta,))
-            resultado_abrio = cursor_grupo.fetchone()
-            cursor_grupo.close()
-            conexion_grupo.close()
-            if resultado_abrio:
-                abrio_actual = int(resultado_abrio["abrio"]) if resultado_abrio["abrio"] is not None else 0
-                if abrio_actual == 1:
-                    bloquear_a = 1
-                    print("❌ Entrada bloqueada (ya ingresó)")
-                else:
-                    print("✅ Entrada disponible")
-
-
             if pase:
                 hora_inicio_pase_time = datetime.strptime(str(pase['hora_inicio']), "%H:%M").time()
                 hora_fin_pase_time = datetime.strptime(str(pase['hora_fin']), "%H:%M").time()
@@ -1299,33 +1432,66 @@ class QRHorarioVerificador:
                 hora_fin_pase = datetime.combine(hoy, hora_fin_pase_time)
                 hora_salida_minima = hora_inicio_pase - timedelta(minutes=15)
 
-                if hora_entrada_minima <= ahora <= hora_salida_minima and bloquear_a == 0:
+                if hora_entrada_minima <= ahora <= hora_salida_minima:
                     acceso = True
-                    self.activar_torniquete(2)
-                    cursor_grupo.execute(f"UPDATE {base_datos} SET abrio = 1 WHERE boleta = %s", (boleta,))
-                    conexion_grupo.commit()
+                    mensaje = "Acceso con pase temporal"
+                    
+                    # ABRIR TORNIQUETE DEL LADO CORRECTO
+                    if not solo_verificar:
+                        if esp32 and esp32.conectado:
+                            resultado_esp = esp32.enviar_comando(comando_torniquete)
+                            if resultado_esp:
+                                print(f"✅ Torniquete {comando_torniquete} activado (Pase temporal)")
+                            else:
+                                print(f"⚠️ Fallo activando torniquete {comando_torniquete}")
+                        
+                        # Actualizar base de datos
+                        cursor_grupo.execute(f"UPDATE {grupo} SET abrio = 1 WHERE boleta = %s", (boleta,))
+                        conexion_grupo.commit()
+                        
+                        # Registrar entrada
+                        self.actualizar_registros_entradas()
+                        
                     print("✅ Acceso permitido con pase temporal")
-                    self.actualizar_registros_entradas()
             else:
-                if hora_entrada_minima <= ahora <= hora_salida_dt and bloquear_a == 0:
+                if hora_entrada_minima <= ahora <= hora_salida_dt:
                     acceso = True
-                    self.activar_torniquete(2)
-                    cursor_grupo.execute(f"UPDATE {base_datos} SET abrio = 1 WHERE boleta = %s", (boleta,))
-                    conexion_grupo.commit()
+                    mensaje = "Acceso dentro de horario"
+                    
+                    # ABRIR TORNIQUETE DEL LADO CORRECTO
+                    if not solo_verificar:
+                        if esp32 and esp32.conectado:
+                            resultado_esp = esp32.enviar_comando(comando_torniquete)
+                            if resultado_esp:
+                                print(f"✅ Torniquete {comando_torniquete} activado (Horario normal)")
+                            else:
+                                print(f"⚠️ Fallo activando torniquete {comando_torniquete}")
+                        
+                        # Actualizar base de datos
+                        cursor_grupo.execute(f"UPDATE {grupo} SET abrio = 1 WHERE boleta = %s", (boleta,))
+                        conexion_grupo.commit()
+                        
+                        # Registrar entrada
+                        self.actualizar_registros_entradas()
+                        
                     print("✅ Acceso permitido dentro del horario")
-                    self.actualizar_registros_entradas()
+                else:
+                    mensaje = "Fuera de horario"
 
-
+            cursor_grupo.close()
+            conexion_grupo.close()
 
         except mysql.connector.Error as e:
-            print(f"Error verificando pase: {e}")
+            print(f"❌ Error verificando acceso: {e}")
+            mensaje = f"Error de sistema: {str(e)}"
         
         return {
             "salir": salir,
             "bloquear_a": bloquear_a,
-            "acceso": acceso
+            "acceso": acceso,
+            "mensaje": mensaje
         }
-    
+
     def boleta(self, url):
         """Obtiene el número de boleta desde cualquier tipo de QR"""
         return self.extraer_boleta_de_url(url)

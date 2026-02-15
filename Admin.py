@@ -455,12 +455,14 @@ class QRReaderWithDB:
             if self.es_enlace_saes(url):
                 print("📅 Detectado enlace SAES - Extrayendo horario...")
                 horario_info = self.extraer_info_horario(soup)
-                boleta = self.extraer_boleta(url)
+                boleta = self.extraer_boleta(url) # <--- Aquí ya extraemos la boleta
                 
                 if horario_info:
                     self.play_schedule_sound()
                     print(f"✅ Horario extraído: {len(horario_info['materias'])} materias")
-                    success = self.guardar_horario_bd(horario_info, url)
+                    
+                    # MODIFICACIÓN: Pasamos la boleta como argumento extra
+                    success = self.guardar_horario_bd(horario_info, url, boleta) 
                     
                     if success and boleta:
                         # Renombrar tabla solo si se guardó correctamente
@@ -859,30 +861,37 @@ class QRReaderWithDB:
             print(f"Error extrayendo boleta: {e}")
             return None
 
-    def guardar_horario_bd(self, horario_info, url):
-        """Guarda el horario en la base de datos"""
+# Agregamos el argumento 'boleta' a la definición
+    def guardar_horario_bd(self, horario_info, url, boleta=None):
+        """Guarda el horario en la base de datos y registra al alumno en la tabla del grupo seleccionado"""
         if not self.connection:
             print("❌ No hay conexión a la base de datos")
             return False
         
+        # 1. OBTENER EL GRUPO SELECCIONADO REAL (El de la configuración)
+        # Como inicializaste la clase con la BD del grupo, este es el dato "maestro"
+        grupo_objetivo = self.db_config['database']
+        
         cursor = self.connection.cursor()
         try:
+            # --- GUARDADO DEL HORARIO (Tal cual viene en el SAES) ---
             query = """
             INSERT INTO horarios_saes (grupo, materia, profesor, lunes, martes, 
                                     miercoles, jueves, viernes, url_origen)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             registros_insertados = 0
+
             for materia in horario_info['materias']:
                 values = (
-                    materia['grupo'],
-                    materia['materia'],
+                    materia['grupo'], # Aquí guardamos el grupo que dice la materia (por si es recursamiento)
+                    materia['materia'], 
                     materia['profesor'],
-                    materia['lunes'],
-                    materia['martes'],
+                    materia['lunes'], 
+                    materia['martes'], 
                     materia['miercoles'],
-                    materia['jueves'],
-                    materia['viernes'],
+                    materia['jueves'], 
+                    materia['viernes'], 
                     url
                 )
                 cursor.execute(query, values)
@@ -891,9 +900,17 @@ class QRReaderWithDB:
             self.connection.commit()
             print(f"✅ Horario guardado: {registros_insertados} materias")
 
-            # Crear el horario grupal si no existe y hay 8 o más materias
+            # Crear el horario grupal si no existe
             if registros_insertados >= 8:
                 self._crear_horario_grupal(cursor, horario_info, url)
+
+            # ---------------------------------------------------------
+            # 2. NUEVA FUNCIONALIDAD: REGISTRO EN LA TABLA DEL GRUPO SELECCIONADO
+            # ---------------------------------------------------------
+            # Usamos 'grupo_objetivo' que es la variable segura del sistema
+            if boleta and grupo_objetivo:
+                print(f"🔄 Verificando registro de boleta {boleta} en grupo OFICIAL: {grupo_objetivo}...")
+                self.registrar_alumno_en_grupo_saes(grupo_objetivo, boleta, url)
 
             return True
             
@@ -903,6 +920,68 @@ class QRReaderWithDB:
             return False
         finally:
             cursor.close()
+
+    def registrar_alumno_en_grupo_saes(self, nombre_grupo, boleta, url_saes):
+            """Registra al alumno en la tabla maestra del grupo usando la columna url_saes"""
+            conn_grupo = None
+            try:
+                # Conectamos a la BD del grupo seleccionado
+                conn_grupo = mysql.connector.connect(
+                    host="localhost",
+                    user="root",
+                    password=self.db_config['password'], 
+                    database=nombre_grupo 
+                )
+                
+                cursor_grupo = conn_grupo.cursor()
+
+                # Aseguramos que la tabla exista (por precaución)
+                cursor_grupo.execute(f"""
+                    CREATE TABLE IF NOT EXISTS `{nombre_grupo}` (
+                        boleta VARCHAR(20) PRIMARY KEY,
+                        nombre VARCHAR(255),
+                        curp VARCHAR(18),
+                        escuela VARCHAR(255),
+                        turno VARCHAR(50),
+                        inscrito TINYINT(1) DEFAULT 0,
+                        imagen_path TEXT,
+                        url_origen TEXT,
+                        url_saes TEXT,
+                        abrio VARCHAR(10),
+                        cerro VARCHAR(10)
+                    )
+                """)
+                conn_grupo.commit()
+
+                # Verificar si existe
+                check_query = f"SELECT boleta FROM `{nombre_grupo}` WHERE boleta = %s"
+                cursor_grupo.execute(check_query, (boleta,))
+                resultado = cursor_grupo.fetchone()
+
+                if not resultado:
+                    # CREAR NUEVO: Usamos url_saes
+                    print(f"➕ Alumno nuevo (SAES) en {nombre_grupo}.")
+                    insert_query = f"""
+                    INSERT INTO `{nombre_grupo}` (boleta, url_saes, inscrito) 
+                    VALUES (%s, %s, 1)
+                    """
+                    cursor_grupo.execute(insert_query, (boleta, url_saes))
+                    conn_grupo.commit()
+                else:
+                    # ACTUALIZAR EXISTENTE: Solo campo url_saes
+                    print(f"🔄 Actualizando URL SAES para {boleta} en {nombre_grupo}.")
+                    update_query = f"UPDATE `{nombre_grupo}` SET url_saes = %s WHERE boleta = %s"
+                    cursor_grupo.execute(update_query, (url_saes, boleta))
+                    conn_grupo.commit()
+
+            except Error as e:
+                print(f"❌ Error al registrar alumno en tabla de grupo: {e}")
+            finally:
+                if conn_grupo and conn_grupo.is_connected():
+                    cursor_grupo.close()
+                    conn_grupo.close()
+
+
 
     def _crear_horario_grupal(self, cursor, horario_info, url):
         """Crea la tabla de horario grupal y la llena solo con los días de la semana"""
@@ -1264,8 +1343,77 @@ def crear_bases_si_no_existen(bases_datos):
         print("❌ Error al conectar o crear base de datos:", e)
 
 
-# Obtener configuración de la base de datos Semestre
+# 1. PRIMERO DEFINIMOS LA FUNCIÓN (Afuera de todo para que siempre exista)
+def inicializar_tablas_grupos(lista_grupos, password_db):
+    """Crea los schemas y las tablas maestras de cada grupo al inicio"""
+    print("\n🏗️  Verificando integridad de Schemas y Tablas de Grupos...")
+    
+    try:
+        conexion = mysql.connector.connect(
+            host="localhost", user="root", password=password_db
+        )
+        cursor = conexion.cursor()
 
+        for grupo in lista_grupos:
+            if grupo == "Pases_salida": continue 
+
+            # 1. Crear Schema
+            try:
+                cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{grupo}`")
+            except Error as e:
+                print(f"❌ Error creando schema {grupo}: {e}")
+                continue
+
+            # 2. Crear Tabla Maestra y asegurar columna url_saes
+            try:
+                conn_grupo = mysql.connector.connect(
+                    host="localhost", user="root", password=password_db, database=grupo
+                )
+                cur_grupo = conn_grupo.cursor()
+                
+                # Definición de la tabla CON la nueva columna url_saes
+                tabla_sql = f"""
+                CREATE TABLE IF NOT EXISTS `{grupo}` (
+                    boleta VARCHAR(20) PRIMARY KEY,
+                    nombre VARCHAR(255),
+                    curp VARCHAR(18),
+                    escuela VARCHAR(255),
+                    turno VARCHAR(50),
+                    inscrito TINYINT(1) DEFAULT 0,
+                    imagen_path TEXT,
+                    url_origen TEXT,     -- Este es para la Credencial (DAE)
+                    url_saes TEXT,       -- ESTE ES EL NUEVO (Horario)
+                    abrio VARCHAR(10),
+                    cerro VARCHAR(10)
+                )
+                """
+                cur_grupo.execute(tabla_sql)
+                
+                # --- TRUCO DE SEGURIDAD ---
+                # Si la tabla ya existía de antes y no tiene 'url_saes', esto la agrega:
+                try:
+                    cur_grupo.execute(f"ALTER TABLE `{grupo}` ADD COLUMN url_saes TEXT")
+                    print(f"  └── Columna 'url_saes' agregada a {grupo}")
+                except Error as e:
+                    # Si falla es porque ya existe (Duplicate column name), lo ignoramos
+                    pass 
+                # --------------------------
+
+                conn_grupo.commit()
+                cur_grupo.close()
+                conn_grupo.close()
+                
+            except Error as e:
+                print(f"❌ Error creando tabla interna para {grupo}: {e}")
+
+        print("✅ Verificación de estructura de grupos completada.\n")
+        cursor.close()
+        conexion.close()
+
+    except Error as e:
+        print(f"❌ Error general en inicialización: {e}")
+
+# 2. LUEGO HACEMOS LA LÓGICA DE OBTENER LOS GRUPOS (Tu bloque Try/Except original)
 try:
     conexion = mysql.connector.connect(
         host="localhost",
@@ -1275,7 +1423,7 @@ try:
     )
     cursor = conexion.cursor(dictionary=True)
 
-    # Obtener todos los valores de la tabla 'semestre' en una sola consulta
+    # Obtener todos los valores de la tabla 'semestre'
     cursor.execute("""
         SELECT semestre, grupo, 1_2_TM, 3_4_CM, 3_4_AM, 3_4_MM, 3_4_IM, 3_4_PM, 3_4_EM, 3_4_LM,
             5_6_CM, 5_6_AM, 5_6_MM, 5_6_IM, 5_6_PM, 5_6_EM, 5_6_LM
@@ -1297,10 +1445,11 @@ try:
                 'CM_5': '6CM', 'AM_5': '6AM', 'MM_5': '6MM', 'IM_5': '6IM', 'PM_5': '6PM', 'EM_5': '6EM', 'LM_5': '6LM'}
         }
 
-        prefijos = bloque_prefijo.get(semestre, bloque_prefijo[2])  # Por defecto semestre 2
+        prefijos = bloque_prefijo.get(semestre, bloque_prefijo[2]) 
 
         # Crear listas de grupos dinámicamente
         bases_datos = ["Pases_salida"]
+        
         # Bloque 1_2
         if row['1_2_TM']:
             bases_datos.extend([f"{prefijos['TM']}{i}" for i in range(1, row['1_2_TM'] + 1)])
@@ -1327,7 +1476,6 @@ try:
         semestre = 2
         bases_datos = []
 
-    # Cerrar cursor y conexión
     cursor.close()
     conexion.close()
 
@@ -1337,6 +1485,10 @@ except Error as e:
     semestre = 2
     bases_datos = []
 
+
+# 3. FINALMENTE LLAMAMOS A LA FUNCIÓN (Aquí ya es seguro)
+if bases_datos:
+    inicializar_tablas_grupos(bases_datos, contra_db)
 
 # Configurar Flask
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -1722,7 +1874,7 @@ def configurar():
                 host="localhost",
                 user="root",
                 password= contra_db,
-                database="Semestre"
+                database="Semestre" 
             )
             cursor = conexion.cursor()
             
