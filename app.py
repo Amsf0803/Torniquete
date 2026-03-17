@@ -538,31 +538,39 @@ class QRHorarioVerificador:
         ]
         return any(re.search(patron, texto, re.IGNORECASE) for patron in patrones_guardia)
     
+
     def precargar_indices_grupo(self, grupo):
-        """Precarga y ordena los URLs de un grupo para búsqueda binaria"""
-        if grupo in self._indices_ordenados:
-            return
-        
-        try:
-            db_config_temp = self.db_config.copy()
-            db_config_temp['database'] = grupo
+            """Precarga y ordena los URLs (DAE y SAES) de un grupo para búsqueda binaria"""
+            if grupo in self._indices_ordenados:
+                return
             
-            with mysql.connector.connect(**db_config_temp, connection_timeout=10) as connection:
-                with connection.cursor() as cursor:
-                    query = f"""
-                        SELECT url_origen, boleta, nombre
-                        FROM {grupo}
-                        WHERE url_origen IS NOT NULL AND url_origen != ''
-                        ORDER BY url_origen
-                    """
-                    cursor.execute(query)
-                    resultados = cursor.fetchall()
-                    
-                    self._indices_ordenados[grupo] = resultados
-                    print(f"📊 Índice cargado para {grupo}: {len(resultados)} registros")
-                    
-        except Error as e:
-            print(f"⚠️ Error precargando índices de '{grupo}': {e}")
+            try:
+                db_config_temp = self.db_config.copy()
+                db_config_temp['database'] = grupo
+                
+                with mysql.connector.connect(**db_config_temp, connection_timeout=10) as connection:
+                    with connection.cursor() as cursor:
+                        # Precargar URLs DAE
+                        query_dae = f"SELECT url_origen, boleta, nombre FROM {grupo} WHERE url_origen IS NOT NULL AND url_origen != '' ORDER BY url_origen"
+                        cursor.execute(query_dae)
+                        resultados_dae = cursor.fetchall()
+                        
+                        # Precargar URLs SAES (Nuevo)
+                        query_saes = f"SELECT url_saes, boleta, nombre FROM {grupo} WHERE url_saes IS NOT NULL AND url_saes != '' ORDER BY url_saes"
+                        cursor.execute(query_saes)
+                        resultados_saes = cursor.fetchall()
+                        
+                        self._indices_ordenados[grupo] = {
+                            "dae": resultados_dae,
+                            "saes": resultados_saes
+                        }
+                        print(f"📊 Índices cargados para {grupo}: {len(resultados_dae)} DAE, {len(resultados_saes)} SAES")
+                        
+            except Error as e:
+                print(f"⚠️ Error precargando índices de '{grupo}': {e}")
+
+
+
     
     def busqueda_binaria_url(self, urls_ordenados, url_buscado):
         """Búsqueda binaria en lista de URLs ordenados"""
@@ -581,70 +589,32 @@ class QRHorarioVerificador:
         
         return None
     
-    def buscar_credencial_dae_optimizado(self, url):
-        """Búsqueda ultra-optimizada de credencial DAE"""
-        if url in self._url_cache:
-            print(f"⚡ Credencial encontrada en cache")
-            return self._url_cache[url]
-        
-        print(f"\n🔍 Buscando credencial DAE...")
-        
-        for grupo in self.bases_datos:
-            if grupo in self._indices_ordenados:
-                resultado = self.busqueda_binaria_url(self._indices_ordenados[grupo], url)
-                if resultado:
-                    url_origen, boleta, nombre = resultado
-                    print(f"✅ Encontrado en '{grupo}'")
-                    print(f"   Boleta: {boleta}")
-                    print(f"   Nombre: {nombre}")
-                    
-                    resultado_final = (grupo, boleta)
-                    self._url_cache[url] = resultado_final
-                    return resultado_final
-        
-        for grupo in self.bases_datos:
-            try:
-                db_config_temp = self.db_config.copy()
-                db_config_temp['database'] = grupo
-                
-                with mysql.connector.connect(**db_config_temp, connection_timeout=5) as connection:
-                    with connection.cursor() as cursor:
-                        query = f"""
-                            SELECT boleta, nombre, url_origen
-                            FROM {grupo}
-                            WHERE url_origen = %s
-                            LIMIT 1
-                        """
-                        
-                        cursor.execute(query, (url,))
-                        resultado = cursor.fetchone()
-                        
-                        if resultado:
-                            boleta, nombre, link = resultado
-                            print(f"✅ Credencial encontrada en '{grupo}'")
-                            print(f"   Boleta: {boleta}")
-                            
-                            resultado_final = (grupo, boleta)
-                            self._url_cache[url] = resultado_final
-                            return resultado_final
-                            
-            except Error as e:
-                print(f"⚠️ Error en '{grupo}': {e}")
-                continue
-        
-        print(f"❌ No se encontró la credencial")
-        return None, None
-        
-    def buscar_saes_optimizado(self, url):
-            """Búsqueda optimizada de enlace SAES en la base de datos"""
-            # 1. Verificar Cache
+
+    def buscar_alumno_por_url(self, url, tipo_enlace):
+            """
+            Búsqueda ultra-optimizada unificada para DAE o SAES.
+            tipo_enlace puede ser 'dae' (columna url_origen) o 'saes' (columna url_saes)
+            """
             if url in self._url_cache:
-                print(f"⚡ SAES encontrado en cache")
+                print(f"⚡ Enlace {tipo_enlace.upper()} encontrado en cache")
                 return self._url_cache[url]
             
-            print(f"\n🔍 Buscando enlace SAES en Base de Datos...")
+            print(f"\n🔍 Buscando enlace {tipo_enlace.upper()}...")
+            columna_db = "url_origen" if tipo_enlace == 'dae' else "url_saes"
             
-            # 2. Buscar en cada grupo
+            # 1. Búsqueda rápida en RAM (búsqueda binaria)
+            for grupo in self.bases_datos:
+                if grupo in self._indices_ordenados and tipo_enlace in self._indices_ordenados[grupo]:
+                    resultado = self.busqueda_binaria_url(self._indices_ordenados[grupo][tipo_enlace], url)
+                    if resultado:
+                        url_encontrada, boleta, nombre = resultado
+                        print(f"✅ Encontrado en '{grupo}' (RAM)")
+                        print(f"   Boleta: {boleta} | Nombre: {nombre}")
+                        resultado_final = (grupo, boleta)
+                        self._url_cache[url] = resultado_final
+                        return resultado_final
+
+            # 2. Búsqueda directa en Base de Datos (Respaldo simultáneo)
             for grupo in self.bases_datos:
                 try:
                     db_config_temp = self.db_config.copy()
@@ -652,35 +622,29 @@ class QRHorarioVerificador:
                     
                     with mysql.connector.connect(**db_config_temp, connection_timeout=5) as connection:
                         with connection.cursor() as cursor:
-                            # Buscamos coincidencias exactas en url_saes
                             query = f"""
-                                SELECT boleta, nombre
+                                SELECT boleta, nombre, {columna_db}
                                 FROM {grupo}
-                                WHERE url_saes = %s
+                                WHERE {columna_db} = %s
                                 LIMIT 1
                             """
-                            
                             cursor.execute(query, (url,))
                             resultado = cursor.fetchone()
                             
                             if resultado:
-                                boleta, nombre = resultado
-                                print(f"✅ SAES encontrado en grupo '{grupo}'")
+                                boleta, nombre, _ = resultado
+                                print(f"✅ Enlace {tipo_enlace.upper()} encontrado en '{grupo}' (DB)")
                                 print(f"   Boleta: {boleta}")
-                                print(f"   Nombre: {nombre}")
-                                
                                 resultado_final = (grupo, boleta)
-                                # Guardamos en cache para la próxima vez
                                 self._url_cache[url] = resultado_final
                                 return resultado_final
                                 
                 except Error as e:
-                    # Si falla (ej. columna no existe), continuamos con el siguiente grupo
-                    # print(f"⚠️ Salto grupo '{grupo}': {e}") 
                     continue
             
-            print(f"❌ No se encontró el enlace SAES en la base de datos.")
+            print(f"❌ No se encontró el enlace {tipo_enlace.upper()}")
             return None, None
+
 
 
     def buscar_horario_en_mismo_grupo(self, boleta, grupo):
@@ -810,30 +774,21 @@ class QRHorarioVerificador:
                     "foto": "/static/img/guardia.png", "boleta": "GUARDIA"
                 }
 
-            # --- LÓGICA ALUMNOS (DAE / SAES) ---
+    # --- LÓGICA ALUMNOS (DAE / SAES) ---
             boleta = None
             base_datos_grupo = None
             tipo_qr = ""
-            
+
             # 1. Identificar Tipo y Buscar en BD
             if self.es_enlace_dae(url):
                 print("📇 Enlace DAE detectado")
-                base_datos_grupo, boleta = self.buscar_credencial_dae_optimizado(url)
+                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, "dae")
                 tipo_qr = "dae"
                 
             elif self.es_enlace_saes(url):
                 print("📋 Enlace SAES detectado")
-                # --- CAMBIO IMPORTANTE: YA NO ESCANEA WEB, BUSCA EN BD ---
-                base_datos_grupo, boleta = self.buscar_saes_optimizado(url)
+                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, "saes")
                 tipo_qr = "saes"
-                
-            else:
-                print("⚠️ Tipo de QR no reconocido")
-                self.play_error_sound()
-                return {
-                    "status": "Error", "puede_entrar": False, "mensaje": "QR No válido", 
-                    "nombre": "Error", "foto": "", "boleta": ""
-                }
 
             # Validaciones de Existencia
             if not boleta or not base_datos_grupo:
