@@ -297,8 +297,4 @@ if dia_actual == 5 or dia_actual == 6: # 5 = Sabado, 6 = Domingo
         if conexion and conexion.is_connected():
             conexion.close()
 else:
-<<<<<<< HEAD
     print("Hoy no es fin de semana, no se reiniciarán las gráficas.")
-=======
-    print("Hoy no es fin de semana, no se reiniciarán las gráficas.")
->>>>>>> origin/main

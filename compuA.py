@@ -4,23 +4,10 @@ from evdev import ecodes
 import socket
 import json
 import os
-<<<<<<< HEAD
-
-
-RUTA_FISICA_IZQ = '/dev/input/by-path/pci-0000:06:00.4-usbv2-0:1:1.1-event-kbd'
-RUTA_FISICA_DER = '/dev/input/by-path/pci-0000:07:00.4-usbv2-0:1:1.1-event-kbd'
-
-# Configuración de Red - Cambiar según corresponda
-HOST_DESTINO = '192.168.1.50' 
-PUERTO_DESTINO = 65432
-
-# Mapa de teclas q ps el escaner puede llegar a enviar
-key_map = {
-=======
 import time
+import threading # <-- Importante para no trabar la lectura
 
 # --- RUTAS FÍSICAS ---
-# Asegúrate de que estas sean las correctas que obtuviste antes
 RUTA_FISICA_IZQ = '/dev/input/by-path/pci-0000:00:1a.0-usbv2-0:1.1:1.1-event-kbd'
 RUTA_FISICA_DER = '/dev/input/by-path/pci-0000:00:1a.0-usbv2-0:1.3:1.1-event-kbd'
 
@@ -29,11 +16,7 @@ PUERTO_DESTINO = 65432
 TIEMPO_COOLDOWN = 3.0 
 
 # --- MAPA DE TECLAS AVANZADO (NORMAL vs SHIFT) ---
-# Esto soluciona que falte el "?" o salgan caracteres raros
-
-# Teclas cuando NO presionas Shift
 MAPA_NORMAL = {
->>>>>>> origin/main
     ecodes.KEY_A: 'a', ecodes.KEY_B: 'b', ecodes.KEY_C: 'c', ecodes.KEY_D: 'd',
     ecodes.KEY_E: 'e', ecodes.KEY_F: 'f', ecodes.KEY_G: 'g', ecodes.KEY_H: 'h',
     ecodes.KEY_I: 'i', ecodes.KEY_J: 'j', ecodes.KEY_K: 'k', ecodes.KEY_L: 'l',
@@ -44,20 +27,10 @@ MAPA_NORMAL = {
     ecodes.KEY_3: '3', ecodes.KEY_4: '4', ecodes.KEY_5: '5', ecodes.KEY_6: '6',
     ecodes.KEY_7: '7', ecodes.KEY_8: '8', ecodes.KEY_9: '9', ecodes.KEY_0: '0',
     ecodes.KEY_MINUS: '-', ecodes.KEY_EQUAL: '=', ecodes.KEY_SLASH: '/',
-<<<<<<< HEAD
-    ecodes.KEY_DOT: '.', ecodes.KEY_SEMICOLON: ':',ecodes.KEY_ENTER: 'ENTER'
-}
-
-
-def enviar_datos(payload):
-    try:
-        # Timeout corto para no bloquear si la otra PC está apagada
-=======
     ecodes.KEY_DOT: '.', ecodes.KEY_SEMICOLON: ';', ecodes.KEY_COMMA: ',',
     ecodes.KEY_SPACE: ' '
 }
 
-# Teclas cuando SÍ presionas Shift (Vital para el URL del IPN)
 MAPA_SHIFT = {
     ecodes.KEY_A: 'A', ecodes.KEY_B: 'B', ecodes.KEY_C: 'C', ecodes.KEY_D: 'D',
     ecodes.KEY_E: 'E', ecodes.KEY_F: 'F', ecodes.KEY_G: 'G', ecodes.KEY_H: 'H',
@@ -69,83 +42,21 @@ MAPA_SHIFT = {
     ecodes.KEY_1: '!', ecodes.KEY_2: '@', ecodes.KEY_3: '#', ecodes.KEY_4: '$',
     ecodes.KEY_5: '%', ecodes.KEY_6: '^', ecodes.KEY_7: '&', ecodes.KEY_8: '*',
     ecodes.KEY_9: '(', ecodes.KEY_0: ')',
-    ecodes.KEY_MINUS: '_',   # <--- Importante
+    ecodes.KEY_MINUS: '_',   
     ecodes.KEY_EQUAL: '+', 
-    ecodes.KEY_SLASH: '?',   # <--- AQUÍ ESTÁ EL PROBLEMA DEL '?'
+    ecodes.KEY_SLASH: '?',   
     ecodes.KEY_DOT: '>', ecodes.KEY_SEMICOLON: ':', ecodes.KEY_COMMA: '<'
 }
 
 def enviar_datos_sync(payload):
     """Envío en segundo plano para no frenar la lectura"""
     try:
->>>>>>> origin/main
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(2) 
         s.connect((HOST_DESTINO, PUERTO_DESTINO))
         mensaje = json.dumps(payload)
         s.sendall(mensaje.encode('utf-8'))
         s.close()
-<<<<<<< HEAD
-        print(f"✅ Enviado: {mensaje}")
-    except Exception as e:
-        print(f"⚠️ Error enviando a {HOST_DESTINO}: {e}")
-
-async def leer_escaner(ruta_by_path, es_izquierdo):
-    """
-    Intenta conectarse al dispositivo por su ruta física.
-    Si se desconecta, reintenta automáticamente.
-    """
-    nombre_lado = "IZQUIERDA" if es_izquierdo else "DERECHA"
-    
-    while True:
-        try:
-            # evdev resuelve automáticamente el link simbólico by-path -> eventX
-            dispositivo = evdev.InputDevice(ruta_by_path)
-            dispositivo.grab() # Opcional: toma control exclusivo
-            print(f"🟢 {nombre_lado} CONECTADO: {dispositivo.name}")
-            
-            buffer = ""
-            
-            # Bucle de lectura de eventos
-            async for event in dispositivo.async_read_loop():
-                if event.type == ecodes.EV_KEY and event.value == 1:
-                    key_code = event.code
-                    char = key_map.get(key_code, '')
-                    
-                    if char == 'ENTER':
-                        if buffer:
-                            payload = {
-                                "lado_izquierdo": es_izquierdo,
-                                "lado_derecho": not es_izquierdo,
-                                "texto": buffer
-                            }
-                            print(f"Escaneado en {nombre_lado}: {buffer}")
-                            enviar_datos(payload)
-                            buffer = ""
-                    else:
-                        # Si es un caracter válido, lo agregamos
-                        if len(str(char)) == 1: 
-                            buffer += char
-                            
-        except FileNotFoundError:
-            print(f"Waiting... Escáner {nombre_lado} no detectado en el puerto USB.")
-            await asyncio.sleep(3) # Esperar 3 seg antes de revisar si ya lo conectaron
-        except OSError:
-            print(f"🔴 Escáner {nombre_lado} desconectado. Reintentando...")
-            await asyncio.sleep(2)
-        except Exception as e:
-            print(f"Error inesperado en {nombre_lado}: {e}")
-            await asyncio.sleep(2)
-
-async def main():
-    print("--- INICIANDO SISTEMA DE ESCANEO DUAL (BY-PATH) ---")
-    # Verificamos que las rutas existan antes de empezar para avisar al usuario
-    if not os.path.exists(RUTA_FISICA_IZQ):
-        print(f"⚠️ AVISO: No detecto nada en el puerto IZQUIERDO: {RUTA_FISICA_IZQ}")
-    if not os.path.exists(RUTA_FISICA_DER):
-        print(f"⚠️ AVISO: No detecto nada en el puerto DERECHO: {RUTA_FISICA_DER}")
-=======
-        # Imprimimos solo los últimos caracteres para verificar integridad
         texto = payload['texto']
         print(f"✅ Enviado: ...{texto[-15:]} (Longitud: {len(texto)})") 
     except Exception as e:
@@ -161,7 +72,7 @@ async def leer_escaner(ruta_by_path, es_izquierdo):
             dispositivo.grab()
             print(f"🟢 LISTO: {nombre_lado}")
             
-            buffer = [] # Usamos lista que es más rápido que concatenar strings
+            buffer = [] 
             shift_presionado = False 
             
             async for event in dispositivo.async_read_loop():
@@ -171,38 +82,43 @@ async def leer_escaner(ruta_by_path, es_izquierdo):
                     continue
 
                 if event.type == ecodes.EV_KEY:
-                    # Gestionar estado del SHIFT (Izquierdo o Derecho)
+                    # Gestionar estado del SHIFT
                     if event.code in [ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT]:
-                        shift_presionado = (event.value == 1 or event.value == 2) # 1=Press, 2=Hold
+                        shift_presionado = (event.value == 1 or event.value == 2) 
                         continue
 
                     if event.value == 1: # Solo al presionar tecla
                         key_code = event.code
                         
                         if key_code == ecodes.KEY_ENTER:
-                            # Al dar ENTER, procesamos todo el paquete
-                            texto_final = "".join(buffer)
-                            
-                            if len(texto_final) > 10: # Filtro de ruido
-                                print(f"🚀 {nombre_lado} ESCANEADO COMPLETO!")
+                            if len(buffer) > 0:
+                                url_temp = "".join(buffer)
                                 
+                                # --- PARCHE: UNIR CÓDIGOS FRAGMENTADOS ---
+                                if "saes.cecyt16" in url_temp.lower() and len(url_temp) < 100:
+                                    print("⚠️ Fragmento SAES detectado, uniendo con la siguiente parte...")
+                                    continue # Ignoramos este Enter y seguimos sumando al buffer
+                                # -----------------------------------------
+                                
+                                url = url_temp
+                                
+                                # --- ARMADO Y ENVÍO DEL JSON ---
                                 payload = {
-                                    "lado_izquierdo": es_izquierdo,
-                                    "lado_derecho": not es_izquierdo,
-                                    "texto": texto_final
+                                    'escaner': nombre_lado,
+                                    'texto': url
                                 }
-                                
-                                # Enviar en hilo aparte (NO BLOQUEANTE)
-                                loop = asyncio.get_running_loop()
-                                loop.run_in_executor(None, enviar_datos_sync, payload)
+                                # Enviamos en un hilo para que el escáner siga leyendo rapidísimo
+                                hilo_envio = threading.Thread(target=enviar_datos_sync, args=(payload,))
+                                hilo_envio.daemon = True
+                                hilo_envio.start()
+                                # ---------------------------------------
                                 
                                 ultimo_escaneo = time.time()
                                 buffer = []
                             else:
-                                buffer = [] # Enter vacío limpia
+                                buffer = [] 
                         else:
-                            # 2. LOGICA DE MAPEO (VELOCIDAD PURA)
-                            # No hay prints aquí, solo guardado en memoria
+                            # 2. LÓGICA DE MAPEO
                             if shift_presionado:
                                 char = MAPA_SHIFT.get(key_code)
                             else:
@@ -221,10 +137,9 @@ async def leer_escaner(ruta_by_path, es_izquierdo):
             await asyncio.sleep(2)
 
 async def main():
-    print("--- LECTOR DE ALTA VELOCIDAD (BUFFER FIX) ---")
+    print("--- LECTOR DE ALTA VELOCIDAD Y ENSAMBLAJE (DUAL SCANNER) ---")
     if not os.path.exists(RUTA_FISICA_IZQ): print("⚠️ Faltan rutas IZQ")
     if not os.path.exists(RUTA_FISICA_DER): print("⚠️ Faltan rutas DER")
->>>>>>> origin/main
 
     await asyncio.gather(
         leer_escaner(RUTA_FISICA_IZQ, True),
@@ -235,8 +150,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-<<<<<<< HEAD
-        print("\nApagando sistema...")
-=======
         pass
->>>>>>> origin/main
