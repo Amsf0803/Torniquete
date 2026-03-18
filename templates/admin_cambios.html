@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pases de Salida</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #6c1d45;
+            text-align: center;
+            color: #fff;
+        }
+        h2 {
+            color: #fff;
+        }
+        label {
+            font-weight: bold;
+        }
+        select, input[type="date"], button {
+            margin: 10px 0;
+            padding: 8px;
+            width: 300px;
+        }
+        table {
+            width: 60%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+            text-align: center;
+            color: #6c1d45;
+        }
+        .seccion {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            text-align: center; /* Centra el texto dentro de la sección */
+        }
+
+        .seccion table {
+            margin: 0 auto; /* Centra la tabla en la sección */
+            border-collapse: collapse; /* Opcional: para que las bordes de la tabla se vean mejor */
+        }
+        img{
+            width: 200px;
+            position: absolute;
+        }
+        .LIA{
+            width: 200px;
+            position: absolute;
+            right: 5%;
+        }
+
+        .ipn{
+            width: 120px;
+            margin-top: 40px;
+            position: absolute;
+            left: 5%;
+        }
+        .logo{
+            width: 200px;
+            position: absolute;
+            left: 10%;
+            margin-top: 40px;
+            margin-left: 10%;
+            top: 10px;
+        }
+        a{
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <img class='ipn' src="/static/images/logo-ipn-blanco.png" alt="">
+    <img class="logo" src="/static/images/Cecyt16.png" alt="Logo CECyT 16">
+    <img class="LIA" src="/static/images/Logo_LIA.png" alt="Logo_LIA">
+    <h2>📅 Pases de Salida</h2>
+
+    <!-- FORMULARIO PARA SELECCIONAR GRUPO Y DÍA -->
+    <form method="get">
+        <div class="grupos">
+        <label for="grupo">Grupo:</label><br>
+        <select name="grupo" required>
+            {% for grupo in grupos %}
+            <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
+            {% endfor %}
+        </select><br>
+        </div>
+
+        <button type="submit">Buscar horario del día</button>
+    </form>
+
+    <!-- FORMULARIO PARA CANCELAR HORARIOS -->
+    {% if horarios and grupo_seleccionado %}
+    <div class="seccion">
+        <h3>🕐 Horarios disponibles para cancelar ({{ grupo_seleccionado }} - {{ dia_seleccionado }})</h3>
+
+        <form method="post">
+            <input type="hidden" name="grupo" value="{{ grupo_seleccionado }}">
+            <input type="hidden" name="dia" value="{{ dia_seleccionado }}">
+
+            <label for="fecha">Fecha de aplicación:</label><br>
+            <br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Seleccionar</th>
+                        <th>Hora de inicio</th>
+                        <th>Hora de fin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hora_inicio, hora_fin in horarios %}
+                    <tr>
+                        <td><input type="checkbox" name="horas" value="{{ hora_inicio }}-{{ hora_fin }}"></td>
+                        <td>{{ hora_inicio }}</td>
+                        <td>{{ hora_fin }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table><br>
+
+            <button type="submit">Guardar cambios temporales</button>
+        </form>
+    </div>
+    {% elif grupo_seleccionado and dia_seleccionado %}
+    <div class="seccion">
+        <p>❌ No se encontraron horarios registrados en {{ grupo_seleccionado }} para el día {{ dia_seleccionado }}.</p>
+    </div> 
+    {% endif %}
+    
+    <a href="/"><button type="button">Regresar a la pagina principal</button></a>
+</body>
+</html>

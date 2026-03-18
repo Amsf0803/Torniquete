@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Acceso Dual - IPN</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <style>
+        /* ================= ESTILOS GENERALES ================= */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden; /* Evitar scroll */
+            background: 
+                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 550px, cover;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+        }
+
+        /* CONTENEDOR DIVIDIDO */
+        .split-screen {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .lado-monitor {
+            flex: 1; /* 50% cada uno */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centrar verticalmente */
+            align-items: center;
+            border-right: 4px solid rgba(0,0,0,0.2);
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .lado-monitor:last-child {
+            border-right: none;
+        }
+
+        /* ETIQUETA SUPERIOR (IZQ / DER) */
+        .etiqueta-lado {
+            position: absolute;
+            top: 20px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        /* ================= TARJETA DE INFORMACIÓN ================= */
+        /* Usamos tus estilos originales adaptados a JS */
+        
+        .inscrito-card {
+            width: 85%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        /* ESTADO POR DEFECTO (ESPERANDO) */
+        .estado-esperando {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #999;
+            color: #555;
+            min-height: 400px;
+            justify-content: center;
+        }
+
+        /* === TUS CLASES DE ESTILO ORIGINALES === */
+        
+        /* Inscrito (verde) */
+        .inscrito-activo {
+            background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%);
+            color: #ffffff;
+            border: none;
+        }
+        /* Suspendido (amarillo) */
+        .inscrito-suspendido {
+            background: linear-gradient(145deg, #ffffff 0%, #fbbf24 100%);
+            color: #92400e;
+            border: 2px solid #fbbf24;
+        }
+        /* No inscrito / Error (rojo) */
+        .inscrito-inactivo {
+            background: linear-gradient(145deg, #bd6161 0%, #760000 100%);
+            color: #ffffff;
+            border: none;
+        }
+        /* LIA (Morado) */
+        .inscrito-LIA {
+            background: linear-gradient(90deg,rgba(66, 19, 41, 1) 0%, #6c1d45 45%, rgba(255, 255, 255, 1) 150%);
+            color: #ffffff;
+            border: 2px solid #ff00ff;
+        }
+        /* Master / Admin (Azul oscuro) */
+        .master {
+            background: linear-gradient(90deg,rgb(18, 17, 83) 0%, #221d6c 35%, rgba(255, 255, 255, 1) 125%);
+            color: #ffffff;
+            border: 2px solid gold;
+        }
+        /* Especial (Verde Oscuro) */
+        .inscrito-Especial {
+            background: linear-gradient(90deg,rgb(59, 87, 49) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%);
+            color: #ffffff;
+        }
+
+        /* ELEMENTOS INTERNOS */
+        .boleta-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .status-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .foto-alumno {
+            width: 200px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background-color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .mochila-operation {
+            background: rgba(255, 255, 255, 0.2);
+            color: inherit;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* LOGO DE FONDO (Transparente) */
+        .background-logo-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.1;
+            width: 80%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Animación */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="split-screen">
+        
+        <div class="lado-monitor">
+            <div class="etiqueta-lado">Torniquete Izquierdo</div>
+            
+            <div id="card-izq" class="inscrito-card estado-esperando">
+                <div class="content-wrapper">
+                    <div id="espera-izq">
+                        <img src="/static/images/LIA_Mini.png" width="80" style="opacity: 0.5; margin-bottom: 20px;">
+                        <h2>Escanea tu QR<br>Lado Izquierdo</h2>
+                    </div>
+
+                    <div id="datos-izq" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                        <img src="" class="background-logo-card">
+                        
+                        <div class="boleta-display" id="boleta-izq">---</div>
+                        <div class="status-display" id="titulo-izq">---</div>
+                        
+                        <img id="foto-izq" src="" class="foto-alumno">
+                        
+                        <div class="mochila-operation" id="msg-izq">---</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lado-monitor">
+            <div class="etiqueta-lado">Torniquete Derecho</div>
+
+            <div id="card-der" class="inscrito-card estado-esperando">
+                <div class="content-wrapper">
+                    <div id="espera-der">
+                        <img src="/static/images/LIA_Mini.png" width="80" style="opacity: 0.5; margin-bottom: 20px;">
+                        <h2>Escanea tu QR<br>Lado Derecho</h2>
+                    </div>
+
+                    <div id="datos-der" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                        
+                        <div class="boleta-display" id="boleta-der">---</div>
+                        <div class="status-display" id="titulo-der">---</div>
+                        
+                        <img id="foto-der" src="" class="foto-alumno">
+                        
+                        <div class="mochila-operation" id="msg-der">---</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Variables para controlar cuándo actualizar (para no parpadear)
+        let lastTimeIzq = 0;
+        let lastTimeDer = 0;
+        
+        // Tiempo en segundos antes de volver al estado "Esperando"
+        const RESET_TIME = 6; 
+
+        function actualizarMonitor() {
+            fetch('/api/estado_monitor')
+                .then(response => response.json())
+                .then(data => {
+                    renderizarLado('izq', data.izquierda, lastTimeIzq);
+                    renderizarLado('der', data.derecha, lastTimeDer);
+                    
+                    // Actualizar referencias de tiempo
+                    if(data.izquierda.timestamp > lastTimeIzq) lastTimeIzq = data.izquierda.timestamp;
+                    if(data.derecha.timestamp > lastTimeDer) lastTimeDer = data.derecha.timestamp;
+                    
+                    // Checar limpieza automática (si pasó mucho tiempo sin scan)
+                    checkReset('izq', data.izquierda.timestamp);
+                    checkReset('der', data.derecha.timestamp);
+                })
+                .catch(err => console.error("Error API:", err));
+        }
+
+        function renderizarLado(lado, data, ultimoTiempoConocido) {
+            // Solo actualizamos si hay un dato NUEVO (timestamp mayor)
+            if (data.timestamp > ultimoTiempoConocido) {
+                
+                const card = document.getElementById(`card-${lado}`);
+                const esperaDiv = document.getElementById(`espera-${lado}`);
+                const datosDiv = document.getElementById(`datos-${lado}`);
+                
+                // Elementos de texto
+                const txtBoleta = document.getElementById(`boleta-${lado}`);
+                const txtTitulo = document.getElementById(`titulo-${lado}`);
+                const txtMsg = document.getElementById(`msg-${lado}`);
+                const imgFoto = document.getElementById(`foto-${lado}`);
+
+                // 1. Mostrar vista de datos y ocultar espera
+                esperaDiv.style.display = 'none';
+                datosDiv.style.display = 'flex';
+                
+                // 2. Llenar textos
+                txtBoleta.innerText = data.boleta || data.nombre;
+                txtTitulo.innerText = data.titulo;
+                txtMsg.innerText = data.mochila; // Aquí va el mensaje especial (Lead coder, etc)
+                imgFoto.src = data.foto;
+
+                // 3. Aplicar CLASE CSS (La magia de los colores)
+                // Primero borramos todas las clases posibles para evitar conflictos
+                card.className = 'inscrito-card'; 
+                // Agregamos la clase que mandó Python (ej: 'inscrito-LIA')
+                card.classList.add(data.estilo);
+                
+                // 4. Efecto de "Flash" para notar el cambio
+                card.style.transform = "scale(1.02)";
+                setTimeout(() => card.style.transform = "scale(1)", 200);
+            }
+        }
+
+        function checkReset(lado, timestampData) {
+            // Si pasaron X segundos desde el último scan, volver a "Esperando"
+            const ahora = Date.now() / 1000;
+            if (ahora - timestampData > RESET_TIME && timestampData > 0) {
+                const card = document.getElementById(`card-${lado}`);
+                const esperaDiv = document.getElementById(`espera-${lado}`);
+                const datosDiv = document.getElementById(`datos-${lado}`);
+                
+                // Si ya está esperando, no hacer nada
+                if (esperaDiv.style.display !== 'none') return;
+
+                // Volver a estado neutro
+                card.className = 'inscrito-card estado-esperando';
+                datosDiv.style.display = 'none';
+                esperaDiv.style.display = 'block';
+            }
+        }
+
+        // Ejecutar cada 500ms (0.5 segundos)
+        setInterval(actualizarMonitor, 500);
+
+    </script>
+</body>
+</html>

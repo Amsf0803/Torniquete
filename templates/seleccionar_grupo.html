@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleccionar Ciclo Escolar</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            padding-left: 5%;
+            margin: 0;
+            text-align: left;
+            background: 
+            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+            linear-gradient(170deg, #6c1d45, #ffffff 80%);
+
+            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-attachment: fixed;
+
+            /* imagen centrada horizontal, 70% vertical (más abajo) 
+            gradiente sigue centrado */
+            background-position: center 150px, center;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 400ms;
+        }
+
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .imagenes img {
+            width: 200px;
+            height: auto;
+        }
+        .logo {
+            position: absolute;
+            left: 5%;
+        }
+        .LIA {
+            position: absolute;
+            right: 2%;
+            
+        }
+        .grupos {
+            margin-top: 20px;
+            text-align: left;
+        }
+        h3 {
+            text-align: center;
+            color: #fff;
+            margin-top: 20px;
+        }
+        a{
+            text-decoration: none;
+            color: #fff;
+        } 
+        .return{
+            width: 50%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="imagenes">
+    <img class="logo" src="../static/images/Cecyt16.png" alt="">
+    <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
+</div>
+<br> 
+<br>
+<h2>Seleccione el grupo que va a registrar Automáticamente:</h2>
+<form method="POST" action="/seleccionar_grupo">
+    <div class="grupos">
+        <label for="grupo">Grupo:</label>
+        <select name="grupo" id="grupo" required>
+            <option value="">-- Selecciona un grupo --</option>
+            {% for grupo in grupos %}
+                <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <br>
+    <br>
+    <button type="submit">Continuar al Registro Automático</button>
+</form>
+<br><br><br>
+<a href="/"><button class="return">Regresar</button></a>
+</body>
+</html>
