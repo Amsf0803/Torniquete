@@ -1,7 +1,11 @@
 import socket
 import json
 
+<<<<<<< HEAD
 HOST = '201.66.195.124'
+=======
+HOST = '0.0.0.0'  # Escucha en todas las interfaces de red
+>>>>>>> origin/main
 PORT = 65432      # El mismo puerto que en el emisor
 
 def iniciar_servidor():

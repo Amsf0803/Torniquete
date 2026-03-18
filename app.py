@@ -24,7 +24,11 @@ contra_db = "P3l0n100j0t3$"
 
 # CONFIGURACIÓN ESP32 CON IP PÚBLICA
 ESP32_IP = "201.66.195.11"  # ← TU IP PÚBLICA DEL ESP32
+<<<<<<< HEAD
 ESP32_PORT = 80
+=======
+ESP32_PORT = 5000
+>>>>>>> origin/main
 
 # ESTADO GLOBAL PARA EL MONITOR DIVIDIDO (MEMORIA RAM)
 # Esto permite que el HTML se actualice sin consultar la DB constantemente
@@ -221,7 +225,11 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     """
     lado_key = "izquierda" if es_lado_izquierdo else "derecha"
     comando_esp = "1" if es_lado_izquierdo else "2"
+<<<<<<< HEAD
     80
+=======
+    
+>>>>>>> origin/main
     print(f"\n🔄 [PROCESANDO {lado_key.upper()}] Código recibido...")
     print(f"🔗 URL: {url_codigo[:80]}...")
 
@@ -237,9 +245,15 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         acceso_concedido = resultado.get('puede_entrar', False)
         nombre_alumno = resultado.get('nombre', 'Desconocido')
         mensaje_estado = resultado.get('mensaje', 'Procesando...')
+<<<<<<< HEAD
         foto_url = resultado.get('foto', '/static/img/placeholder.png')
         boleta = str(resultado.get('boleta', ''))
         operacion_mochila = resultado.get('operacion_mochila',False)
+=======
+        foto_url = resultado.get('foto', '/static/images/placeholder.png')
+        boleta = str(resultado.get('boleta', ''))
+        
+>>>>>>> origin/main
     except Exception as e:
         print(f"❌ Error en verificador: {e}")
         import traceback
@@ -276,7 +290,11 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     elif boleta == "2024160385":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - André"
+<<<<<<< HEAD
         mensaje_mochila = "🔧 Lead Coder -- Backend -- DataBase Creator -- Manager -- Insano -- GOD 💻"
+=======
+        mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻"
+>>>>>>> origin/main
     elif boleta == "2024160550":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Mati"
@@ -298,10 +316,13 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         mensaje_mochila = "The cake is a lie"
     
     # C) ALUMNOS NORMALES
+<<<<<<< HEAD
     elif acceso_concedido and operacion_mochila:
         estilo_css = "operacion-mochila-azul"
         titulo_tarjeta = "Operacion Mochila"
         mensaje_mochila = "Acercate con el personal adecuado"
+=======
+>>>>>>> origin/main
     elif acceso_concedido:
         estilo_css = "inscrito-activo"
         titulo_tarjeta = "Entrada Autorizada"
@@ -542,6 +563,7 @@ class QRHorarioVerificador:
         ]
         return any(re.search(patron, texto, re.IGNORECASE) for patron in patrones_guardia)
     
+<<<<<<< HEAD
     def precargar_indices_grupo(self, grupo):
         """Precarga y ordena los URLs de un grupo para búsqueda binaria"""
         if grupo in self._indices_ordenados:
@@ -567,6 +589,41 @@ class QRHorarioVerificador:
                     
         except Error as e:
             print(f"⚠️ Error precargando índices de '{grupo}': {e}")
+=======
+
+    def precargar_indices_grupo(self, grupo):
+            """Precarga y ordena los URLs (DAE y SAES) de un grupo para búsqueda binaria"""
+            if grupo in self._indices_ordenados:
+                return
+            
+            try:
+                db_config_temp = self.db_config.copy()
+                db_config_temp['database'] = grupo
+                
+                with mysql.connector.connect(**db_config_temp, connection_timeout=10) as connection:
+                    with connection.cursor() as cursor:
+                        # Precargar URLs DAE
+                        query_dae = f"SELECT url_origen, boleta, nombre FROM {grupo} WHERE url_origen IS NOT NULL AND url_origen != '' ORDER BY url_origen"
+                        cursor.execute(query_dae)
+                        resultados_dae = cursor.fetchall()
+                        
+                        # Precargar URLs SAES (Nuevo)
+                        query_saes = f"SELECT url_saes, boleta, nombre FROM {grupo} WHERE url_saes IS NOT NULL AND url_saes != '' ORDER BY url_saes"
+                        cursor.execute(query_saes)
+                        resultados_saes = cursor.fetchall()
+                        
+                        self._indices_ordenados[grupo] = {
+                            "dae": resultados_dae,
+                            "saes": resultados_saes
+                        }
+                        print(f"📊 Índices cargados para {grupo}: {len(resultados_dae)} DAE, {len(resultados_saes)} SAES")
+                        
+            except Error as e:
+                print(f"⚠️ Error precargando índices de '{grupo}': {e}")
+
+
+
+>>>>>>> origin/main
     
     def busqueda_binaria_url(self, urls_ordenados, url_buscado):
         """Búsqueda binaria en lista de URLs ordenados"""
@@ -585,6 +642,7 @@ class QRHorarioVerificador:
         
         return None
     
+<<<<<<< HEAD
     def buscar_credencial_dae_optimizado(self, url):
         """Búsqueda ultra-optimizada de credencial DAE"""
         if url in self._url_cache:
@@ -639,6 +697,66 @@ class QRHorarioVerificador:
         print(f"❌ No se encontró la credencial")
         return None, None
     
+=======
+
+    def buscar_alumno_por_url(self, url, tipo_enlace):
+            """
+            Búsqueda ultra-optimizada unificada para DAE o SAES.
+            tipo_enlace puede ser 'dae' (columna url_origen) o 'saes' (columna url_saes)
+            """
+            if url in self._url_cache:
+                print(f"⚡ Enlace {tipo_enlace.upper()} encontrado en cache")
+                return self._url_cache[url]
+            
+            print(f"\n🔍 Buscando enlace {tipo_enlace.upper()}...")
+            columna_db = "url_origen" if tipo_enlace == 'dae' else "url_saes"
+            
+            # 1. Búsqueda rápida en RAM (búsqueda binaria)
+            for grupo in self.bases_datos:
+                if grupo in self._indices_ordenados and tipo_enlace in self._indices_ordenados[grupo]:
+                    resultado = self.busqueda_binaria_url(self._indices_ordenados[grupo][tipo_enlace], url)
+                    if resultado:
+                        url_encontrada, boleta, nombre = resultado
+                        print(f"✅ Encontrado en '{grupo}' (RAM)")
+                        print(f"   Boleta: {boleta} | Nombre: {nombre}")
+                        resultado_final = (grupo, boleta)
+                        self._url_cache[url] = resultado_final
+                        return resultado_final
+
+            # 2. Búsqueda directa en Base de Datos (Respaldo simultáneo)
+            for grupo in self.bases_datos:
+                try:
+                    db_config_temp = self.db_config.copy()
+                    db_config_temp['database'] = grupo
+                    
+                    with mysql.connector.connect(**db_config_temp, connection_timeout=5) as connection:
+                        with connection.cursor() as cursor:
+                            query = f"""
+                                SELECT boleta, nombre, {columna_db}
+                                FROM {grupo}
+                                WHERE {columna_db} = %s
+                                LIMIT 1
+                            """
+                            cursor.execute(query, (url,))
+                            resultado = cursor.fetchone()
+                            
+                            if resultado:
+                                boleta, nombre, _ = resultado
+                                print(f"✅ Enlace {tipo_enlace.upper()} encontrado en '{grupo}' (DB)")
+                                print(f"   Boleta: {boleta}")
+                                resultado_final = (grupo, boleta)
+                                self._url_cache[url] = resultado_final
+                                return resultado_final
+                                
+                except Error as e:
+                    continue
+            
+            print(f"❌ No se encontró el enlace {tipo_enlace.upper()}")
+            return None, None
+
+
+
+>>>>>>> origin/main
     def buscar_horario_en_mismo_grupo(self, boleta, grupo):
         """Busca el horario SOLO en el grupo donde está la credencial"""
         try:
@@ -728,6 +846,7 @@ class QRHorarioVerificador:
             print("⚠️ ESP32 no conectado - Simulando activación")
             return True
     
+<<<<<<< HEAD
     def extraer_boleta_de_url(self, url):
         """Función unificada que detecta el tipo de URL y extrae la boleta"""
         print(f"\n🔍 Detectando tipo de enlace...")
@@ -1044,6 +1163,217 @@ class QRHorarioVerificador:
             "errores": errores
         }
     
+=======
+
+    def procesar_qr(self, url, solo_verificar=False, lado_izquierdo=True):
+            """
+            Procesa un QR. 
+            Si solo_verificar=True, NO abre el torniquete, solo devuelve si puede entrar.
+            lado_izquierdo: True para izquierda (comando 1), False para derecha (comando 2)
+            """
+            print(f"\n{'='*60}")
+            print(f"🔍 PROCESANDO QR (Modo {'Verificación' if solo_verificar else 'Activo'})")
+            print(f"📍 Lado: {'IZQUIERDO' if lado_izquierdo else 'DERECHO'}")
+            print(f"{'='*60}")
+            
+            comando_torniquete = "1" if lado_izquierdo else "2"
+            
+            # --- LÓGICA ADMINISTRATIVA ---
+            if self.es_qr_administrativo(url):
+                print("🏢 QR ADMINISTRATIVO - ACCESO DIRECTO")
+                self.play_success_sound()
+                if not solo_verificar and self.esp32 and self.esp32.conectado:
+                    self.esp32.enviar_comando(comando_torniquete)
+                return {
+                    "tipo": "administrativo", "status": "OK", "puede_entrar": True, 
+                    "mensaje": "Personal Administrativo", "nombre": "Administrativo", 
+                    "foto": "/static/img/admin.png", "boleta": "ADMIN"
+                }
+
+            # --- LÓGICA GUARDIA ---
+            if self.es_qr_guardia(url):
+                print("🛡️ QR GUARDIA - ACCESO DIRECTO")
+                self.play_success_sound()
+                if not solo_verificar and self.esp32 and self.esp32.conectado:
+                    self.esp32.enviar_comando(comando_torniquete)
+                return {
+                    "tipo": "guardia", "status": "OK", "puede_entrar": True, 
+                    "mensaje": "Personal de Guardia", "nombre": "Guardia", 
+                    "foto": "/static/img/guardia.png", "boleta": "GUARDIA"
+                }
+
+    # --- LÓGICA ALUMNOS (DAE / SAES) ---
+            boleta = None
+            base_datos_grupo = None
+            tipo_qr = ""
+
+            # 1. Identificar Tipo y Buscar en BD
+            if self.es_enlace_dae(url):
+                print("📇 Enlace DAE detectado")
+                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, "dae")
+                tipo_qr = "dae"
+                
+            elif self.es_enlace_saes(url):
+                print("📋 Enlace SAES detectado")
+                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, "saes")
+                tipo_qr = "saes"
+
+            # Validaciones de Existencia
+            if not boleta or not base_datos_grupo:
+                print("❌ Alumno no encontrado en la base de datos.")
+                self.play_error_sound()
+                return {
+                    "status": "Error", 
+                    "puede_entrar": False, 
+                    "mensaje": "Alumno no registrado o QR desconocido", 
+                    "nombre": "Desconocido", 
+                    "foto": "",
+                    "boleta": ""
+                }
+
+            print(f"✅ Datos recuperados -> Boleta: {boleta} | Grupo: {base_datos_grupo}")
+
+            # 2. Obtener nombre del alumno y foto
+            nombre_alumno = boleta  # Default
+            foto_url = f"/static/image/{boleta}.jpg"
+            
+            try:
+                db_config_temp = self.db_config.copy()
+                db_config_temp['database'] = base_datos_grupo
+                
+                with mysql.connector.connect(**db_config_temp, connection_timeout=5) as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute(f"SELECT nombre, imagen_path FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
+                        resultado = cursor.fetchone()
+                        if resultado:
+                            if resultado[0]: nombre_alumno = resultado[0]
+                            if resultado[1] and resultado[1].strip(): foto_url = resultado[1]
+            except Exception as e:
+                print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
+
+            # 3. Buscar Horario (Verificar que exista la tabla con nombre de la boleta)
+            base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
+            if not base_datos_horario:
+                self.play_error_sound()
+                return {
+                    "status": "Error", "puede_entrar": False, 
+                    "mensaje": "Sin horario registrado", "nombre": nombre_alumno,
+                    "foto": foto_url, "boleta": boleta
+                }
+
+            # 4. Validar fin de semana
+            if datetime.now().weekday() >= 5:
+                self.play_error_sound()
+                return {
+                    "status": "Fin de semana", "puede_entrar": False, 
+                    "mensaje": "No hay clases hoy", "nombre": nombre_alumno,
+                    "foto": foto_url, "boleta": boleta
+                }
+
+            # 5. Obtener estado final y activar torniquete si corresponde
+            inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
+            
+            estado = self.obtener_estado_acceso_salida(
+                boleta, 
+                inscrito_valor=inscrito_valor, 
+                grupo=base_datos_grupo,
+                lado_izquierdo=lado_izquierdo,
+                solo_verificar=solo_verificar
+            )
+            
+            puede_entrar = estado.get("acceso", False)
+            
+            if puede_entrar:
+                print("✅ ACCESO PERMITIDO")
+                self.play_success_sound()
+                # Registrar en Excel (opcional si lo usas)
+                try:
+                    self.registrar_acceso_excel(boleta, nombre_alumno, base_datos_grupo, puede_entrar, False)
+                except: pass
+            else:
+                print("❌ ACCESO DENEGADO")
+                self.play_error_sound()
+
+            return {
+                "boleta": boleta,
+                "grupo": base_datos_grupo,
+                "status": "OK" if puede_entrar else "Denegado",
+                "puede_entrar": puede_entrar,
+                "mensaje": estado.get("mensaje", "Acceso Denegado"),
+                "nombre": nombre_alumno,
+                "foto": foto_url
+            }
+
+
+
+    def crear_indices_sql_optimizacion(self):
+            """Crea índices SQL para búsquedas rápidas (Actualizado con url_saes)"""
+            print("\n" + "="*70)
+            print("🔧 CREANDO ÍNDICES SQL")
+            print("="*70)
+            
+            indices_creados = 0
+            indices_existentes = 0
+            errores = 0
+            
+            for grupo in self.bases_datos:
+                try:
+                    db_config_temp = self.db_config.copy()
+                    db_config_temp['database'] = grupo
+                    
+                    with mysql.connector.connect(**db_config_temp, connection_timeout=30) as connection:
+                        with connection.cursor() as cursor:
+                            # 1. Índice para DAE (url_origen)
+                            cursor.execute(f"""
+                                SELECT COUNT(*) FROM information_schema.statistics
+                                WHERE table_schema = '{grupo}' AND table_name = '{grupo}' AND index_name = 'idx_url_origen'
+                            """)
+                            if cursor.fetchone()[0] == 0:
+                                print(f"📝 Creando índice url_origen en '{grupo}'")
+                                cursor.execute(f"CREATE INDEX idx_url_origen ON {grupo} (url_origen(255))")
+                                connection.commit()
+                                indices_creados += 1
+                            else:
+                                indices_existentes += 1
+                            
+                            # 2. Índice para SAES (url_saes) - NUEVO
+                            cursor.execute(f"""
+                                SELECT COUNT(*) FROM information_schema.statistics
+                                WHERE table_schema = '{grupo}' AND table_name = '{grupo}' AND index_name = 'idx_url_saes'
+                            """)
+                            if cursor.fetchone()[0] == 0:
+                                try:
+                                    print(f"📝 Creando índice url_saes en '{grupo}'")
+                                    # Usamos (255) para limitar la longitud del índice en campos TEXT
+                                    cursor.execute(f"CREATE INDEX idx_url_saes ON {grupo} (url_saes(255))")
+                                    connection.commit()
+                                    indices_creados += 1
+                                except Exception as e:
+                                    print(f"⚠️ No se pudo crear índice url_saes (quizás la columna no existe aún): {e}")
+                            else:
+                                indices_existentes += 1
+                            
+                            # 3. Índice para Boleta
+                            cursor.execute(f"""
+                                SELECT COUNT(*) FROM information_schema.statistics
+                                WHERE table_schema = '{grupo}' AND table_name = '{grupo}' AND index_name = 'idx_boleta'
+                            """)
+                            if cursor.fetchone()[0] == 0:
+                                print(f"📝 Creando índice boleta en '{grupo}'")
+                                cursor.execute(f"CREATE INDEX idx_boleta ON {grupo} (boleta)")
+                                connection.commit()
+                                indices_creados += 1
+                            
+                except Error as e:
+                    print(f"❌ Error en '{grupo}': {e}")
+                    errores += 1
+                    continue
+            
+            print(f"\n📊 RESUMEN: Creados: {indices_creados} | Existentes: {indices_existentes} | Errores: {errores}")
+            return {"creados": indices_creados, "existentes": indices_existentes}
+
+
+>>>>>>> origin/main
     def limpiar_cache(self):
         """Limpia todos los caches"""
         self._url_cache.clear()
@@ -1065,6 +1395,7 @@ class QRHorarioVerificador:
             total_registros = sum(len(indices) for indices in self._indices_ordenados.values())
             print(f"   Registros indexados: {total_registros}")
     
+<<<<<<< HEAD
     def extraer_boleta_de_url_saes(self, url):
         """Extrae el número de boleta desde una URL del SAES"""
         try:
@@ -1103,6 +1434,9 @@ class QRHorarioVerificador:
             print(f"❌ Error extrayendo boleta de URL SAES: {e}")
             return None
     
+=======
+
+>>>>>>> origin/main
     def buscar_grupo_por_boleta(self, boleta):
         """Busca en qué grupo está registrada una boleta"""
         for base_datos in self.bases_datos:
@@ -1311,6 +1645,7 @@ class QRHorarioVerificador:
         """
         acceso = False
         bloquear_a = 0
+<<<<<<< HEAD
         comando_torniquete = "2" if lado_izquierdo else "3"
 
         print(type(boleta), "Es la boletaaaa") #Las boletas son str
@@ -1338,6 +1673,10 @@ class QRHorarioVerificador:
                 "mensaje": mensaje
             }
 
+=======
+        comando_torniquete = "1" if lado_izquierdo else "2"
+        
+>>>>>>> origin/main
         if grupo is None:
             grupo = self.buscar_grupo_por_boleta(boleta)
             if not grupo:
@@ -1518,8 +1857,11 @@ class QRHorarioVerificador:
             print(f"❌ Error verificando acceso: {e}")
             mensaje = f"Error de sistema: {str(e)}"
         
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/main
         return {
             "salir": salir,
             "bloquear_a": bloquear_a,
@@ -1527,9 +1869,12 @@ class QRHorarioVerificador:
             "mensaje": mensaje
         }
 
+<<<<<<< HEAD
     def boleta(self, url):
         """Obtiene el número de boleta desde cualquier tipo de QR"""
         return self.extraer_boleta_de_url(url)
+=======
+>>>>>>> origin/main
     
     def stop(self):
         """Detiene el verificador"""
@@ -1538,9 +1883,16 @@ class QRHorarioVerificador:
             self.esp32.desconectar()
         print("🛑 Verificador detenido")
 
+<<<<<<< HEAD
     def operacion_mochila(self):
         """Devuelve True o False para revisión de mochila (aleatorio 20%)"""
         return random.random() < 1    
+=======
+    def operacion_mochila(self, boleta):
+        """Devuelve True o False para revisión de mochila (aleatorio 20%)"""
+        return random.random() < 0.2
+    
+>>>>>>> origin/main
     def registrar_acceso_excel(self, boleta, nombre, grupo, puede_entrar, es_salida):
         """Registra el acceso en un archivo Excel"""
         try:
@@ -1657,7 +2009,11 @@ def api_estado_monitor():
 
 @app.route('/test_esp32')
 def test_esp():
+<<<<<<< HEAD
     estado = esp32.enviar_comando("2") # Prueba apertura izquierda
+=======
+    estado = esp32.enviar_comando("1") # Prueba apertura izquierda
+>>>>>>> origin/main
     return jsonify({'enviado': estado, 'conectado': esp32.conectado})
 
 # ============================================================================

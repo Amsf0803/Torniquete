@@ -675,6 +675,10 @@ class QRHorarioVerificador:
         
         return None
     
+<<<<<<< HEAD
+=======
+    
+>>>>>>> origin/main
     def procesar_qr(self, url):
         """Procesa un QR con flujo optimizado"""
         print(f"\n{'='*60}")
@@ -874,6 +878,11 @@ class QRHorarioVerificador:
             "horarios": horarios_dia
         }
     
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/main
     def precargar_todos_los_indices(self):
         """Precarga todos los índices"""
         print("\n🚀 PRECARGANDO ÍNDICES...")

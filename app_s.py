@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+# Este archvio es para la salida del torniquete via WiFi con ESP32 :)
+
+>>>>>>> origin/main
 from flask import request, redirect, Flask, Response, render_template, jsonify, url_for, flash, session
 import threading
 import numpy as np
@@ -12,16 +17,160 @@ import random
 import socket
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+<<<<<<< HEAD
 import time
 import json
 import os
 #Debe de salir
+=======
+
+
+# ============================================================================
+# CLASE DE CONEXIÓN ESP32 WIFI (REEMPLAZA PYSERIAL)
+# ============================================================================
+
+# Recordar que debe de haber un esp32 corriendo un servidor TCP en el puerto indicado y que sea solo para la salida del torniquete y otro para la entrada
+
+
+class ConexionESP32:
+    """
+    Clase para comunicación WiFi con ESP32
+    Reemplaza completamente pyserial
+    """
+    def __init__(self, esp_ip="192.168.1.100", esp_port=5000, timeout=5):
+        self.esp_ip = esp_ip
+        self.esp_port = esp_port
+        self.timeout = timeout
+        self.socket = None
+        self.conectado = False
+        self.lock = threading.Lock()
+        
+    def conectar(self):
+        """Establece conexión TCP con el ESP32"""
+        with self.lock:
+            try:
+                # ------------------------------------------
+                # LIMPIAR cualquier socket roto
+                # ------------------------------------------
+                if self.socket:
+                    try:
+                        self.socket.close()
+                    except:
+                        pass
+                self.socket = None      # ← IMPORTANTE
+                self.conectado = False  # ← IMPORTANTE
+
+                # Crear nuevo socket limpio
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.settimeout(self.timeout)
+
+                self.socket.connect((self.esp_ip, self.esp_port))
+                self.conectado = True
+
+                print(f"✅ Conectado al ESP32 en {self.esp_ip}:{self.esp_port}")
+                return True
+
+            except Exception as e:
+                print(f"❌ Error conectando al ESP32: {e}")
+                self.conectado = False
+                return False
+
+
+
+    def enviar_comando(self, comando):
+        """Envía comando con reconexión automática robusta"""
+        with self.lock:
+
+            # Si no está conectado → intentar conectar
+            if not self.conectado:
+                if not self.conectar():
+                    return False
+
+            try:
+                # Enviar comando
+                self.socket.sendall(comando.encode())
+
+                # Leer respuesta SOLO si existe
+                self.socket.settimeout(0.2)
+                try:
+                    respuesta = self.socket.recv(1024).decode(errors='ignore').strip()
+                    if respuesta:
+                        print(f"📡 ESP32 responde: {respuesta}")
+                except socket.timeout:
+                    pass
+
+                return True
+
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                print("⚠️ El ESP32 cerró la conexión → reconectando...")
+
+                # ------------------------------------------
+                # CERRAR Y REINICIAR SOCKET COMPLETO
+                # ------------------------------------------
+                try:
+                    self.socket.close()
+                except:
+                    pass
+                self.socket = None       # ← NECESARIO
+                self.conectado = False   # ← NECESARIO
+
+                # Intentar reconectar
+                if not self.conectar():
+                    return False
+
+                # Reintentar envío una sola vez
+                try:
+                    self.socket.sendall(comando.encode())
+                    return True
+                except:
+                    return False
+
+    
+    def write(self, data):
+        """Método de compatibilidad con pyserial"""
+        if isinstance(data, bytes):
+            comando = data.decode()
+        else:
+            comando = str(data)
+        
+        return self.enviar_comando(comando)
+    
+    def abrir_torniquete(self):
+        """Comando '2' - Abrir torniquete"""
+        return self.enviar_comando('2')
+    
+    def cerrar_torniquete(self):
+        """Comando '0' - Cerrar torniquete"""
+        return self.enviar_comando('0')
+    
+    def verificar_estado(self):
+        """Comando 'S' - Consultar estado del ESP32"""
+        return self.enviar_comando('S')
+    
+    def ping(self):
+        """Comando 'P' - Verificar que ESP32 está vivo"""
+        return self.enviar_comando('P')
+    
+    def desconectar(self):
+        """Cierra la conexión"""
+        with self.lock:
+            if self.socket:
+                try:
+                    self.socket.close()
+                except:
+                    pass
+            self.conectado = False
+            print("🔌 Desconectado del ESP32")
+
+
+>>>>>>> origin/main
 # ============================================================================
 # CONFIGURACIÓN GLOBAL
 # ============================================================================
 
 contra_db = "P3l0n100j0t3$"
 
+<<<<<<< HEAD
 # CONFIGURACIÓN ESP32 CON IP PÚBLICA
 ESP32_IP = "201.66.195.11"  # ← TU IP PÚBLICA DEL ESP32
 ESP32_PORT = 80
@@ -191,6 +340,35 @@ else:
     print(f"\n❌ No se pudo conectar con el ESP32")
     print("⚠️ El sistema funcionará sin control de torniquete")
     esp32 = None
+=======
+# CONFIGURAR IP DEL ESP32 AQUÍ
+ESP32_IP = "192.168.0.144"
+ESP32_PORT = 5000
+
+# Inicializar conexión con ESP32
+intento = 0
+esp32 = None
+while True:
+    try:
+        esp32 = ConexionESP32(esp_ip=ESP32_IP, esp_port=ESP32_PORT)
+        if esp32.conectar():
+            print(f"✅ Conexión WiFi con ESP32 establecida")
+            print(f"📡 IP ESP32: {ESP32_IP}:{ESP32_PORT}")
+            break
+        else:
+            raise Exception("No se pudo conectar")
+    except Exception as e:
+        print(f"❌ Error al conectar con ESP32 (intento {intento + 1}): {e}")
+        intento += 1
+        if intento >= 5:
+            print("⚠️ No se pudo conectar con ESP32 después de 5 intentos")
+            print("⚠️ El sistema continuará sin control de torniquete")
+            esp32 = None
+            break
+        import time
+        time.sleep(2)
+
+>>>>>>> origin/main
 
 def get_with_retries(url, headers, retries=3, backoff=2, timeout=20):
     """Hace petición HTTP con reintentos automáticos"""
@@ -206,6 +384,7 @@ def get_with_retries(url, headers, retries=3, backoff=2, timeout=20):
     return session.get(url, headers=headers, timeout=timeout)
 
 
+<<<<<<< HEAD
 # Instancia global del ESP32
 esp32 = ConexionESP32()
 
@@ -402,6 +581,10 @@ except:
 
 # ============================================================================
 # CLASE PRINCIPAL DEL SISTEMA
+=======
+# ============================================================================
+# CLASE PRINCIPAL
+>>>>>>> origin/main
 # ============================================================================
 
 class QRHorarioVerificador:
@@ -638,6 +821,7 @@ class QRHorarioVerificador:
         
         print(f"❌ No se encontró la credencial")
         return None, None
+<<<<<<< HEAD
         
     def buscar_saes_optimizado(self, url):
             """Búsqueda optimizada de enlace SAES en la base de datos"""
@@ -687,6 +871,9 @@ class QRHorarioVerificador:
             return None, None
 
 
+=======
+    
+>>>>>>> origin/main
     def buscar_horario_en_mismo_grupo(self, boleta, grupo):
         """Busca el horario SOLO en el grupo donde está la credencial"""
         try:
@@ -752,6 +939,7 @@ class QRHorarioVerificador:
         print(f"❌ No se encontró tabla de horario")
         return None
     
+<<<<<<< HEAD
     def activar_torniquete(self, comando=2):
         """Activa el torniquete vía WiFi al ESP32"""
         if self.esp32:
@@ -768,11 +956,23 @@ class QRHorarioVerificador:
                     print(f"✅ Torniquete activado (comando {comando})")
                 else:
                     print(f"⚠️ No se pudo activar torniquete (comando {comando})")
+=======
+    def activar_torniquete(self):
+        """Activa el torniquete vía WiFi al ESP32"""
+        if self.esp32:
+            try:
+                resultado = self.esp32.abrir_torniquete()
+                if resultado:
+                    print("✅ Torniquete activado vía WiFi")
+                else:
+                    print("⚠️ No se pudo activar torniquete")
+>>>>>>> origin/main
                 return resultado
             except Exception as e:
                 print(f"❌ Error activando torniquete: {e}")
                 return False
         else:
+<<<<<<< HEAD
             print("⚠️ ESP32 no conectado - Simulando activación")
             return True
     
@@ -994,6 +1194,335 @@ class QRHorarioVerificador:
             return {"creados": indices_creados, "existentes": indices_existentes}
 
 
+=======
+            print("⚠️ ESP32 no conectado")
+            return False
+    
+    def extraer_boleta_de_url(self, url):
+        """Función unificada que detecta el tipo de URL y extrae la boleta"""
+        print(f"\n🔍 Detectando tipo de enlace...")
+        
+        if self.es_qr_administrativo(url):
+            print("🏢 QR Administrativo - ACCESO DIRECTO")
+            boleta = "ADMINISTRATIVO"
+            self.activar_torniquete()
+            return boleta
+        
+        if self.es_qr_guardia(url):
+            print("🛡️ QR Guardia - ACCESO DIRECTO")
+            boleta = "GUARDIA"
+            self.activar_torniquete()
+            return boleta
+        
+        if self.es_enlace_dae(url):
+            print("📇 Enlace DAE detectado")
+            grupo, boleta = self.buscar_credencial_dae_optimizado(url)
+            return boleta
+        
+        elif self.es_enlace_saes(url):
+            print("📋 Enlace SAES detectado")
+            return self.extraer_boleta_de_url_saes(url)
+        
+        else:
+            print("⚠️ Tipo de enlace desconocido")
+            return self.extraer_boleta_de_url_saes(url)
+    
+    def obtener_grupo_por_url(self, url):
+        """Obtiene el grupo según el tipo de URL"""
+        if self.es_qr_administrativo(url) or self.es_qr_guardia(url):
+            return None
+        
+        if self.es_enlace_dae(url):
+            grupo, _ = self.buscar_credencial_dae_optimizado(url)
+            return grupo
+        
+        elif self.es_enlace_saes(url):
+            boleta = self.extraer_boleta_de_url_saes(url)
+            if boleta:
+                return self.buscar_grupo_por_boleta(boleta)
+        
+        return None
+    
+    def procesar_qr(self, url):
+        """Procesa un QR con flujo optimizado"""
+        print(f"\n{'='*60}")
+        print(f"🔍 PROCESANDO QR")
+        print(f"{'='*60}")
+        
+        if self.es_qr_administrativo(url):
+            print("🏢 QR ADMINISTRATIVO - ACCESO DIRECTO")
+            self.play_success_sound()
+            self.activar_torniquete()
+            return {
+                "tipo": "administrativo",
+                "status": "OK",
+                "puede_entrar": True,
+                "acceso_directo": True,
+                "mensaje": "Personal Administrativo"
+            }
+        
+        if self.es_qr_guardia(url):
+            print("🛡️ QR GUARDIA - ACCESO DIRECTO")
+            self.play_success_sound()
+            self.activar_torniquete()
+            return {
+                "tipo": "guardia",
+                "status": "OK",
+                "puede_entrar": True,
+                "acceso_directo": True,
+                "mensaje": "Personal de Guardia"
+            }
+        
+        boleta = None
+        base_datos_grupo = None
+        
+        if self.es_enlace_dae(url):
+            print("📇 Tipo: CREDENCIAL DAE")
+            
+            base_datos_grupo, boleta = self.buscar_credencial_dae_optimizado(url)
+            
+            if not boleta or not base_datos_grupo:
+                print("❌ Credencial no registrada")
+                self.play_error_sound()
+                return {
+                    "tipo": "dae",
+                    "status": "Error",
+                    "puede_entrar": False,
+                    "acceso_directo": False,
+                    "mensaje": "Credencial no encontrada"
+                }
+            
+            print(f"\n📊 INFORMACIÓN:")
+            print(f"   Boleta: {boleta}")
+            print(f"   Grupo: {base_datos_grupo}")
+            
+            base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
+            
+            if not base_datos_horario:
+                print("❌ No se encontró horario")
+                self.play_error_sound()
+                return {
+                    "tipo": "dae",
+                    "boleta": boleta,
+                    "grupo": base_datos_grupo,
+                    "status": "Error",
+                    "puede_entrar": False,
+                    "acceso_directo": False,
+                    "mensaje": "Sin horario registrado"
+                }
+        
+        elif self.es_enlace_saes(url):
+            print("📋 Tipo: HORARIO SAES")
+            
+            boleta = self.extraer_boleta_de_url_saes(url)
+            
+            if not boleta:
+                print("❌ No se pudo extraer boleta")
+                self.play_error_sound()
+                return {
+                    "tipo": "saes",
+                    "status": "Error",
+                    "puede_entrar": False,
+                    "acceso_directo": False,
+                    "mensaje": "No se pudo leer el horario"
+                }
+            
+            base_datos_grupo = self.buscar_grupo_por_boleta(boleta)
+            
+            if not base_datos_grupo:
+                print(f"❌ Boleta {boleta} no registrada")
+                self.play_error_sound()
+                return {
+                    "tipo": "saes",
+                    "boleta": boleta,
+                    "status": "Error",
+                    "puede_entrar": False,
+                    "acceso_directo": False,
+                    "mensaje": "Alumno no registrado"
+                }
+            
+            base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
+            
+            if not base_datos_horario:
+                print("❌ No se encontró horario")
+                self.play_error_sound()
+                return {
+                    "tipo": "saes",
+                    "boleta": boleta,
+                    "grupo": base_datos_grupo,
+                    "status": "Error",
+                    "puede_entrar": False,
+                    "acceso_directo": False,
+                    "mensaje": "Sin horario registrado"
+                }
+        
+        else:
+            print("❌ Tipo de QR no reconocido")
+            self.play_error_sound()
+            return {
+                "status": "Error",
+                "puede_entrar": False,
+                "acceso_directo": False,
+                "mensaje": "Tipo de QR no válido"
+            }
+        
+        dia_actual = datetime.now().weekday()
+        dia_nombre = self.dias_semana.get(dia_actual, 'desconocido')
+        
+        print(f"📅 Día actual: {dia_nombre}")
+        
+        if dia_actual >= 5:
+            print("🏖️ Es fin de semana")
+            self.play_error_sound()
+            return {
+                "boleta": boleta,
+                "grupo": base_datos_grupo,
+                "status": "Fin de semana",
+                "puede_entrar": False,
+                "acceso_directo": False,
+                "mensaje": "No hay clases"
+            }
+        
+        horarios_dia = self.obtener_horario_dia(boleta, base_datos_horario, dia_nombre)
+        
+        if not horarios_dia:
+            print(f"❌ No hay clases para {dia_nombre}")
+            self.play_error_sound()
+            return {
+                "boleta": boleta,
+                "grupo": base_datos_grupo,
+                "status": "Sin clases",
+                "puede_entrar": False,
+                "acceso_directo": False,
+                "mensaje": f"Sin clases el {dia_nombre}"
+            }
+        
+        inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
+        
+        if inscrito_valor != 1:
+            print(f"❌ Usuario no inscrito")
+            self.play_error_sound()
+            return {
+                "boleta": boleta,
+                "grupo": base_datos_grupo,
+                "status": "No inscrito",
+                "puede_entrar": False,
+                "acceso_directo": False,
+                "mensaje": "Usuario no inscrito"
+            }
+        
+        estado = self.obtener_estado_acceso_salida(
+            boleta, 
+            inscrito_valor=inscrito_valor,
+            grupo=base_datos_grupo
+        )
+        
+        puede_entrar = estado.get("acceso", False)
+        
+        if puede_entrar:
+            print("✅ ACCESO PERMITIDO")
+            self.play_success_sound()
+            
+            try:
+                self.registrar_acceso_excel(boleta, "", base_datos_grupo, puede_entrar, False)
+            except:
+                pass
+        else:
+            print("❌ ACCESO DENEGADO")
+            self.play_error_sound()
+        
+        return {
+            "boleta": boleta,
+            "grupo": base_datos_grupo,
+            "tipo": "estudiante",
+            "status": "OK" if puede_entrar else "Fuera de horario",
+            "puede_entrar": puede_entrar,
+            "acceso_directo": False,
+            "horarios": horarios_dia
+        }
+    
+    def precargar_todos_los_indices(self):
+        """Precarga todos los índices"""
+        print("\n🚀 PRECARGANDO ÍNDICES...")
+        
+        for grupo in self.bases_datos:
+            self.precargar_indices_grupo(grupo)
+        
+        print(f"\n✅ Precarga completada: {len(self._indices_ordenados)} grupos")
+    
+    def crear_indices_sql_optimizacion(self):
+        """Crea índices SQL para búsquedas rápidas"""
+        print("\n" + "="*70)
+        print("🔧 CREANDO ÍNDICES SQL")
+        print("="*70)
+        
+        indices_creados = 0
+        indices_existentes = 0
+        errores = 0
+        
+        for grupo in self.bases_datos:
+            try:
+                db_config_temp = self.db_config.copy()
+                db_config_temp['database'] = grupo
+                
+                with mysql.connector.connect(**db_config_temp, connection_timeout=30) as connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(f"""
+                            SELECT COUNT(*)
+                            FROM information_schema.statistics
+                            WHERE table_schema = '{grupo}'
+                            AND table_name = '{grupo}'
+                            AND index_name = 'idx_url_origen'
+                        """)
+                        
+                        if cursor.fetchone()[0] == 0:
+                            print(f"📝 Creando índice url_origen en '{grupo}'")
+                            cursor.execute(f"""
+                                CREATE INDEX idx_url_origen 
+                                ON {grupo} (url_origen)
+                            """)
+                            connection.commit()
+                            indices_creados += 1
+                        else:
+                            indices_existentes += 1
+                        
+                        cursor.execute(f"""
+                            SELECT COUNT(*)
+                            FROM information_schema.statistics
+                            WHERE table_schema = '{grupo}'
+                            AND table_name = '{grupo}'
+                            AND index_name = 'idx_boleta'
+                        """)
+                        
+                        if cursor.fetchone()[0] == 0:
+                            print(f"📝 Creando índice boleta en '{grupo}'")
+                            cursor.execute(f"""
+                                CREATE INDEX idx_boleta 
+                                ON {grupo} (boleta)
+                            """)
+                            connection.commit()
+                            indices_creados += 1
+                        
+            except Error as e:
+                print(f"❌ Error en '{grupo}': {e}")
+                errores += 1
+                continue
+        
+        print("\n" + "="*70)
+        print("📊 RESUMEN")
+        print("="*70)
+        print(f"✅ Índices nuevos: {indices_creados}")
+        print(f"ℹ️  Ya existentes: {indices_existentes}")
+        print(f"❌ Errores: {errores}")
+        print("="*70)
+        
+        return {
+            "creados": indices_creados,
+            "existentes": indices_existentes,
+            "errores": errores
+        }
+    
+>>>>>>> origin/main
     def limpiar_cache(self):
         """Limpia todos los caches"""
         self._url_cache.clear()
@@ -1015,7 +1544,48 @@ class QRHorarioVerificador:
             total_registros = sum(len(indices) for indices in self._indices_ordenados.values())
             print(f"   Registros indexados: {total_registros}")
     
+<<<<<<< HEAD
 
+=======
+    def extraer_boleta_de_url_saes(self, url):
+        """Extrae el número de boleta desde una URL del SAES"""
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+            
+            print("🌐 Solicitando página del SAES...")
+            response = get_with_retries(url, headers, retries=3, backoff=2, timeout=20)
+            print("✅ Página recibida, extrayendo boleta...")
+            
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            boleta_element = soup.find('div', class_='boleta')
+            if boleta_element:
+                boleta_text = boleta_element.get_text().strip()
+                numeros = re.findall(r'\d{10}', boleta_text)
+                if numeros:
+                    return numeros[0]
+            
+            texto_completo = soup.get_text()
+            patron_boleta = r'boleta[:\s]*(\d{10})'
+            match_boleta = re.search(patron_boleta, texto_completo, re.IGNORECASE)
+            if match_boleta:
+                return match_boleta.group(1)
+            
+            numeros_10_digitos = re.findall(r'\b\d{10}\b', texto_completo)
+            if numeros_10_digitos:
+                return numeros_10_digitos[0]
+            
+            return None
+            
+        except Exception as e:
+            print(f"❌ Error extrayendo boleta de URL SAES: {e}")
+            return None
+    
+>>>>>>> origin/main
     def buscar_grupo_por_boleta(self, boleta):
         """Busca en qué grupo está registrada una boleta"""
         for base_datos in self.bases_datos:
@@ -1044,7 +1614,11 @@ class QRHorarioVerificador:
                 continue
         
         return None
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/main
     def obtener_horario_dia(self, boleta, base_datos, dia):
         """Obtiene el horario específico del día para una boleta"""
         try:
@@ -1132,6 +1706,7 @@ class QRHorarioVerificador:
         ultima_hora = horas[-1][1]
         
         return (primera_hora, primera_clase), (ultima_hora, ultima_clase)
+<<<<<<< HEAD
 
     def actualizar_registros_salida(self):
 
@@ -1252,26 +1827,54 @@ class QRHorarioVerificador:
             }
 
 
+=======
+    
+    def obtener_estado_acceso_salida(self, boleta, inscrito_valor=None, grupo=None):
+        """Verifica acceso/salida con control de horario"""
+        salir = False
+        bloquear_b = 0
+        
+        if boleta == "ADMINISTRATIVO":
+            salir = True
+            print("🏢 Acceso administrativo concedido")
+            self.activar_torniquete()
+            return {"salir": False, "bloquear_b": bloquear_b, "acceso": acceso}
+        elif boleta == "GUARDIA":
+            salir = True
+            print("🛡️ Acceso guardia concedido")
+            self.activar_torniquete()
+            return {"salir": False, "bloquear_b": bloquear_b, "acceso": acceso}
+        
+
+>>>>>>> origin/main
         if grupo is None:
             grupo = self.buscar_grupo_por_boleta(boleta)
             if not grupo:
                 print(f"❌ No se encontró grupo para boleta {boleta}")
+<<<<<<< HEAD
                 return {
                     "salir": False, 
                     "bloquear_a": bloquear_a, 
                     "acceso": acceso,
                     "mensaje": "Grupo no encontrado"
                 }
+=======
+                return {"salir": salir, "bloquear_b": bloquear_b, "acceso": False}
+>>>>>>> origin/main
         
         base_datos = self.buscar_horario_en_mismo_grupo(boleta, grupo)
         if not base_datos:
             print(f"❌ No se encontró horario para boleta {boleta}")
+<<<<<<< HEAD
             return {
                 "salir": False, 
                 "bloquear_a": bloquear_a, 
                 "acceso": acceso,
                 "mensaje": "Sin horario registrado"
             }
+=======
+            return {"salir": salir, "bloquear_b": bloquear_b, "acceso": False}
+>>>>>>> origin/main
         
         if inscrito_valor is None:
             inscrito = self.get_inscrito(boleta, grupo)
@@ -1279,18 +1882,23 @@ class QRHorarioVerificador:
             inscrito = inscrito_valor
         
         if inscrito != 1:
+<<<<<<< HEAD
             return {
                 "salir": False, 
                 "bloquear_a": bloquear_a, 
                 "acceso": acceso,
                 "mensaje": "No estás inscrito"
             }
+=======
+            return {"salir": salir, "bloquear_b": bloquear_b, "acceso": False}
+>>>>>>> origin/main
         
         dia_actual = datetime.now().weekday()
         dia_nombre = self.dias_semana.get(dia_actual, 'desconocido')
         
         horarios_dia = self.obtener_horario_dia(boleta, base_datos, dia_nombre)
         if not horarios_dia:
+<<<<<<< HEAD
             return {
                 "salir": False, 
                 "bloquear_a": bloquear_a, 
@@ -1306,6 +1914,13 @@ class QRHorarioVerificador:
                 "acceso": acceso,
                 "mensaje": "Error en horario"
             }
+=======
+            return {"salir": salir, "bloquear_b": bloquear_b, "acceso": False}
+        
+        primera_info, ultima_info = self.obtener_primera_y_ultima_hora(horarios_dia)
+        if not (primera_info and ultima_info):
+            return {"salir": salir, "bloquear_b": bloquear_b, "acceso": False}
+>>>>>>> origin/main
         
         ahora = datetime.now()
         hoy = ahora.date()
@@ -1321,6 +1936,7 @@ class QRHorarioVerificador:
         hora_entrada_minima = hora_entrada_dt - timedelta(minutes=40)
         hora_salida_minima = hora_salida_dt - timedelta(minutes=15)
         
+<<<<<<< HEAD
         salir = False
         mensaje = "Acceso denegado"
         
@@ -1353,6 +1969,11 @@ class QRHorarioVerificador:
                     }
 
             # Verificar pases temporales
+=======
+        acceso = False
+        
+        try:
+>>>>>>> origin/main
             conexion_pase = mysql.connector.connect(
                 host=self.db_config['host'],
                 user=self.db_config['user'],
@@ -1360,7 +1981,11 @@ class QRHorarioVerificador:
                 database="Pases_salida"
             )
             cursor_pase = conexion_pase.cursor(dictionary=True)
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> origin/main
             cursor_pase.execute("""
                 SELECT hora_inicio, hora_fin
                 FROM modificaciones_temporales
@@ -1370,6 +1995,7 @@ class QRHorarioVerificador:
             
             cursor_pase.close()
             conexion_pase.close()
+<<<<<<< HEAD
 
             if pase:
                 hora_inicio_pase_time = datetime.strptime(str(pase['hora_inicio']), "%H:%M").time()
@@ -1439,6 +2065,63 @@ class QRHorarioVerificador:
             "mensaje": mensaje
         }
 
+=======
+            
+            # Verificar bloqueo de salida
+            db_config_temp = self.db_config.copy()
+            db_config_temp['database'] = base_datos
+            
+            conexion_grupo = mysql.connector.connect(**db_config_temp)
+            cursor_grupo = conexion_grupo.cursor(dictionary=True)
+            
+            cursor_grupo.execute(f"SELECT cerro FROM `{base_datos}` WHERE boleta = %s", (boleta,))
+            resultado_abrio = cursor_grupo.fetchone()
+            
+            if resultado_abrio:
+                abrio_actual = int(resultado_abrio["cerro"]) if resultado_abrio["cerro"] is not None else 0
+                if abrio_actual == 1:
+                    bloquear_b = 1
+                    print("❌ Salida bloqueada (ya salió)")
+                else:
+                    print("✅ Salida disponible")
+
+            # Evaluar con pase temporal
+            if pase:
+                hora_inicio_pase_time = datetime.strptime(str(pase['hora_inicio']), "%H:%M").time()
+                hora_fin_pase_time = datetime.strptime(str(pase['hora_fin']), "%H:%M").time()
+                
+                hora_inicio_pase = datetime.combine(hoy, hora_inicio_pase_time)
+                hora_fin_pase = datetime.combine(hoy, hora_fin_pase_time)
+                hora_salida_minima = hora_inicio_pase - timedelta(minutes=15)
+                
+                if ahora >= hora_salida_minima and bloquear_b == 0:
+                    salir = True
+                    self.activar_torniquete()
+                    cursor_grupo.execute(f"UPDATE {base_datos} SET cerro = 1 WHERE boleta = %s", (boleta,))
+                    conexion_grupo.commit()
+            else:
+                # Sin pase temporal
+                if ahora >= hora_salida_minima and bloquear_b == 0:
+                    salir = True
+                    self.activar_torniquete()
+                    cursor_grupo.execute(f"UPDATE {base_datos} SET cerro = 1 WHERE boleta = %s", (boleta,))
+                    conexion_grupo.commit()
+            
+            cursor_grupo.close()
+            conexion_grupo.close()
+            
+        except mysql.connector.Error as e:
+            print(f"Error verificando pase: {e}")
+        
+        return {
+            "salir": salir,
+            "bloquear_b": bloquear_b,
+            "acceso": acceso
+        }
+    def boleta(self, url):
+        """Obtiene el número de boleta desde cualquier tipo de QR"""
+        return self.extraer_boleta_de_url(url)
+>>>>>>> origin/main
     
     def stop(self):
         """Detiene el verificador"""
@@ -1447,11 +2130,16 @@ class QRHorarioVerificador:
             self.esp32.desconectar()
         print("🛑 Verificador detenido")
 
+<<<<<<< HEAD
     def operacion_mochila(self, boleta):
         """Devuelve True o False para revisión de mochila (aleatorio 20%)"""
         return random.random() < 0.2
     
     def registrar_acceso_excel(self, boleta, nombre, grupo, puede_entrar, es_salida):
+=======
+    
+    def registrar_acceso_excel(self, boleta, nombre, grupo, puede_entrar, es_salida): # Abandonado, si estas leyendo esto y eres parte del club ps intentalo agregar o practica ns hechale ganas w
+>>>>>>> origin/main
         """Registra el acceso en un archivo Excel"""
         try:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1463,6 +2151,10 @@ class QRHorarioVerificador:
         except Exception as e:
             print(f"⚠️ Error registrando: {e}")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 # ============================================================================
 # CONFIGURACIÓN FLASK
 # ============================================================================
@@ -1549,6 +2241,7 @@ try:
 except Exception as e:
     print(f"⚠️ No se pudieron precargar índices: {e}")
 
+<<<<<<< HEAD
 
 
 @app.route('/')
@@ -1569,6 +2262,112 @@ def api_estado_monitor():
 def test_esp():
     estado = esp32.enviar_comando("1") # Prueba apertura izquierda
     return jsonify({'enviado': estado, 'conectado': esp32.conectado})
+=======
+# ============================================================================
+# RUTAS FLASK
+# ============================================================================
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        url = request.form.get('qr_url', '').strip()
+    else:
+        url = request.args.get('url', '').strip()
+    
+    if not url:
+        return render_template('index_s.html', foto=None, boleta=None, inscrito=None, 
+                            acceso=False, salir=False)
+    
+    boleta = verificador.extraer_boleta_de_url(url)
+    
+    if boleta == "ADMINISTRATIVO":
+        acceso_directo = True
+        tipo_acceso = "administrativo"
+        print("✅ Acceso administrativo concedido")
+        return render_template('index_s.html', foto=None, boleta=None, inscrito=None, 
+                        acceso=False, salir=False, operacion_mochila=False,
+                        acceso_directo=acceso_directo, tipo_acceso=tipo_acceso)
+    
+    elif boleta == "GUARDIA":
+        acceso_directo = True
+        tipo_acceso = "guardia"
+        print("✅ Acceso de guardia concedido")
+        return render_template('index_s.html', foto=None, boleta=None, inscrito=None, 
+                        acceso=False, salir=False, operacion_mochila=False,
+                        acceso_directo=acceso_directo, tipo_acceso=tipo_acceso)
+    
+    if not boleta:
+        return render_template('index_s.html', foto=None, boleta=None, inscrito=None, 
+                            error="No se pudo extraer la boleta del QR.", 
+                            acceso=False, salir=False, operacion_mochila=False)
+    
+    boletas_especiales = {
+        2024160324: "How did we get here?",
+        2024160330: "The cake is a lie",
+    }
+    
+    mensaje_especial = None
+    boleta_especial = False
+    
+    if int(boleta) in boletas_especiales:
+        print("🎮 Boleta especial detectada")
+        boleta_especial = True
+        mensaje_especial = boletas_especiales[int(boleta)]
+    
+    grupo = None
+    
+    if verificador.es_enlace_dae(url):
+        grupo, _ = verificador.buscar_credencial_dae_optimizado(url)
+        print(f"📇 Grupo desde DAE: {grupo}")
+    
+    if not grupo:
+        grupo = verificador.buscar_grupo_por_boleta(boleta)
+        print(f"📋 Grupo desde boleta: {grupo}")
+    
+    base_datos_encontrada = None
+    if grupo:
+        base_datos_encontrada = verificador.buscar_horario_en_mismo_grupo(boleta, grupo)
+    else:
+        base_datos_encontrada = verificador.buscar_tabla_horario(boleta)
+    
+    inscrito = None
+    if base_datos_encontrada and grupo:
+        inscrito = verificador.get_inscrito(boleta, grupo)
+    elif base_datos_encontrada:
+        inscrito = verificador.get_inscrito(boleta, base_datos_encontrada)
+    
+    estado = verificador.obtener_estado_acceso_salida(
+        boleta, 
+        inscrito_valor=inscrito,
+        grupo=grupo if grupo else base_datos_encontrada
+    )
+    
+    salir = estado.get('salir', False)
+    bloquear_b = estado.get('bloquear_b', 0)
+    acceso = estado.get('acceso', False)
+
+    print(f"📊 Resultados:")
+    print(f"   Boleta: {boleta}")
+    print(f"   Grupo: {grupo}")
+    print(f"   Inscrito: {inscrito}")
+    print(f"   Salida: {salir}")
+    
+    return render_template(
+        'index_s.html', 
+        boleta=boleta, 
+        inscrito=inscrito, 
+        salir=salir, 
+        bloquear_b=bloquear_b,
+        acceso=acceso,
+        boleta_especial=boleta_especial, 
+        mensaje_especial=mensaje_especial
+    )
+
+>>>>>>> origin/main
 
 # ============================================================================
 # MAIN
@@ -1577,6 +2376,7 @@ def test_esp():
 if __name__ == "__main__":
     try:
         print("\n" + "="*70)
+<<<<<<< HEAD
         print("🚀 INICIANDO SISTEMA COMPLETO (DUAL SCANNER)")
         print("="*70)
         print(f"📱 URL Local: http://localhost:5000")
@@ -1602,3 +2402,36 @@ if __name__ == "__main__":
         print("\n👋 Cerrando...")
     except Exception as e:
         print(f"Error fatal: {e}")
+=======
+        print("🚀 INICIANDO SERVIDOR FLASK")
+        print("="*70)
+        print(f"📱 URL Local: http://localhost:5000")
+        print(f"🌐 URL Red: http://0.0.0.0:5000")
+        print(f"🗄️ Bases de datos: {len(bases_datos)} grupos")
+        print(f"⚡ Optimizaciones: Búsqueda binaria + Cache")
+        print(f"📡 ESP32 WiFi: {ESP32_IP}:{ESP32_PORT}")
+        print(f"🔌 Estado ESP32: {'✅ Conectado' if esp32 and esp32.conectado else '❌ Desconectado'}")
+        print("\n📋 Funcionalidades:")
+        print("   ✅ Detección de QR en tiempo real")
+        print("   ✅ Verificación de horarios optimizada")
+        print("   ✅ Control de torniquete vía WiFi")
+        print("   ✅ Log de accesos")
+        print("   ✅ Sonidos de confirmación")
+        print("   ✅ Interface web")
+        print("   ✅ Búsqueda rápida con cache")
+        print("="*70 + "\n")
+        
+        verificador.crear_indices_sql_optimizacion()
+        
+        app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+        
+    except KeyboardInterrupt:
+        print("\n👋 Cerrando aplicación...")
+    finally:
+        verificador.stop()
+        print("✅ Aplicación cerrada correctamente")
+
+
+
+
+>>>>>>> origin/main

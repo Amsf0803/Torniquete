@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen</title>
+</head>
+
+
+
+<style>
+
+/* Instrucciones:
+
+    Poner un input de tipo texto donde pongas la boleta
+    y un boton para enviar esta al python.
+
+
+    Una vez enviada la boleta que la busque en la base de datos y nos daran devuelta la boleta, inscrito y nombre
+    En boleta poner un texto que diga boleta: y luego poner el valor de la boleta
+    Ejemplo:
+        Boleta: 2024160385
+    Poner el inscrito si es 1 el texto diga esta inscrito si es 0 que no lo esta
+        Ejemplo:
+            Si esta inscrito
+    
+    Y nombre igual que boleta:
+    Ejemplo:
+        Nombre: Andre
+
+
+Y ya namas
+Nota: Usaran envios tipo post y get en sus rutas y formularios en html con input de tipo texto. Lo demas es la sintaxis de Jinja2 con Flask 
+Suerte :D
+Ejemplos de formularios:
+
+    <form method="POST" action="/ruta1">
+        <h3 class="ciclo">🔐 Textos</h3>
+        <input type="text">
+        <br>
+        <br>
+        <button type="submit">Mandar Texto</button>
+    </form>
+
+En action es la ruta a la que enviaran los datos
+*/
+
+
+</style>
+
+<body>
+        <div class="imagenes">
+        <img class="logo" src="../static/images/Cecyt16.png" alt="">
+        <img class="LIA" src="../static/images/Logo_LIA.png" alt=""><br><br><br><br><br><br></br><br><br><br><br><br><br><b></b>
+        </div>
+        
+        <form action="/" method="post">
+            <input type="text" name="boleta">
+            <br><br><hr><br>
+            <button type="submit">Enviar</button>
+        </form>
+
+</body>
+
+</html>
+
+
+<style>
+    /* Esto ignorenlo solo es colores para que se vea bonito amenos que quieran cambiarle  */
+    body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            padding-left: 5%;
+            margin: 0;
+            text-align: left;
+            color: #6c1d45;
+            font-weight: bold;
+            background: 
+                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+                linear-gradient(170deg, #6c1d45, #ffffff 75%);
+
+            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-attachment: fixed;
+
+            /* imagen centrada horizontal, 70% vertical (más abajo) 
+            gradiente sigue centrado */
+            background-position: center 100px, center;
+    }
+        
+        h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 400ms;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .imagenes img {
+            width: 200px;
+            height: auto;
+        }
+        .logo {
+            position: absolute;
+            left: 5%;
+        }
+        .LIA {
+            position: absolute;
+            right: 2%;
+            
+        }
+        .grupos {
+            margin-top: 20px;
+            text-align: left;
+        }
+        h3 {
+            text-align: center;
+            color: #fff;
+            margin-top: 20px; 
+            font-weight: bold;
+        }
+        .regreso {
+            margin-top: 50px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            width: 50%;
+            justify-content: center;
+            display: block;
+            margin: 0 auto;
+            
+        }
+
+        a {
+            text-decoration: none;
+            
+        }
+        hr{
+            border: 0.7px solid #fff;
+            margin: 20px 0;
+        }
+        form hr{
+            margin: 0;
+            border: 0.7px solid #6c1d45;
+        }
+
+        .subtitulo{
+            color: #6c1d45;
+            font-weight: bold;
+
+        }
+        h3{
+            color: #6c1d45;
+        }
+
+        .ciclo {
+            text-align: center;
+            color: #6c1d45;
+        }
+        .exitoso {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: auto;
+            width: 60%;
+            
+        }
+        button:disabled {
+            background-color: rgba(128, 128, 128, 0.315);
+            cursor: not-allowed;
+        }
+</style>
