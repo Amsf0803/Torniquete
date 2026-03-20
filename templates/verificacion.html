@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <title>Control de Acceso General</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+
+            background: 
+                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+                linear-gradient(170deg, #6c1d45, #ffffff 75%);
+
+            background-size: 750px, cover; 
+            background-attachment: fixed;
+            background-position: center 100px, center;
+        }
+
+        .imagenes img {
+            width: 150px;
+            height: auto;
+            position: absolute;
+            top: 20px;
+        }
+        .logo { left: 5%; }
+        .LIA { right: 5%; }
+
+        h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-top: 80px; 
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Contenedor principal que simula el formulario */
+        .form-container {
+            max-width: 420px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        label, p.instruccion {
+            display: block;
+            margin-bottom: 10px;
+            color: #6c1d45;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        input[type="password"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #fcfcfc;
+        }
+
+        input[type="password"]:focus, select:focus {
+            outline: none;
+            border-color: #6c1d45;
+            box-shadow: 0 0 5px rgba(108, 29, 69, 0.5);
+        }
+
+        button.btn-accion {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 400ms, background-color 300ms;
+        }
+
+        button.btn-accion:hover {
+            transform: scale(1.05);
+            background-color: #521533;
+        }
+
+        .regreso {
+            margin-top: 50px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 12px 20px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin: 40px auto 0 auto;
+            transition: transform 400ms;
+        }
+
+        .regreso:hover {
+            transform: scale(1.05);
+        }
+
+        a { text-decoration: none; }
+
+        hr {
+            border: 0.7px solid #6c1d45;
+            margin: 20px 0;
+            opacity: 0.5;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            border: 1px solid #ffeeba;
+            text-align: justify;
+        }
+
+        #msg-error {
+            color: #d9534f;
+            font-weight: bold;
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            background-color: #f2dede;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ebccd1;
+        }
+
+        #panel-configuracion { display: none; }
+
+        /* Ajuste para pantallas pequeñas */
+        @media (max-width: 600px) {
+            .imagenes img { width: 100px; }
+            h2 { font-size: 2em; margin-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="imagenes">
+        <img class="logo" src="/static/images/Cecyt16.png" alt="CECyT 16">
+        <img class="LIA" src="/static/images/Logo_LIA.png" alt="LIA">
+    </div>
+
+    <h2>Modo de Acceso Libre</h2>
+    
+    <div class="form-container">
+        
+        <div id="panel-password">
+            <p class="instruccion">Validación Administrativa</p>
+            <hr>
+            <label for="password" style="text-align: left; font-size: 1em; color: #333;">Contraseña de autorización:</label>
+            <input type="password" id="password" placeholder="Ingrese la contraseña interna">
+            
+            <button class="btn-accion" onclick="verificarContrasena()">Verificar Credenciales</button>
+            <div id="msg-error">Contraseña incorrecta. Intente nuevamente.</div>
+        </div>
+
+        <div id="panel-configuracion">
+            <p class="instruccion">Gestión del Torniquete</p>
+            <hr>
+            
+            <div class="warning">
+                <strong>⚠️ AVISO IMPORTANTE:</strong> Al habilitar esta función, el sistema omitirá la validación de horarios en la base de datos. Cualquier alumno con código QR institucional válido podrá acceder inmediatamente.
+            </div>
+            
+            <label for="selector-estado" style="text-align: left; font-size: 1em; color: #333;">Estado del acceso:</label>
+            <select id="selector-estado">
+                </select>
+            
+            <button class="btn-accion" onclick="subirCambios()">Aplicar Configuración</button>
+        </div>
+
+    </div>
+
+    <a href="/">
+        <button class="regreso" type="button">Regresar a la página principal</button>
+    </a>
+
+    <script>
+        function verificarContrasena() {
+            const password = document.getElementById('password').value;
+            
+            fetch('/acceso_verificacion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accion: 'verificar_password', password: password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const msgError = document.getElementById('msg-error');
+                
+                if (data.status === 'success') {
+                    msgError.style.display = 'none';
+                    document.getElementById('panel-password').style.display = 'none';
+                    document.getElementById('panel-configuracion').style.display = 'block';
+                    
+                    const selector = document.getElementById('selector-estado');
+                    selector.innerHTML = ''; 
+                    
+                    if (data.estado === 'vacio') {
+                        selector.innerHTML = '<option value="conceder">Habilitar acceso libre a todos</option>';
+                    } else if (data.estado === 'concedido') {
+                        selector.innerHTML = '<option value="remover">Deshabilitar acceso libre (Restaurar horarios)</option>';
+                    }
+                } else {
+                    msgError.style.display = 'block';
+                    msgError.innerText = data.mensaje;
+                }
+            })
+            .catch(err => console.error("Error en la solicitud:", err));
+        }
+
+        function subirCambios() {
+            const accionSeleccionada = document.getElementById('selector-estado').value;
+            const btn = document.querySelector('#panel-configuracion button');
+            
+            // Animación de carga en el botón
+            btn.innerText = "Guardando...";
+            btn.disabled = true;
+            btn.style.backgroundColor = "#ccc";
+
+            fetch('/acceso_verificacion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accion: 'actualizar_acceso', estado: accionSeleccionada })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("✅ La configuración del torniquete ha sido actualizada exitosamente.");
+                    location.reload(); 
+                }
+            })
+            .catch(err => {
+                console.error("Error al guardar:", err);
+                alert("Ocurrió un error al intentar guardar los cambios.");
+                btn.innerText = "Aplicar Configuración";
+                btn.disabled = false;
+                btn.style.backgroundColor = "#6c1d45";
+            });
+        }
+    </script>
+
+</body>
+</html>

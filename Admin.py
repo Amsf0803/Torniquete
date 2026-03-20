@@ -17,6 +17,23 @@ import os
 import cv2
 from pyzbar.pyzbar import decode
 from PIL import Image
+import base64
+
+def cifrar_texto(texto):
+    # Cifrado sencillo y eficiente
+    clave = "L1A_K3Y"
+    cifrado = "".join(chr(ord(c) ^ ord(clave[i % len(clave)])) for i, c in enumerate(texto))
+    return base64.b64encode(cifrado.encode('utf-8')).decode('utf-8')
+
+def descifrar_texto(texto_cifrado):
+    clave = "L1A_K3Y"
+    try:
+        descifrado_b64 = base64.b64decode(texto_cifrado.encode('utf-8')).decode('utf-8')
+        return "".join(chr(ord(c) ^ ord(clave[i % len(clave)])) for i, c in enumerate(descifrado_b64))
+    except Exception:
+        return ""
+
+
 
 contra_db = "P3l0n100j0t3$"  # Cambiar por tu contraseña de MySQL
 
@@ -2476,6 +2493,67 @@ def mostrar_grafica():
                             labels=etiquetas, 
                             data_in=datos_entrada, 
                             data_out=datos_salida)
+
+
+
+@app.route('/acceso_verificacion', methods=['GET', 'POST'])
+def acceso_verificacion():
+    try:
+        # Asegúrate de usar la variable contra_db que ya tienes en tu código
+        conexion = mysql.connector.connect(host="localhost", user="root", password=contra_db, database="Semestre")
+        cursor = conexion.cursor(dictionary=True)
+        
+        # Crear la tabla y la columna si no existen
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS acceso (
+                verificacion VARCHAR(255)
+            )
+        """)
+        conexion.commit()
+
+        if request.method == 'POST':
+            data = request.json
+            accion = data.get('accion')
+
+            # --- FASE 1: Verificación de contraseña ---
+            if accion == 'verificar_password':
+                if data.get('password') == "C16_4dm1n_4cC3s0":
+                    cursor.execute("SELECT verificacion FROM acceso LIMIT 1")
+                    fila = cursor.fetchone()
+                    
+                    estado_actual = "vacio"
+                    if fila and fila['verificacion']:
+                        texto_descifrado = descifrar_texto(fila['verificacion'])
+                        if texto_descifrado == "Acceso_concedido":
+                            estado_actual = "concedido"
+                            
+                    return jsonify({"status": "success", "estado": estado_actual})
+                else:
+                    return jsonify({"status": "error", "mensaje": "Contraseña incorrecta"})
+
+            # --- FASE 2: Subir cambios ---
+            elif accion == 'actualizar_acceso':
+                nuevo_estado = data.get('estado')
+                
+                # TRUNCATE borra todos los registros y previene que haya más de 1 fila por error
+                cursor.execute("TRUNCATE TABLE acceso")
+                
+                if nuevo_estado == 'conceder':
+                    texto_cifrado = cifrar_texto("Acceso_concedido")
+                    cursor.execute("INSERT INTO acceso (verificacion) VALUES (%s)", (texto_cifrado,))
+                
+                conexion.commit()
+                return jsonify({"status": "success"})
+                
+    except Error as e:
+        print(f"Error de BD: {e}")
+        return jsonify({"status": "error", "mensaje": "Error de conexión a la base de datos"})
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conexion' in locals() and conexion.is_connected(): conexion.close()
+
+    return render_template('verificacion.html')
+
 
 
 # Ejemplo de uso

@@ -16,8 +16,21 @@ import time
 import json
 import os
 import urllib.parse
+import base64
 
+def cifrar_texto(texto):
+    # Cifrado sencillo y eficiente
+    clave = "L1A_K3Y"
+    cifrado = "".join(chr(ord(c) ^ ord(clave[i % len(clave)])) for i, c in enumerate(texto))
+    return base64.b64encode(cifrado.encode('utf-8')).decode('utf-8')
 
+def descifrar_texto(texto_cifrado):
+    clave = "L1A_K3Y"
+    try:
+        descifrado_b64 = base64.b64decode(texto_cifrado.encode('utf-8')).decode('utf-8')
+        return "".join(chr(ord(c) ^ ord(clave[i % len(clave)])) for i, c in enumerate(descifrado_b64))
+    except Exception:
+        return ""
 #Debe de salir
 # ============================================================================
 # CONFIGURACIÓN GLOBAL
@@ -762,6 +775,31 @@ class QRHorarioVerificador:
             return True
     
 
+    def comprobar_acceso_ilimitado():
+        try:
+            conexion = mysql.connector.connect(host="localhost", user="root", password=contra_db, database="Semestre")
+            cursor = conexion.cursor(dictionary=True)
+                
+            cursor.execute("SHOW TABLES LIKE 'acceso'")
+            if not cursor.fetchone():
+                return False
+                
+            cursor.execute("SELECT verificacion FROM acceso LIMIT 1")
+            fila = cursor.fetchone()
+            
+            if fila and fila['verificacion']:                    
+                texto_descifrado = descifrar_texto(fila['verificacion'])
+                if texto_descifrado == "Acceso_concedido":
+                    return True
+                    
+        except Error as e:
+            print(f"Error comprobando acceso ilimitado: {e}")
+        finally:
+            if 'cursor' in locals(): cursor.close()
+            if 'conexion' in locals() and conexion.is_connected(): conexion.close()
+            
+        return False
+
     def procesar_qr(self, url, solo_verificar=False, lado_izquierdo=True):
             """
             Procesa un QR. 
@@ -799,7 +837,7 @@ class QRHorarioVerificador:
                     "foto": "/static/img/guardia.png", "boleta": "GUARDIA"
                 }
 
-    # --- LÓGICA ALUMNOS (DAE / SAES) ---
+            # --- LÓGICA ALUMNOS (DAE / SAES) ---
             boleta = None
             base_datos_grupo = None
             tipo_qr = ""
@@ -848,6 +886,28 @@ class QRHorarioVerificador:
             except Exception as e:
                 print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
 
+            # =========================================================================
+            # 🌟 NUEVA LÓGICA: COMPROBAR ACCESO ILIMITADO (ANTES DEL HORARIO)
+            # =========================================================================
+            if self.comprobar_acceso_ilimitado():
+                print("🔓 ACCESO ILIMITADO ACTIVADO - Omitiendo validación de horario")
+                self.play_success_sound()
+                
+                # Mandar comando a la ESP32 para abrir
+                if not solo_verificar and self.esp32 and self.esp32.conectado:
+                    self.esp32.enviar_comando(comando_torniquete)
+                    
+                return {
+                    "boleta": boleta,
+                    "grupo": base_datos_grupo,
+                    "status": "OK",
+                    "puede_entrar": True,
+                    "mensaje": "Acceso Libre (Sin Horario)", # Mensaje que saldrá en pantalla
+                    "nombre": nombre_alumno,
+                    "foto": foto_url
+                }
+            # =========================================================================
+
             # 3. Buscar Horario (Verificar que exista la tabla con nombre de la boleta)
             base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
             if not base_datos_horario:
@@ -869,6 +929,8 @@ class QRHorarioVerificador:
                     "foto": foto_url,
                     "boleta": boleta
                 }
+            
+            # ... (El resto de tu código sigue igual hacia abajo)
 
             # 5. Obtener estado final y activar torniquete si corresponde
             inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
@@ -918,6 +980,8 @@ class QRHorarioVerificador:
                 "nombre": nombre_alumno,
                 "foto": foto_url
             }
+
+
 
 
 
