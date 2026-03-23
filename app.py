@@ -297,7 +297,7 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     elif boleta == "2024160385":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - André"
-        mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻"
+        mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻 -- Papoi"
     elif boleta == "2024160550":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Mati"
@@ -315,9 +315,16 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         titulo_tarjeta = "Integrante de LIA - Andrew"
         mensaje_mochila = "⚠️ El del saberes ⚠️"
     elif boleta == "2024160330":
-        estilo_css = "inscrito-Especial"
+        estilo_css = "inscrito-LIA"
         mensaje_mochila = "The cake is a lie"
-    
+    elif boleta == "2024160378":
+        titulo_tarjeta = "Integrante de LIA - Vale"
+        estilo_css = "inscrito-LIA"
+        mensaje_mochila = "The cake is a lie"
+    elif boleta == "2024160104":
+        titulo_tarjeta = "Integrante de LIA - Jesus"
+        estilo_css = "inscrito-LIA"
+        mensaje_mochila = "The cake is a lie"
     # C) ALUMNOS NORMALES
     elif acceso_concedido:
         estilo_css = "inscrito-activo"
@@ -775,7 +782,7 @@ class QRHorarioVerificador:
             return True
     
 
-    def comprobar_acceso_ilimitado():
+    def comprobar_acceso_ilimitado(self):
         try:
             conexion = mysql.connector.connect(host="localhost", user="root", password=contra_db, database="Semestre")
             cursor = conexion.cursor(dictionary=True)

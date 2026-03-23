@@ -13,24 +13,6 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-<<<<<<< HEAD
-            min-height: 100vh;
-            padding: 20px;
-            align-items: center;
-            margin: 0;
-            text-align: left;
-            background: 
-            url("/static/images/logo-ipn-blanco.png") no-repeat center center,
-            linear-gradient(170deg, #6c1d45, #ffffff 80%);
-            display: flex;
-            justify-content: center;
-            background-size: 750px, cover;
-            background-attachment: fixed;
-            background-position: center 150px, center;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.603);
-=======
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -41,7 +23,6 @@
 
         .container {
             background: white;
->>>>>>> origin/main
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
@@ -64,11 +45,7 @@
         }
 
         .upload-area {
-<<<<<<< HEAD
-            border: 3px dashed #6c1d45;
-=======
             border: 3px dashed #667eea;
->>>>>>> origin/main
             border-radius: 15px;
             padding: 40px;
             text-align: center;
@@ -79,22 +56,13 @@
         }
 
         .upload-area:hover {
-<<<<<<< HEAD
-            border-color: #6c1d4594;
-            background: #dddddd54;
-=======
             border-color: #764ba2;
             background: #f0f1ff;
->>>>>>> origin/main
             transform: translateY(-2px);
         }
 
         .upload-area.dragover {
-<<<<<<< HEAD
-            border-color: #6c1d4594;
-=======
             border-color: #764ba2;
->>>>>>> origin/main
             background: #e8e9ff;
             transform: scale(1.02);
         }
@@ -105,11 +73,7 @@
         }
 
         .upload-text {
-<<<<<<< HEAD
-            color: #6c1d45;
-=======
             color: #667eea;
->>>>>>> origin/main
             font-size: 1.2em;
             font-weight: 600;
             margin-bottom: 10px;
@@ -167,21 +131,13 @@
         }
 
         .btn-primary {
-<<<<<<< HEAD
-            background: linear-gradient(135deg, #6c1d45 0%, #ececec 100%);
-=======
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
->>>>>>> origin/main
             color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-<<<<<<< HEAD
-            box-shadow: 0 10px 25px #6c1d4594;
-=======
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
->>>>>>> origin/main
         }
 
         .btn-primary:disabled {
@@ -189,20 +145,6 @@
             cursor: not-allowed;
         }
 
-<<<<<<< HEAD
-        .btn-success {
-            background: linear-gradient(135deg, #1daa3e 0%, #0d4e00 100%);
-            color: white;
-            display: none;
-        }
-
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
-        }
-
-=======
->>>>>>> origin/main
         .btn-secondary {
             background: #e0e0e0;
             color: #666;
@@ -228,15 +170,9 @@
 
         .progress-fill {
             height: 100%;
-<<<<<<< HEAD
-            background: linear-gradient(90deg, #6c1d453d 0%, #6c1d45 100%);
-            width: 0%;
-            transition: width 0.3s ease; 
-=======
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             width: 0%;
             transition: width 0.3s ease;
->>>>>>> origin/main
             display: flex;
             align-items: center;
             justify-content: center;
@@ -314,37 +250,9 @@
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
         }
-<<<<<<< HEAD
-
-        .logo {
-            position: absolute;
-            left: 5%;
-        }
-        .LIA {
-            position: absolute;
-            right: 2%;
-            
-        }
-        .imagenes img {
-            width: 500px;
-            height: auto;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
-</head>   
-<body>
-    <div class="imagenes">
-        <img class="logo" src="../static/images/Cecyt16.png" alt="">
-        <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
-    </div>
-=======
     </style>
 </head>
 <body>
->>>>>>> origin/main
     <div class="container">
         <h1>📸 Registro Automático</h1>
         <p class="subtitle">Sube todos los códigos QR para procesarlos automáticamente</p>
@@ -383,22 +291,10 @@
             </div>
         </div>
 
-<<<<<<< HEAD
-        <!-- Botón para subir y procesar -->
-=======
->>>>>>> origin/main
         <button class="btn btn-primary" id="uploadBtn" disabled>
             <span id="btnText">Subir y Procesar</span>
         </button>
 
-<<<<<<< HEAD
-        <!-- Botón para finalizar (oculto inicialmente) -->
-        <button class="btn btn-success" id="finalizarBtn">
-            <span id="finalizarBtnText">✅ Finalizar Registro</span>
-        </button>
-
-=======
->>>>>>> origin/main
         <button class="btn btn-secondary" onclick="window.location.href='/seleccionar_metodo'">
             Cancelar
         </button>
@@ -409,20 +305,12 @@
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const uploadBtn = document.getElementById('uploadBtn');
-<<<<<<< HEAD
-        const finalizarBtn = document.getElementById('finalizarBtn');
-=======
->>>>>>> origin/main
         const statusMessage = document.getElementById('statusMessage');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
         const stats = document.getElementById('stats');
         const btnText = document.getElementById('btnText');
-<<<<<<< HEAD
-        const finalizarBtnText = document.getElementById('finalizarBtnText');
-=======
->>>>>>> origin/main
 
         let selectedFiles = [];
 
@@ -513,10 +401,6 @@
             statusMessage.style.display = 'none';
         }
 
-<<<<<<< HEAD
-        // Botón de subir y procesar
-=======
->>>>>>> origin/main
         uploadBtn.addEventListener('click', async () => {
             if (selectedFiles.length === 0) return;
 
@@ -526,14 +410,8 @@
             progressContainer.style.display = 'block';
             hideStatus();
 
-<<<<<<< HEAD
-            // Crear FormData con acción específica
-            const formData = new FormData();
-            formData.append('accion', 'procesar'); // Identificador de acción
-=======
             // Crear FormData
             const formData = new FormData();
->>>>>>> origin/main
             selectedFiles.forEach(file => {
                 formData.append('qr_files', file);
             });
@@ -570,16 +448,6 @@
 
                     showStatus('✅ Proceso completado exitosamente', 'success');
                     
-<<<<<<< HEAD
-                    // Ocultar botón de subir y mostrar botón de finalizar
-                    uploadBtn.classList.add('hidden');
-                    finalizarBtn.style.display = 'block';
-                    
-                    // Mostrar mensaje de errores si los hay
-                    if (result.errores && result.errores.length > 0) {
-                        const errorList = result.errores.join('\n');
-                        showStatus('⚠️ Proceso completado con algunos errores:\n' + errorList, 'info');
-=======
                     // Mostrar botón finalizar en lugar de redirigir automáticamente
                     if (result.mostrar_finalizar) {
                         uploadBtn.textContent = 'Finalizar Registro';
@@ -592,7 +460,6 @@
                             const errorList = result.errores.join('\n');
                             showStatus('⚠️ Proceso completado con algunos errores:\n' + errorList, 'info');
                         }
->>>>>>> origin/main
                     }
                 } else {
                     throw new Error(result.error || 'Error desconocido');
@@ -607,17 +474,6 @@
             }
         });
 
-<<<<<<< HEAD
-        // Botón de finalizar registro
-        finalizarBtn.addEventListener('click', async () => {
-            finalizarBtn.disabled = true;
-            finalizarBtnText.innerHTML = '<span class="spinner"></span> Finalizando...';
-            
-            try {
-                // Crear FormData solo con la acción de finalizar
-                const formData = new FormData();
-                formData.append('accion', 'finalizar'); // Identificador de acción
-=======
         // Función para finalizar el registro
         async function finalizarRegistro() {
             uploadBtn.disabled = true;
@@ -626,45 +482,27 @@
             try {
                 const formData = new FormData();
                 formData.append('finalizar', 'true');
->>>>>>> origin/main
                 
                 const response = await fetch('/registro_automatico', {
                     method: 'POST',
                     body: formData
                 });
                 
-<<<<<<< HEAD
-                const result = await response.json();
-                
-                if (result.success) {
-=======
                 if (response.ok) {
->>>>>>> origin/main
                     showStatus('✅ Registro finalizado correctamente', 'success');
                     setTimeout(() => {
                         window.location.href = '/seleccionar_metodo';
                     }, 1500);
                 } else {
-<<<<<<< HEAD
-                    throw new Error(result.error || 'Error al finalizar');
-=======
                     throw new Error('Error al finalizar');
->>>>>>> origin/main
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showStatus('❌ Error finalizando: ' + error.message, 'error');
-<<<<<<< HEAD
-                finalizarBtn.disabled = false;
-                finalizarBtnText.textContent = '✅ Finalizar Registro';
-            }
-        });
-=======
                 uploadBtn.disabled = false;
                 btnText.textContent = 'Finalizar Registro';
             }
         }
->>>>>>> origin/main
     </script>
 </body>
 </html>
