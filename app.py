@@ -38,8 +38,16 @@ def descifrar_texto(texto_cifrado):
 
 contra_db = "P3l0n100j0t3$"
 
+# --- NUEVA CONFIGURACIÓN: MODO ACCESO LIBRE ---
+# True = Abre a cualquier QR que sea SAES o DAE sin buscarlo en la Base de Datos.
+# False = Funcionamiento estricto normal (requiere estar en la Base de Datos).
+MODO_INICIO_SEMESTRE = True 
+
+# LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
+ADMIN_BOLETAS = ["2024160385", "2024160324", "2024160550"] 
+
 # CONFIGURACIÓN ESP32 CON IP PÚBLICA
-ESP32_IP = "201.66.195.11"  # ← TU IP PÚBLICA DEL ESP32
+ESP32_IP = "201.66.195.11"
 ESP32_PORT = 80
 
 # LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
@@ -844,21 +852,52 @@ class QRHorarioVerificador:
                     "foto": "/static/img/guardia.png", "boleta": "GUARDIA"
                 }
 
+            # Validar si es un enlace reconocido del IPN
+            if "dae.cecyt16.ipn.mx" in url.lower():
+                tipo_enlace = 'dae'
+            elif "saes.cecyt16.ipn.mx" in url.lower():
+                tipo_enlace = 'saes'
+            else:
+                self.play_error_sound()
+                return {
+                    "status": "QR Inválido",
+                    "puede_entrar": False,
+                    "mensaje": "QR no reconocido",
+                    "nombre": "Desconocido",
+                    "foto": "/static/img/placeholder.png",
+                    "boleta": "N/A"
+                }
+
+            # --- NUEVO: MODO INICIO DE SEMESTRE (ACCESO LIBRE) ---
+            if MODO_INICIO_SEMESTRE:
+                print("🔓 MODO INICIO DE SEMESTRE ACTIVO: QR válido, abriendo sin checar Base de Datos")
+                
+                # Mandar a abrir directamente
+                if not solo_verificar and self.esp32 and self.esp32.conectado:
+                    self.esp32.enviar_comando(comando_torniquete)
+                    print(f"⚙️ Comando de apertura '{comando_torniquete}' enviado al ESP32.")
+
+                self.play_success_sound()
+                
+                # Devolvemos un estado positivo genérico para la pantalla HTML
+                return {
+                    "status": "Acceso Libre",
+                    "puede_entrar": True,
+                    "mensaje": "Acceso Permitido",
+                    "nombre": "Alumno (Sin registro)",
+                    "foto": "/static/img/placeholder.png",
+                    "boleta": "Pendiente"
+                }
+
             # --- LÓGICA ALUMNOS (DAE / SAES) ---
             boleta = None
             base_datos_grupo = None
             tipo_qr = ""
-
+            
             # 1. Identificar Tipo y Buscar en BD
-            if self.es_enlace_dae(url):
-                print("📇 Enlace DAE detectado")
-                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, "dae")
-                tipo_qr = "dae"
-                
-            elif self.es_enlace_saes(url):
-                print("📋 Enlace SAES detectado")
-                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, "saes")
-                tipo_qr = "saes"
+            print(f"📇 Enlace {tipo_enlace.upper()} detectado")
+            base_datos_grupo, boleta = self.buscar_alumno_por_url(url, tipo_enlace)
+            tipo_qr = tipo_enlace
 
             # Validaciones de Existencia
             if not boleta or not base_datos_grupo:
@@ -892,28 +931,6 @@ class QRHorarioVerificador:
                             if resultado[1] and resultado[1].strip(): foto_url = resultado[1]
             except Exception as e:
                 print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
-
-            # =========================================================================
-            # 🌟 NUEVA LÓGICA: COMPROBAR ACCESO ILIMITADO (ANTES DEL HORARIO)
-            # =========================================================================
-            if self.comprobar_acceso_ilimitado():
-                print("🔓 ACCESO ILIMITADO ACTIVADO - Omitiendo validación de horario")
-                self.play_success_sound()
-                
-                # Mandar comando a la ESP32 para abrir
-                if not solo_verificar and self.esp32 and self.esp32.conectado:
-                    self.esp32.enviar_comando(comando_torniquete)
-                    
-                return {
-                    "boleta": boleta,
-                    "grupo": base_datos_grupo,
-                    "status": "OK",
-                    "puede_entrar": True,
-                    "mensaje": "Acceso Libre (Sin Horario)", # Mensaje que saldrá en pantalla
-                    "nombre": nombre_alumno,
-                    "foto": foto_url
-                }
-            # =========================================================================
 
             # 3. Buscar Horario (Verificar que exista la tabla con nombre de la boleta)
             base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
