@@ -44,14 +44,13 @@ contra_db = "P3l0n100j0t3$"
 MODO_INICIO_SEMESTRE = True 
 
 # LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
-ADMIN_BOLETAS = ["2024160385", "2024160324", "2024160550"] 
+ADMIN_BOLETAS = ["2024160385", "2024160324", "2024160550", "2024160095" , "2024160104" , "2024160378" , "2024160383","2024160227","2025160403"] 
 
 # CONFIGURACIÓN ESP32 CON IP PÚBLICA
 ESP32_IP = "201.66.195.11"
 ESP32_PORT = 80
 
 # LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
-ADMIN_BOLETAS = ["2024160385","2024160324"] # Reemplaza o agrega las que necesites
 
 
 
@@ -853,7 +852,7 @@ class QRHorarioVerificador:
                 }
 
             # Validar si es un enlace reconocido del IPN
-            if "dae.cecyt16.ipn.mx" in url.lower():
+            if "servicios.dae.ipn.mx" in url.lower():
                 tipo_enlace = 'dae'
             elif "saes.cecyt16.ipn.mx" in url.lower():
                 tipo_enlace = 'saes'
@@ -869,8 +868,9 @@ class QRHorarioVerificador:
                 }
 
             # --- NUEVO: MODO INICIO DE SEMESTRE (ACCESO LIBRE) ---
-            if MODO_INICIO_SEMESTRE:
-                print("🔓 MODO INICIO DE SEMESTRE ACTIVO: QR válido, abriendo sin checar Base de Datos")
+            # Se valida que el modo global esté activo Y que la base de datos confirme el acceso
+            if MODO_INICIO_SEMESTRE and self.comprobar_acceso_ilimitado():
+                print("🔓 MODO INICIO DE SEMESTRE ACTIVO: QR válido y sistema verificado")
                 
                 # Mandar a abrir directamente
                 if not solo_verificar and self.esp32 and self.esp32.conectado:
@@ -888,7 +888,13 @@ class QRHorarioVerificador:
                     "foto": "/static/img/placeholder.png",
                     "boleta": "Pendiente"
                 }
+            elif MODO_INICIO_SEMESTRE:
+                # Opcional: Si está activo el modo pero falló la contraseña
+                print("🔒 Error: Modo Inicio de Semestre activo pero no se ha verificado el acceso en la DB.")
 
+        
+
+        
             # --- LÓGICA ALUMNOS (DAE / SAES) ---
             boleta = None
             base_datos_grupo = None
@@ -960,18 +966,20 @@ class QRHorarioVerificador:
             inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
             
             # --- NUEVA LÓGICA PARA ADMINS ---
+
+            # --- NUEVA LÓGICA PARA ADMINS ---
             if boleta in ADMIN_BOLETAS:
                 print(f"👑 ADMIN DETECTADO: {boleta} - Saltando restricciones")
                 estado = {"acceso": True, "mensaje": "Acceso Administrador"}
                 
-                # Definir el comando correcto según el escáner que lo leyó
-                # 2 = Izquierda, 3 = Derecha
                 comando_admin = "2" if lado_izquierdo else "3"
                 
-                # Mandamos a abrir el torniquete inmediatamente
-                if not solo_verificar and self.esp32 and self.esp32.conectado:
+                # MODIFICADO: Quitamos la validación de ".conectado" para forzar el intento
+                if not solo_verificar and self.esp32:
+                    print("🔄 Intentando forzar apertura de torniquete...")
                     self.esp32.enviar_comando(comando_admin)
                     print(f"⚙️ Comando Admin '{comando_admin}' enviado al ESP32")
+
             else:
                 # Flujo normal para los demás alumnos
                 estado = self.obtener_estado_acceso_salida(
