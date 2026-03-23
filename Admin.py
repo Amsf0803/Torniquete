@@ -2555,16 +2555,14 @@ def acceso_verificacion():
     return render_template('verificacion.html')
 
 
-
-# Ejemplo de uso
 if __name__ == '__main__':
     # Crear bases de datos necesarias
     if 'bases_datos' in globals():
         crear_bases_si_no_existen(bases_datos)
-    print("Link: http://localhost:5000")
-    print("🚀 Iniciando aplicación Flask con escáner QR físico...")
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
+    print("🚀 Iniciando panel de administración en la red...")
+    
+    # Cambiamos el puerto aquí a 5001
+    app.run(debug=True, host='0.0.0.0', port=5001)
 """
 Codigo en mysql para agregar una base de datos nueva 
 CREATE DATABASE 4IM1;  --Cambiar el grupo 
