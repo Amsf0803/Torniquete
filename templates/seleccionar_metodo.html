@@ -2,40 +2,81 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Seleccionar Ciclo Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Seleccionar Ciclo Escolar</title>
     <link rel="icon" href="/static/images/LIA_Mini.png">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
-            padding-left: 5%;
             margin: 0;
-            text-align: left;
             background: 
             url("/static/images/logo-ipn-blanco.png") no-repeat center center,
             linear-gradient(170deg, #6c1d45, #ffffff 80%);
-
-            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-size: 750px, cover;
             background-attachment: fixed;
-
-            /* imagen centrada horizontal, 70% vertical (más abajo) 
-            gradiente sigue centrado */
             background-position: center 150px, center;
         }
         
-        h2 {
-            text-align: center;
-            color: #fff;
-            font-size: 2.5em;
+        /* Contenedor Flexbox para los logos */
+        .imagenes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+        }
+
+        .imagenes img {
+            width: 180px; /* Tamaño base un poco más manejable */
+            height: auto;
+        }
+
+        /* Contenedor Flexbox para el título y el botón de pregunta */
+        .titulo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
             margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #6c1d45;
+            font-size: 2.5em;
+            margin: 0; /* Quitamos el margen para que flexbox lo centre bien */
+            text-align: center;
+            background-color: #fff; /* Fondo blanco para mejor legibilidad */
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .duda {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            transition: transform 300ms;
+        }
+
+        .duda:hover {
+            transform: scale(1.1);
+        }
+
+        .pregunta {
+            width: 35px;
+            height: auto;
         }
 
         form {
             max-width: 400px;
             margin: auto;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
@@ -43,99 +84,112 @@
         label {
             display: block;
             margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
         }
 
-        button {
-            display: block;
+        select {
             width: 100%;
             padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #6c1d45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 400ms, background-color 300ms;
+        }
+
+        button[type="submit"]:hover {
+            transform: scale(1.05);
+            background-color: #551635;
+        }
+
+        .return-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .return {
+            padding: 12px 24px;
             background-color: #6c1d45;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: transform 400ms;
+            transition: transform 300ms;
+            font-size: 1em;
         }
 
-
-        button:hover {
+        .return:hover {
             transform: scale(1.05);
+            background-color: #551635;
         }
 
-        .imagenes img {
-            width: 200px;
-            height: auto;
-        }
-        .logo {
-            position: absolute;
-            left: 5%;
-        }
-        .LIA {
-            position: absolute;
-            right: 2%;
+        /* =========================================
+            MEDIA QUERIES PARA CELULARES (Responsive)
+        ========================================= */
+        @media (max-width: 768px) {
+            .imagenes img {
+                width: 100px; /* Logos más pequeños en celular */
+            }
             
-        }
-        .grupos {
-            margin-top: 20px;
-            text-align: left;
-        }
-        h3 {
-            text-align: center;
-            color: #fff;
-            margin-top: 20px;
-        }
-        a{
-            text-decoration: none;
-            color: #fff;
-        } 
-        .return{
-            width: 50%;
-            margin: 0 auto;
-        }
-        .duda{
-            width: 10px;
-            background-color: #ffffff00;
-            margin-left: 50%; ;
-            position: absolute;
-            top: 18%;
+            h2 {
+                font-size: 1.5em; /* Título más pequeño */
+            }
 
-        }
-        .pregunta{
-            width: 30px;
-            height: auto;
+            .pregunta {
+                width: 25px; /* Botón de duda más pequeño */
+            }
+
+            form {
+                width: 90%; /* El formulario toma casi todo el ancho */
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="imagenes">
-        <img class="logo" src="../static/images/Cecyt16.png" alt="">
-        <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
+        <img class="logo" src="../static/images/Cecyt16.png" alt="Logo CECyT 16">
+        <img class="LIA" src="../static/images/Logo_LIA.png" alt="Logo LIA">
     </div>
     
-    <br> 
-    <br>
-    <h2>Seleccione el metodo a registro:    <a href="/duda"> 
-        <button class="duda">
-            <img class="pregunta" src="../static/images/pregunta.png" alt="">
-        </button>
-    </a></h2>
+    <div class="titulo-container">
+        <h2>Seleccione el método de registro:</h2>
+        <a href="/duda"> 
+            <button class="duda" title="Tengo una duda">
+                <img class="pregunta" src="../static/images/pregunta.png" alt="Duda">
+            </button>
+        </a>
+    </div>
+
     <form method="POST" action="/method">
         <div class="methods"> 
             <label for="method">Método de registro:</label>
             <select name="method" required>
-                <option value="">-- Selecciona un metodo de registro --</option>
-                <option value="manual" {% if method == 'manual' %}selected{% endif %}> Manual </option>
-                <option value="automatico" {% if method == 'automatico' %}selected{% endif %}>Automatico </option>
+                <option value="">-- Selecciona un método --</option>
+                <option value="manual" {% if method == 'manual' %}selected{% endif %}>Manual</option>
+                <option value="automatico" {% if method == 'automatico' %}selected{% endif %}>Automático</option>
             </select>
         </div>
-        <br>
-        <br>
         <button type="submit">Continuar</button>
     </form>
-    <br>
 
-    <br><br><br>
-
-    <a href="/"><button class="return">Regresar al menu</button></a>
+    <div class="return-container">
+        <a href="/"><button class="return">Regresar al menú</button></a>
+    </div>
 </body>
 </html>

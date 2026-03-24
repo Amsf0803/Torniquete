@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="icon" href="/static/images/LIA_Mini.png">
     <title>Control de Acceso General</title>
 
     <style>
+        /* ================= ESTILOS GENERALES ================= */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -22,32 +22,42 @@
             background-position: center 100px, center;
         }
 
+        /* ================= HEADER LOGOS (FLEXBOX) ================= */
+        .imagenes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+        }
+
         .imagenes img {
             width: 150px;
             height: auto;
-            position: absolute;
-            top: 20px;
+            position: static; /* Adiós position absolute */
         }
-        .logo { left: 5%; }
-        .LIA { right: 5%; }
 
         h2 {
-            text-align: center;
-            color: #fff;
+            color: #6c1d45;
             font-size: 2.5em;
-            margin-top: 80px; 
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 10; /* Ajustamos el margen para que no sea tan grande */
+            text-align: center;
+            background-color: #fff; /* Fondo blanco para mejor legibilidad */
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Contenedor principal que simula el formulario */
+        /* ================= CONTENEDOR DEL FORMULARIO ================= */
         .form-container {
             max-width: 420px;
             margin: auto;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95); /* Un poco más sólido para mejor lectura */
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box; /* Previene que el padding desborde el ancho en celulares */
+            width: 100%; /* Asegura que tome el ancho en móviles */
         }
 
         label, p.instruccion {
@@ -76,6 +86,7 @@
             box-shadow: 0 0 5px rgba(108, 29, 69, 0.5);
         }
 
+        /* ================= BOTONES ================= */
         button.btn-accion {
             display: block;
             width: 100%;
@@ -95,8 +106,12 @@
             background-color: #521533;
         }
 
+        .regreso-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
         .regreso {
-            margin-top: 50px;
             background-color: #6c1d45;
             color: white;
             border: none;
@@ -106,13 +121,12 @@
             font-size: 16px;
             width: 100%;
             max-width: 300px;
-            display: block;
-            margin: 40px auto 0 auto;
-            transition: transform 400ms;
+            transition: transform 300ms;
         }
 
         .regreso:hover {
             transform: scale(1.05);
+            background-color: #521533;
         }
 
         a { text-decoration: none; }
@@ -123,6 +137,7 @@
             opacity: 0.5;
         }
 
+        /* ================= ALERTAS Y MENSAJES ================= */
         .warning {
             color: #856404;
             background-color: #fff3cd;
@@ -132,6 +147,7 @@
             font-size: 0.95em;
             border: 1px solid #ffeeba;
             text-align: justify;
+            line-height: 1.4;
         }
 
         #msg-error {
@@ -148,10 +164,35 @@
 
         #panel-configuracion { display: none; }
 
-        /* Ajuste para pantallas pequeñas */
+        /* ================= MEDIA QUERIES (CELULARES) ================= */
         @media (max-width: 600px) {
-            .imagenes img { width: 100px; }
-            h2 { font-size: 2em; margin-top: 100px; }
+            .imagenes {
+                justify-content: center;
+                gap: 20px; /* Separación entre logos en móvil */
+            }
+
+            .imagenes img { 
+                width: 110px; /* Logos más pequeños */
+            }
+
+            h2 {
+                color: #6c1d45;
+                font-size: 2.5em;
+                margin: 5; /* Quitamos el margen para que flexbox lo centre bien */
+                text-align: center;
+                background-color: #fff; /* Fondo blanco para mejor legibilidad */
+                padding: 10px 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .form-container {
+                padding: 20px; /* Menos padding interno en celulares para ahorrar espacio */
+            }
+
+            body {
+                padding: 10px; /* Menos margen exterior */
+            }
         }
     </style>
 </head>
@@ -193,9 +234,11 @@
 
     </div>
 
-    <a href="/">
-        <button class="regreso" type="button">Regresar a la página principal</button>
-    </a>
+    <div class="regreso-container">
+        <a href="/">
+            <button class="regreso" type="button">Regresar a la página principal</button>
+        </a>
+    </div>
 
     <script>
         function verificarContrasena() {

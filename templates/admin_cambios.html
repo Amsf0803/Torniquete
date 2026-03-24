@@ -2,106 +2,153 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pases de Salida</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Pases de Salida</title>
     <link rel="icon" href="/static/images/LIA_Mini.png">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 30px;
+            margin: 20px;
             background-color: #6c1d45;
             text-align: center;
             color: #fff;
         }
+        
         h2 {
             color: #fff;
+            margin-top: 20px;
         }
+
+        /* --- Contenedor Flexbox para los logos --- */
+        .header-images {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto; /* Centrar el contenedor */
+            padding: 10px;
+        }
+
+        .header-images img {
+            height: auto;
+            position: static; /* Quitamos la posicion absoluta */
+            margin: 0;
+        }
+
+        .ipn { width: 100px; }
+        .logo { width: 160px; }
+        .LIA { width: 160px; }
+
         label {
             font-weight: bold;
         }
+
+        /* Formularios responsivos */
         select, input[type="date"], button {
-            margin: 10px 0;
-            padding: 8px;
-            width: 300px;
+            margin: 10px auto; /* Centrados */
+            padding: 10px;
+            width: 100%; /* Ocupan todo el ancho disponible... */
+            max-width: 300px; /* ...pero sin pasarse de 300px */
+            box-sizing: border-box; /* Evita que el padding rompa el tamaño */
+            border-radius: 5px;
+            border: none;
+            display: block; /* Fuerza a que cada elemento vaya en una linea nueva */
         }
+
+        button {
+            background-color: #fff;
+            color: #6c1d45;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* --- Estilos para la tabla responsiva --- */
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* Permite scroll horizontal si la tabla es muy ancha en celular */
+            display: flex;
+            justify-content: center;
+        }
+
         table {
-            width: 60%;
+            width: 100%;
+            max-width: 800px;
             margin-top: 20px;
             border-collapse: collapse;
             text-align: center;
+            background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco para leer el texto oscuro */
+            color: #333;
         }
+
         th, td {
             border: 1px solid #aaa;
-            padding: 8px;
-            text-align: left;
+            padding: 10px 8px;
             text-align: center;
         }
+
         th {
             background-color: #eee;
-            text-align: center;
             color: #6c1d45;
         }
+
         .seccion {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #ccc;
-            text-align: center; /* Centra el texto dentro de la sección */
+            text-align: center;
         }
 
-        .seccion table {
-            margin: 0 auto; /* Centra la tabla en la sección */
-            border-collapse: collapse; /* Opcional: para que las bordes de la tabla se vean mejor */
-        }
-        img{
-            width: 200px;
-            position: absolute;
-        }
-        .LIA{
-            width: 200px;
-            position: absolute;
-            right: 5%;
-        }
-
-        .ipn{
-            width: 120px;
-            margin-top: 40px;
-            position: absolute;
-            left: 5%;
-        }
-        .logo{
-            width: 200px;
-            position: absolute;
-            left: 10%;
-            margin-top: 40px;
-            margin-left: 10%;
-            top: 10px;
-        }
-        a{
+        a {
             text-decoration: none;
-            color: black;
+        }
+
+        /* =========================================
+           MEDIA QUERIES PARA CELULARES
+           ========================================= */
+        @media (max-width: 768px) {
+            .header-images {
+                justify-content: center; /* Centramos los logos */
+                flex-wrap: wrap; /* Permitimos que los logos bajen de línea si no caben */
+                gap: 15px;
+            }
+            
+            .ipn { width: 70px; }
+            .logo { width: 120px; }
+            .LIA { width: 120px; }
+
+            body {
+                margin: 10px; /* Reducimos el margen en celulares para aprovechar espacio */
+            }
         }
     </style>
 </head>
 <body>
-    <img class='ipn' src="/static/images/logo-ipn-blanco.png" alt="">
-    <img class="logo" src="/static/images/Cecyt16.png" alt="Logo CECyT 16">
-    <img class="LIA" src="/static/images/Logo_LIA.png" alt="Logo_LIA">
+    <div class="header-images">
+        <img class="ipn" src="/static/images/logo-ipn-blanco.png" alt="Logo IPN">
+        <img class="logo" src="/static/images/Cecyt16.png" alt="Logo CECyT 16">
+        <img class="LIA" src="/static/images/Logo_LIA.png" alt="Logo LIA">
+    </div>
+
     <h2>📅 Pases de Salida</h2>
 
-    <!-- FORMULARIO PARA SELECCIONAR GRUPO Y DÍA -->
     <form method="get">
         <div class="grupos">
-        <label for="grupo">Grupo:</label><br>
-        <select name="grupo" required>
-            {% for grupo in grupos %}
-            <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
-            {% endfor %}
-        </select><br>
+            <label for="grupo">Grupo:</label>
+            <select name="grupo" required>
+                <option value="">-- Selecciona un grupo --</option>
+                {% for grupo in grupos %}
+                <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
+                {% endfor %}
+            </select>
         </div>
 
         <button type="submit">Buscar horario del día</button>
     </form>
 
-    <!-- FORMULARIO PARA CANCELAR HORARIOS -->
     {% if horarios and grupo_seleccionado %}
     <div class="seccion">
         <h3>🕐 Horarios disponibles para cancelar ({{ grupo_seleccionado }} - {{ dia_seleccionado }})</h3>
@@ -110,27 +157,29 @@
             <input type="hidden" name="grupo" value="{{ grupo_seleccionado }}">
             <input type="hidden" name="dia" value="{{ dia_seleccionado }}">
 
-            <label for="fecha">Fecha de aplicación:</label><br>
-            <br>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Seleccionar</th>
-                        <th>Hora de inicio</th>
-                        <th>Hora de fin</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for hora_inicio, hora_fin in horarios %}
-                    <tr>
-                        <td><input type="checkbox" name="horas" value="{{ hora_inicio }}-{{ hora_fin }}"></td>
-                        <td>{{ hora_inicio }}</td>
-                        <td>{{ hora_fin }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table><br>
-
+            <label for="fecha">Selecciona las horas:</label><br>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Hora de inicio</th>
+                            <th>Hora de fin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hora_inicio, hora_fin in horarios %}
+                        <tr>
+                            <td><input type="checkbox" name="horas" value="{{ hora_inicio }}-{{ hora_fin }}"></td>
+                            <td>{{ hora_inicio }}</td>
+                            <td>{{ hora_fin }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
             <button type="submit">Guardar cambios temporales</button>
         </form>
     </div>
@@ -140,6 +189,7 @@
     </div> 
     {% endif %}
     
-    <a href="/"><button type="button">Regresar a la pagina principal</button></a>
+    <br><br>
+    <a href="/"><button type="button">Regresar a la página principal</button></a>
 </body>
 </html>

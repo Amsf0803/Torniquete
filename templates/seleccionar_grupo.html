@@ -2,121 +2,183 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Seleccionar Ciclo Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Seleccionar Ciclo Escolar</title>
     <link rel="icon" href="/static/images/LIA_Mini.png">
     <style>
+        /* ================= ESTILOS GENERALES Y TEMA AMARILLO PASTEL ================= */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
-            padding-left: 5%;
-            margin: 0;
+            margin: 0; /* Eliminado el padding-left que descentraba */
             text-align: left;
+            
+            /* Fondo Amarillo Pastel */
             background: 
             url("/static/images/logo-ipn-blanco.png") no-repeat center center,
-            linear-gradient(170deg, #6c1d45, #ffffff 80%);
+            linear-gradient(170deg, #b8ae85, #ffffff 80%);
 
-            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-size: 750px, cover;
             background-attachment: fixed;
-
-            /* imagen centrada horizontal, 70% vertical (más abajo) 
-            gradiente sigue centrado */
             background-position: center 150px, center;
         }
         
-        h2 {
-            text-align: center;
-            color: #fff;
-            font-size: 2.5em;
-            margin-bottom: 20px;
+        /* ================= HEADER LOGOS (FLEXBOX) ================= */
+        .imagenes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
         }
 
+        .imagenes img {
+            width: 160px;
+            height: auto;
+            position: static; /* Adiós a las posiciones absolutas */
+        }
+
+        /* ================= TIPOGRAFÍA ================= */
+        h2 {
+            text-align: center;
+            color: #333; /* Cambiado a gris oscuro por el fondo claro */
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8); /* Sombra clara para contraste */
+        }
+
+        /* ================= CONTENEDOR DEL FORMULARIO ================= */
         form {
             max-width: 400px;
             margin: auto;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.95); /* Blanco más sólido */
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            box-sizing: border-box; /* Previene desbordamiento en móviles */
         }
 
         label {
             display: block;
             margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
         }
 
-        button {
+        /* Selector responsivo */
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #e5c158;
+            box-shadow: 0 0 5px rgba(229, 193, 88, 0.4);
+        }
+
+        .grupos {
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        /* ================= BOTONES ================= */
+        button[type="submit"] {
             display: block;
             width: 100%;
-            padding: 10px;
-            background-color: #6c1d45;
-            color: white;
+            padding: 12px;
+            background-color: #e5c158; /* Amarillo mostaza suave */
+            color: #333; /* Texto oscuro para contrastar con el amarillo */
+            font-weight: bold;
+            font-size: 1.05em;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: transform 400ms;
+            transition: transform 400ms, background-color 300ms;
         }
 
-
-        button:hover {
+        button[type="submit"]:hover {
             transform: scale(1.05);
+            background-color: #d4b24c; /* Amarillo un poco más oscuro */
         }
 
-        .imagenes img {
-            width: 200px;
-            height: auto;
-        }
-        .logo {
-            position: absolute;
-            left: 5%;
-        }
-        .LIA {
-            position: absolute;
-            right: 2%;
-            
-        }
-        .grupos {
-            margin-top: 20px;
-            text-align: left;
-        }
-        h3 {
+        /* Contenedor para el botón de regreso */
+        .btn-container {
             text-align: center;
-            color: #fff;
-            margin-top: 20px;
+            margin-top: 40px;
+            margin-bottom: 30px;
         }
-        a{
-            text-decoration: none;
-            color: #fff;
-        } 
-        .return{
-            width: 50%;
-            margin: 0 auto;
+
+        .return {
+            background-color: #666; /* Gris neutro para diferenciarlo */
+            color: white;
+            font-weight: bold;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 300ms, background-color 300ms;
+        }
+
+        .return:hover {
+            transform: scale(1.05);
+            background-color: #444;
+        }
+
+        a { text-decoration: none; }
+
+        /* ================= MEDIA QUERIES (CELULARES) ================= */
+        @media (max-width: 600px) {
+            .imagenes {
+                justify-content: center;
+                gap: 20px;
+            }
+            .imagenes img {
+                width: 110px; /* Logos más pequeños */
+            }
+            h2 {
+                font-size: 1.6em; /* Título adaptado */
+            }
+            form {
+                padding: 20px;
+            }
+            body {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="imagenes">
-    <img class="logo" src="../static/images/Cecyt16.png" alt="">
-    <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
-</div>
-<br> 
-<br>
-<h2>Seleccione el grupo que va a registrar Automáticamente:</h2>
-<form method="POST" action="/seleccionar_grupo">
-    <div class="grupos">
-        <label for="grupo">Grupo:</label>
-        <select name="grupo" id="grupo" required>
-            <option value="">-- Selecciona un grupo --</option>
-            {% for grupo in grupos %}
-                <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
-            {% endfor %}
-        </select>
+
+    <div class="imagenes">
+        <img class="logo" src="../static/images/Cecyt16.png" alt="CECyT 16">
+        <img class="LIA" src="../static/images/Logo_LIA.png" alt="LIA">
     </div>
-    <br>
-    <br>
-    <button type="submit">Continuar al Registro Automático</button>
-</form>
-<br><br><br>
-<a href="/"><button class="return">Regresar</button></a>
+    
+    <h2>Seleccione el grupo que va a registrar Automáticamente:</h2>
+    
+    <form method="POST" action="/seleccionar_grupo">
+        <div class="grupos">
+            <label for="grupo">Grupo:</label>
+            <select name="grupo" id="grupo" required>
+                <option value="">-- Selecciona un grupo --</option>
+                {% for grupo in grupos %}
+                    <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <button type="submit">Continuar al Registro Automático</button>
+    </form>
+    
+    <div class="btn-container">
+        <a href="/"><button class="return">Regresar</button></a>
+    </div>
+
 </body>
 </html>

@@ -2,199 +2,270 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Seleccionar Ciclo Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Diferencias de Métodos</title>
     <link rel="icon" href="/static/images/LIA_Mini.png">
     <style>
+        /* ================= ESTILOS GENERALES ================= */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
-            padding-left: 5%;
+            /* Eliminamos padding-left: 5% para evitar que se descentre */
             margin: 0;
-            text-align: left;
             background: 
             url("/static/images/logo-ipn-blanco.png") no-repeat center center,
             linear-gradient(170deg, #6c1d45, #ffffff 80%);
-
-            background-size: 750px, cover; /* primero imagen, luego gradiente */
+            background-size: 750px, cover; 
             background-attachment: fixed;
-
-            /* imagen centrada horizontal, 70% vertical (más abajo) 
-            gradiente sigue centrado */
             background-position: center 150px, center;
+            color: #333;
         }
         
-        h2 {
-            text-align: center;
-            color: #fff;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-
-        form {
-            max-width: 600px;
-            margin: auto;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #6c1d45;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: transform 400ms;
-        }
-
-
-        button:hover {
-            transform: scale(1.05);
+        /* ================= HEADER LOGOS (FLEXBOX) ================= */
+        .imagenes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
         }
 
         .imagenes img {
-            width: 200px;
+            width: 180px;
             height: auto;
+            position: static; /* Quitamos position: absolute */
         }
-        .logo {
-            position: absolute;
-            left: 5%;
-        }
-        .LIA {
-            position: absolute;
-            right: 2%;
-            
-        }
-        .grupos {
-            margin-top: 20px;
-            text-align: left;
-        }
-        h3 {
+
+        h2 {
             text-align: center;
-            color: #000000;
-            margin-top: 20px;
-        }
-        a{
-            text-decoration: none;
             color: #fff;
-        } 
-        .return{
-            width: 50%;
-            margin: 0 auto;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background-color: #6c1d45; /* Fondo más oscuro para el título */
+            padding: 15px 30px;
+            border-radius: 10px;
         }
-        .remember{
-            width: 50%;
-            background-color: #ffffff;
-            margin-top: 10px;
-            margin-left: 50%; ;
+
+        /* ================= CONTENEDOR PRINCIPAL ================= */
+        form {
+            max-width: 800px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.95); /* Más sólido para leer bien */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box; /* Evita que el padding desborde la pantalla */
+        }
+
+        form h1 {
+            font-size: 1.4em;
             color: #6c1d45;
-            font-weight: bold;
-            font-size: 15px;
+            text-align: center;
         }
-        .panel {
-            border: 1px solid #ccc;
+
+        p {
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        /* ================= IMÁGENES DENTRO DEL CONTENIDO ================= */
+        .dentro {
+            width: 100%; /* Ahora ocupan el 100% de su contenedor */
+            max-width: 600px; /* Pero no crecen de más en PC */
+            height: auto;
+            display: block;
+            margin: 15px auto;
             border-radius: 8px;
-            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        /* ================= NOTAS "REMEMBER" ================= */
+        .remember {
+            background-color: #fff3cd; /* Fondo amarillo tenue estilo advertencia */
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.95em;
+            text-align: center;
+            margin: 20px 0; /* Arreglado: Evita el desbordamiento en móviles */
+        }
+
+        /* ================= PANELES ACORDEÓN ================= */
+        .panel {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            background-color: #fff;
         }
 
         .titulo {
-            padding: 10px;
-            background: #eee;
+            padding: 15px;
+            background: #f8f9fa;
             cursor: pointer;
-            font-weight: bold;
+            transition: background 0.3s;
+            text-align: center;
+        }
+
+        .titulo:hover {
+            background: #e2e2e2;
+        }
+
+        .titulo h1 {
+            margin: 0;
+            font-size: 1.3em;
         }
 
         .contenido {
             display: none;
-            padding: 10px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
         }
 
-        .dentro{
-            width: 80%;
-            height: auto;
-            margin-left: 10%;
+        .contenido h3 {
+            color: #6c1d45;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        hr {
+            border: 0.5px solid #ccc;
+            margin: 30px 0;
+        }
+
+        /* ================= BOTÓN DE REGRESO ================= */
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .return {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 12px 24px;
+            font-size: 16px;
+            transition: transform 300ms, background-color 300ms;
+        }
+
+        .return:hover {
+            transform: scale(1.05);
+            background-color: #000;
+        }
+
+        a { text-decoration: none; }
+
+        /* ================= MEDIA QUERIES (CELULARES) ================= */
+        @media (max-width: 768px) {
+            .imagenes {
+                justify-content: center;
+                gap: 15px;
+            }
+            .imagenes img {
+                width: 120px; /* Logos más pequeños */
+            }
+            h2 {
+                font-size: 1.6em; /* Título principal más chico */
+            }
+            form {
+                padding: 15px; /* Menos espacio interno en celular */
+            }
+            form h1 {
+                font-size: 1.2em;
+            }
+            .titulo h1 {
+                font-size: 1.1em;
+            }
+            body {
+                padding: 10px; /* Margen general más pequeño */
+            }
         }
     </style>
 </head>
 <body>
+    
     <div class="imagenes">
-        <img class="logo" src="../static/images/Cecyt16.png" alt="">
-        <img class="LIA" src="../static/images/Logo_LIA.png" alt="">
+        <img class="logo" src="../static/images/Cecyt16.png" alt="CECyT 16">
+        <img class="LIA" src="../static/images/Logo_LIA.png" alt="LIA">
     </div>
     
-    <br> 
-    <br>
-    <h2> Diferencias entre el metodo Manual y Automatico:</h2>
-    <form >
-        <h1>Al escoger la opcion de registrar alumnos te redirige hacia la seleccion de metodo</h1>
-        <img class="dentro" src="../static/images/Seleccion_metodo.png" alt="">
-        <p> Hay 2 metodos de registro el manual y el automatico, ambos son totalmente funcionales es cuestion de como es que quieres registrar a los alumnos, aqui podras ver sobre las diferencias y el procedimiento basico de cada metodo, <b>presionando el titulo</b> se desplegara el texto de cada uno.</p>
-                <p class="remember">Para mas informacion acudir al manual de pracitcas donde se detalla paso a paso todo el procedimiento.</p>
+    <h2>Diferencias entre el método Manual y Automático:</h2>
+    
+    <form onsubmit="return false;">
+        <h1>Al escoger la opción de registrar alumnos te redirige hacia la selección de método</h1>
+        <img class="dentro" src="../static/images/Seleccion_metodo.png" alt="Selección de Método">
+        
+        <p>Hay 2 métodos de registro: el manual y el automático. Ambos son totalmente funcionales, es cuestión de cómo quieres registrar a los alumnos. Aquí podrás ver las diferencias y el procedimiento básico de cada método. <b>Presionando el título</b> se desplegará el texto de cada uno.</p>
+        
+        <div class="remember">Para más información acudir al manual de prácticas donde se detalla paso a paso todo el procedimiento.</div>
         
         <div class="panel">
-            <div class="titulo" onclick="togglePanel(this)"><h1>Metodo Manual</h1></div>
+            <div class="titulo" onclick="togglePanel(this)"><h1>Método Manual</h1></div>
             <div class="contenido">
                 <h3>Seleccionar el grupo e insertar los links directamente</h3>
-                <p>Al seleccionar la opcion manual y aceptar, enviara a la pagina de seleccion de grupo donde se tiene que escoger el grupo al que se va registrar en ese momento, ejepmlo 5MM2. </p>
-                <img class="dentro" src="../static/images/Seleccionar_Manual.png" alt="">
-                <p>Una vez seleccionado el grupo y aceptar lo redirigira a una pagina donde tendra que ir insertando link por link tanto de credenciales como horarios de ese grupo. </p>
-                <img class="dentro" src="../static/images/Registro_Manual.png" alt="">
+                <p>Al seleccionar la opción manual y aceptar, te enviará a la página de selección de grupo donde se tiene que escoger el grupo al que se va a registrar en ese momento (ejemplo: 5MM2).</p>
+                <img class="dentro" src="../static/images/Seleccionar_Manual.png" alt="Seleccionar Manual">
                 
+                <p>Una vez seleccionado el grupo, te redirigirá a una página donde tendrás que ir insertando link por link tanto de credenciales como de horarios de ese grupo.</p>
+                <img class="dentro" src="../static/images/Registro_Manual.png" alt="Registro Manual">
                 
-                <p class="remember">Para mas informacion acudir al manual de pracitcas donde se detalla paso a paso todo el procedimiento.</p>
+                <div class="remember">Para más información acudir al manual de prácticas donde se detalla paso a paso todo el procedimiento.</div>
             </div>
         </div>
+
         <hr>
-        <br>
-        <hr>
+
         <div class="panel">
-            <div class="titulo" onclick="togglePanel(this)"><h1>Metodo Automatico</h1></div>
+            <div class="titulo" onclick="togglePanel(this)"><h1>Método Automático</h1></div>
             <div class="contenido">
-                <h3>Seleccionar el grupo e insertar una carpeta donde se 
-                    almacenen todos los links del grupo seleccionado</h3>
-                <p>Al seleccionar la opcion automatico y aceptar, enviara a la pagina de seleccion de grupo donde se tiene que escoger el grupo al que se va registrar en ese momento, ejepmlo 5MM2. </p>
-                <img class="dentro" src="../static/images/Seleccion_Gurpos_automatico.png" alt="">
-                <p> Una vez seleccionado el grupo en el formulario y aceptar lo redirigira a una pagina donde tendra que seleccionar todos los archios 
-                    en formato png, jpg, jpeg o bmp de los qr del grupo seleccionado, se puede seleccionar todas de una o uno por uno. </p>
-                <img class="dentro" src="../static/images/Sin_Seleccion_Automatico.png" alt="">
-                <p> Una vez seleccionado presionar el boton de subir y seleccionar y esperar hasta que la barra llegue al 100% una vez llegue al 100% lo redirigira de vuelta al formulario de seleccionar metodo</p>
-                <img class="dentro" src="../static/images/Seleccion_Automatico.png" alt="">
-                <img class="dentro" src="../static/images/Proceso_Automatico.png" alt="">
+                <h3>Seleccionar el grupo e insertar los archivos directamente</h3>
+                <p>Al seleccionar la opción automático y aceptar, te enviará a la página de selección de grupo donde se tiene que escoger el grupo al que se va a registrar en ese momento.</p>
+                <img class="dentro" src="../static/images/Seleccion_Gurpos_automatico.png" alt="Selección Grupo">
                 
-                <p>El sistema se encargara de registrar a todos los alumnos uno a uno sin necesidad de intervencion, se recomienda que mientras se registra no reiniciar la pagina ni hacer algun cambio en cual lugar</p>
-                <img class="dentro" src="../static/images/Completado_Auto_terminal.png" alt="">
+                <p>Una vez seleccionado el grupo, te redirigirá a una página donde tendrás que subir todos los archivos en formato png, jpg, jpeg o bmp de los códigos QR. Se pueden subir todos de una vez o uno por uno.</p>
+                <img class="dentro" src="../static/images/Sin_Seleccion_Automatico.png" alt="Subir Archivos">
+                
+                <p>Presiona el botón de subir y espera hasta que la barra llegue al 100%. Una vez finalizado, te redirigirá de vuelta al menú.</p>
+                <img class="dentro" src="../static/images/Seleccion_Automatico.png" alt="Proceso">
+                <img class="dentro" src="../static/images/Proceso_Automatico.png" alt="Barra de carga">
+                
+                <p>El sistema se encargará de registrar a todos los alumnos uno a uno sin necesidad de intervención. Se recomienda <strong>no recargar la página</strong> ni cambiar de pestaña durante este proceso.</p>
+                <img class="dentro" src="../static/images/Completado_Auto_terminal.png" alt="Terminal">
 
-                <p>Una vez que la barra llegue al 100% saldra una tabla donde se muestran cuantos links fueron escaneados correctamente y si hubo algunos con fallas los mostrara ahi tambien</p>
-                <img class="dentro" src="../static/images/Completado_Automatico.png" alt="">
+                <p>Al terminar, saldrá una tabla donde se muestra cuántos links fueron escaneados correctamente y si hubo algunos con fallas.</p>
+                <img class="dentro" src="../static/images/Completado_Automatico.png" alt="Tabla Completo">
 
-                <p> En caso de que haya codigos qr con errores intentar de nuevo despues de un tiempo, si la falla sigue esperar 1 a 2 dias para intentarlo de nuevo. Si continua sera necesario entrar al codigo y ver la terminal para saber con exactitud el error. En todo caso en el manual hay varios tipos de posibles errores y su solucion asi que se recomienda checar el manual en caso de fallas.</p>
-                <p class="remember">Para mas informacion acudir al manual de pracitcas donde se detalla paso a paso todo el procedimiento.</p>
-
-
+                <p>En caso de que haya códigos QR con errores, intenta de nuevo después de un tiempo. Si la falla sigue, acude a la terminal del código para más detalles.</p>
+                
+                <div class="remember">Para más información acudir al manual de prácticas donde se detalla paso a paso todo el procedimiento.</div>
             </div>
         </div>
     </form>
-    <br>
-    <br><br><br>
 
-    <a href="/seleccionar_metodo"><button class="return">Regresar la seleccion de metodos</button></a>
+    <div class="btn-container">
+        <a href="/seleccionar_metodo">
+            <button class="return">Regresar a la selección de métodos</button>
+        </a>
+    </div>
 
 <script>
-function togglePanel(el) {
-    const contenido = el.nextElementSibling;
-    contenido.style.display =
-        (contenido.style.display === "block") ? "none" : "block";
-}
+    // Pequeño script para el acordeón
+    function togglePanel(el) {
+        const contenido = el.nextElementSibling;
+        if (contenido.style.display === "block") {
+            contenido.style.display = "none";
+            el.style.background = "#f8f9fa"; // Color original
+        } else {
+            contenido.style.display = "block";
+            el.style.background = "#e2e2e2"; // Color activo
+        }
+    }
 </script>
 
 </body>

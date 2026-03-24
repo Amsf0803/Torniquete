@@ -1,124 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
+    <title>Menú Principal</title>
     <link rel="icon" href="/static/images/LIA_Mini.png">
 <style>
-
+    /* ================= ESTILOS GENERALES ================= */
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         min-height: 100vh;
+        /* Quitamos el padding-left: 5% porque descentraba todo en celular */
         padding: 20px;
-        padding-left: 5%;
         margin: 0;
 
         background: 
             url("/static/images/logo-ipn-blanco.png") no-repeat center center,
             linear-gradient(170deg, #6c1d45, #ffffff 60%);
 
-        background-size: 750px, cover; /* primero imagen, luego gradiente */
+        background-size: 750px, cover;
         background-attachment: fixed;
-
-        /* imagen centrada horizontal, 70% vertical (más abajo) 
-        gradiente sigue centrado */
         background-position: center 100px, center;
+        color: #333; /* Color de texto base */
     }
-
 
     h1 {
         text-align: center;
         color: #fff;
         font-size: 2.5em;
         margin-bottom: 20px;
-        padding-bottom: 50px;
+        padding-bottom: 30px; /* Reduje un poco el espacio inferior */
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* Sombra para que resalte sobre el fondo claro/oscuro */
     }
 
-    .img {
-        width: 400px;
-        height: 200px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45);
-        margin: 20px 10px;
-        max-width: 90vw; /* Asegura que se escale en pantallas pequeñas */
-        height: auto;
-        transition: transform 400ms
-    }
-    img:hover {
-        transform: scale(1.05);
-    }
+    /* ================= CONTENEDOR DE SERVICIOS ================= */
     .services {
         display: flex;
         justify-content: center;
-        flex-wrap: wrap; /* Permite que los elementos salten a otra línea */
-        gap: 20px;
+        flex-wrap: wrap; 
+        gap: 30px; /* Un poco más de espacio entre tarjetas */
+        max-width: 1200px;
+        margin: 0 auto; /* Centrar el contenedor general */
     }
 
+    /* ================= CADA SERVICIO (TARJETA) ================= */
     .service {
         text-align: center;
-        max-width: 500px;
+        /* En escritorio ocupan casi un tercio, en tablet la mitad, etc. */
+        width: 100%;
+        max-width: 400px; 
+        background-color: rgba(255, 255, 255, 0.85); /* Fondo blanco semitransparente para que se lea el texto */
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    /* Responsividad: una columna en pantallas pequeñas */
-    @media (max-width: 800px) {
+    .service h2 {
+        color: #6c1d45; /* Títulos en color vino para que destaquen en la tarjeta blanca */
+        margin-top: 0;
+        font-size: 1.5em;
+    }
+
+    .service p {
+        font-size: 1em;
+        line-height: 1.4;
+        margin-bottom: 20px;
+    }
+
+    /* ================= IMÁGENES ================= */
+    .img {
+        width: 100%; /* La imagen ocupa el 100% del ancho de su tarjeta */
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        transition: transform 400ms;
+        display: block; /* Para quitar un pequeño margen fantasma abajo */
+    }
+
+    .img:hover {
+        transform: scale(1.03); /* Un zoom más sutil */
+    }
+
+    /* ================= MEDIA QUERIES (CELULARES) ================= */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 1.8em; /* Título principal más pequeño en celular */
+            padding-bottom: 10px;
+        }
+
         .services {
-            flex-direction: column;
-            align-items: center;
+            gap: 20px; /* Menos espacio entre tarjetas en celular */
         }
 
-        .img {
-            width: 90%;
+        .service {
+            padding: 15px;
+        }
+
+        body {
+            padding: 10px; /* Menos margen en la pantalla general */
         }
     }
-
 </style>
 
 </head>
 <body>
     <h1>Servicios Disponibles para el Registro</h1>
+    
     <section class="services">
         <div class="service">
-            <h2>Grupo a seleccionar para el registro</h2>
+            <h2>Grupo a seleccionar</h2>
             <p>Establece el grupo a registrar para posteriormente registrar la credencial y el horario.</p>
-            <a href="/seleccionar_metodo"><img class="img" src="../static/images/Seleccionar.png" alt=""></a>
+            <a href="/seleccionar_metodo"><img class="img" src="../static/images/Seleccionar.png" alt="Seleccionar Método"></a>
         </div>
 
-
         <div class="service">
-            <h2>Manejo de Pases de salida</h2>
-            <p>Establece pases de salida temporales para un grupo especifico con su horario correspondiente al dia.</p>
-            <a href="/admin_cambios"><img class="img" src="../static/images/Admin.png" alt=""></a>
+            <h2>Pases de salida</h2>
+            <p>Establece pases de salida temporales para un grupo especifico con su horario correspondiente al día.</p>
+            <a href="/admin_cambios"><img class="img" src="../static/images/Admin.png" alt="Admin Pases"></a>
         </div>
 
         <div class="service">
             <h2>Manejo de Suspensiones</h2>
             <p>Maneja las suspensiones mediante elegir el grupo y posteriormente la boleta del suspendido.</p>
-            <a href="/suspension"><img class="img" src="../static/images/Suspension.png" alt=""></a>
+            <a href="/suspension"><img class="img" src="../static/images/Suspension.png" alt="Suspensiones"></a>
         </div>  
         
         <div class="service">
-            <h2>Grafica de entrada y salida de alumnos</h2>
-            <p> Visualizacion grafica de cuantos alumnos entran y salen cada semana, para tener un conteo real y practico. </p>
-            <a href="/grafica"><img class="img" src="../static/images/Graficas.png" alt=""></a>
+            <h2>Gráfica de entradas y salidas</h2>
+            <p>Visualizacion gráfica de cuántos alumnos entran y salen cada semana, para tener un conteo real y práctico.</p>
+            <a href="/grafica"><img class="img" src="../static/images/Graficas.png" alt="Gráficas"></a>
         </div>        
         
         <div class="service">
-            <h2>Reinicio de la base de datos</h2>
-            <p>
-                
-                Se BORRA TODO los registros, usar con cuidado. De igual forma se selecciona el nuevo semestre y se establece la cantidad de grupos de este mismo</p>
-            <a href="/reset"><img class="img" src="../static/images/Reset.png" alt=""></a>
+            <h2>Reinicio de base de datos</h2>
+            <p>Se BORRA TODO los registros, usar con cuidado. De igual forma se selecciona el nuevo semestre y la cantidad de grupos.</p>
+            <a href="/reset"><img class="img" src="../static/images/Reset.png" alt="Reset DB"></a>
         </div>  
 
         <div class="service">
-            <h2>Acceso ilimitado de forma temporal</h2>
-            <p>
-                Se le dara el acceso a cualquier alumno con codigo QR institucional valido sin importar el horario, se recomienda usarlo a inicios de semestre donde no hay horarios fijos o que puedan cambiar en un futuro cercano asi que de mientras cualquiera con su credencial u horario podra acceder. </p>
-            <a href="/acceso_verificacion"><img class="img" src="../static/images/acceso_veri.png" alt=""></a>
+            <h2>Acceso ilimitado temporal</h2>
+            <p>Acceso a cualquier alumno con QR institucional sin importar el horario. Recomendado a inicios de semestre.</p>
+            <a href="/acceso_verificacion"><img class="img" src="../static/images/acceso_veri.png" alt="Acceso Verificación"></a>
         </div>  
-
-
     </section>
 </body>
 </html>
