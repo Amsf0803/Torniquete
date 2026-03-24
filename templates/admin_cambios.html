@@ -2,117 +2,179 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Pases de Salida</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pases de Salida</title>
     <link rel="icon" href="/static/images/LIA_Mini.png">
     <style>
+        /* ================= ESTILOS GENERALES Y TEMA MORADO ================= */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #6c1d45;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
             text-align: center;
-            color: #fff;
+            
+            /* Fondo estandarizado IPN con Gradiente Morado */
+            background: 
+                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
+                linear-gradient(170deg, #4a148c, #ffffff 75%);
+            background-size: 750px, cover;
+            background-attachment: fixed;
+            background-position: center 100px, center;
         }
         
-        h2 {
-            color: #fff;
-            margin-top: 20px;
-        }
-
-        /* --- Contenedor Flexbox para los logos --- */
+        /* ================= HEADER LOGOS (FLEXBOX) ================= */
         .header-images {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 1000px;
-            margin: 0 auto; /* Centrar el contenedor */
-            padding: 10px;
+            margin: 0 auto 20px auto;
         }
 
         .header-images img {
             height: auto;
-            position: static; /* Quitamos la posicion absoluta */
-            margin: 0;
+            position: static; 
         }
 
         .ipn { width: 100px; }
         .logo { width: 160px; }
         .LIA { width: 160px; }
 
-        label {
-            font-weight: bold;
+        h2 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background-color: #4a148c; 
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 10px;
         }
 
-        /* Formularios responsivos */
-        select, input[type="date"], button {
-            margin: 10px auto; /* Centrados */
-            padding: 10px;
-            width: 100%; /* Ocupan todo el ancho disponible... */
-            max-width: 300px; /* ...pero sin pasarse de 300px */
-            box-sizing: border-box; /* Evita que el padding rompa el tamaño */
+        /* ================= CONTENEDOR BLANCO PRINCIPAL ================= */
+        .contenedor-principal {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            color: #333; 
+            box-sizing: border-box;
+        }
+
+        label {
+            font-weight: bold;
+            color: #4a148c; /* Texto Morado */
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            color: #4a148c; /* Texto Morado */
+            margin-bottom: 20px;
+        }
+
+        /* ================= FORMULARIOS Y BOTONES ================= */
+        select, input[type="date"] {
+            margin: 0 auto 20px auto; 
+            padding: 12px;
+            width: 100%; 
+            max-width: 350px; 
+            box-sizing: border-box; 
             border-radius: 5px;
-            border: none;
-            display: block; /* Fuerza a que cada elemento vaya en una linea nueva */
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            font-size: 1em;
+            display: block; 
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4a148c; /* Borde Morado */
+            box-shadow: 0 0 5px rgba(74, 20, 140, 0.4);
         }
 
         button {
-            background-color: #fff;
-            color: #6c1d45;
+            background-color: #4a148c; /* Botón Morado */
+            color: #fff;
             font-weight: bold;
+            font-size: 1.1em;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: transform 0.3s, background-color 0.3s;
+            padding: 12px;
+            width: 100%;
+            max-width: 350px;
+            border: none;
+            border-radius: 5px;
+            margin: 0 auto;
+            display: block;
         }
 
         button:hover {
-            background-color: #e0e0e0;
+            background-color: #311b92; /* Morado más oscuro al pasar el ratón */
+            transform: scale(1.05);
         }
 
-        /* --- Estilos para la tabla responsiva --- */
+        /* ================= TABLA RESPONSIVA ================= */
         .table-container {
             width: 100%;
-            overflow-x: auto; /* Permite scroll horizontal si la tabla es muy ancha en celular */
-            display: flex;
-            justify-content: center;
+            overflow-x: auto; 
+            margin-bottom: 20px;
         }
 
         table {
             width: 100%;
-            max-width: 800px;
-            margin-top: 20px;
             border-collapse: collapse;
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco para leer el texto oscuro */
-            color: #333;
+            background-color: #fff; 
         }
 
         th, td {
-            border: 1px solid #aaa;
-            padding: 10px 8px;
+            border: 1px solid #ddd;
+            padding: 12px 8px;
             text-align: center;
         }
 
         th {
-            background-color: #eee;
-            color: #6c1d45;
+            background-color: #f2f2f2;
+            color: #4a148c; /* Encabezado de tabla en morado */
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
         }
 
         .seccion {
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ccc;
+            padding-top: 30px;
+            border-top: 2px dashed #ccc;
+        }
+
+        /* ================= BOTÓN REGRESO ================= */
+        .btn-container {
+            margin-top: 40px;
             text-align: center;
         }
 
-        a {
-            text-decoration: none;
+        .btn-regresar {
+            background-color: #311b92;
+            max-width: 300px;
         }
 
-        /* =========================================
-           MEDIA QUERIES PARA CELULARES
-           ========================================= */
+        .btn-regresar:hover {
+            background-color: #4a148c;
+        }
+
+        a { text-decoration: none; }
+
+        /* ================= MEDIA QUERIES PARA CELULARES ================= */
         @media (max-width: 768px) {
             .header-images {
-                justify-content: center; /* Centramos los logos */
-                flex-wrap: wrap; /* Permitimos que los logos bajen de línea si no caben */
+                justify-content: center; 
+                flex-wrap: wrap; 
                 gap: 15px;
             }
             
@@ -120,13 +182,20 @@
             .logo { width: 120px; }
             .LIA { width: 120px; }
 
+            h2 { font-size: 1.8em; }
+
+            .contenedor-principal {
+                padding: 15px;
+            }
+
             body {
-                margin: 10px; /* Reducimos el margen en celulares para aprovechar espacio */
+                padding: 10px; 
             }
         }
     </style>
 </head>
 <body>
+    
     <div class="header-images">
         <img class="ipn" src="/static/images/logo-ipn-blanco.png" alt="Logo IPN">
         <img class="logo" src="/static/images/Cecyt16.png" alt="Logo CECyT 16">
@@ -135,61 +204,73 @@
 
     <h2>📅 Pases de Salida</h2>
 
-    <form method="get">
-        <div class="grupos">
-            <label for="grupo">Grupo:</label>
-            <select name="grupo" required>
-                <option value="">-- Selecciona un grupo --</option>
-                {% for grupo in grupos %}
-                <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <button type="submit">Buscar horario del día</button>
-    </form>
-
-    {% if horarios and grupo_seleccionado %}
-    <div class="seccion">
-        <h3>🕐 Horarios disponibles para cancelar ({{ grupo_seleccionado }} - {{ dia_seleccionado }})</h3>
-
-        <form method="post">
-            <input type="hidden" name="grupo" value="{{ grupo_seleccionado }}">
-            <input type="hidden" name="dia" value="{{ dia_seleccionado }}">
-
-            <label for="fecha">Selecciona las horas:</label><br>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Seleccionar</th>
-                            <th>Hora de inicio</th>
-                            <th>Hora de fin</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for hora_inicio, hora_fin in horarios %}
-                        <tr>
-                            <td><input type="checkbox" name="horas" value="{{ hora_inicio }}-{{ hora_fin }}"></td>
-                            <td>{{ hora_inicio }}</td>
-                            <td>{{ hora_fin }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="contenedor-principal">
+        
+        <form method="get">
+            <div class="grupos">
+                <label for="grupo">Selecciona el Grupo:</label>
+                <select name="grupo" required>
+                    <option value="">-- Selecciona un grupo --</option>
+                    {% for grupo in grupos %}
+                    <option value="{{ grupo }}" {% if grupo == grupo_seleccionado %}selected{% endif %}>{{ grupo }}</option>
+                    {% endfor %}
+                </select>
             </div>
-            
-            <button type="submit">Guardar cambios temporales</button>
+
+            <button type="submit">Buscar horario del día</button>
         </form>
+
+        {% if horarios and grupo_seleccionado %}
+        <div class="seccion">
+            <h3>🕐 Horarios disponibles ({{ grupo_seleccionado }} - {{ dia_seleccionado }})</h3>
+
+            <form method="post">
+                <input type="hidden" name="grupo" value="{{ grupo_seleccionado }}">
+                <input type="hidden" name="dia" value="{{ dia_seleccionado }}">
+
+                <label for="fecha">Selecciona las horas a cancelar:</label>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Seleccionar</th>
+                                <th>Hora de inicio</th>
+                                <th>Hora de fin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hora_inicio, hora_fin in horarios %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="horas" value="{{ hora_inicio }}-{{ hora_fin }}" style="transform: scale(1.5);">
+                                </td>
+                                <td>{{ hora_inicio }}</td>
+                                <td>{{ hora_fin }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button type="submit">Guardar pases de salida</button>
+            </form>
+        </div>
+        {% elif grupo_seleccionado and dia_seleccionado %}
+        <div class="seccion">
+            <p style="color: #d9534f; font-weight: bold; font-size: 1.1em;">
+                ❌ No se encontraron horarios registrados en {{ grupo_seleccionado }} para el día {{ dia_seleccionado }}.
+            </p>
+        </div> 
+        {% endif %}
+
     </div>
-    {% elif grupo_seleccionado and dia_seleccionado %}
-    <div class="seccion">
-        <p>❌ No se encontraron horarios registrados en {{ grupo_seleccionado }} para el día {{ dia_seleccionado }}.</p>
-    </div> 
-    {% endif %}
     
-    <br><br>
-    <a href="/"><button type="button">Regresar a la página principal</button></a>
+    <div class="btn-container">
+        <a href="/">
+            <button type="button" class="btn-regresar">Regresar a la página principal</button>
+        </a>
+    </div>
+
 </body>
 </html>

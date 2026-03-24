@@ -2,68 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="icon" href="/static/images/LIA_Mini.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="icon" href="/static/images/LIA_Mini.png">
     <title>Control de Acceso General</title>
 
     <style>
-        /* ================= ESTILOS GENERALES ================= */
+        /* ================= ESTILOS GENERALES (GRIS Y OSCURO) ================= */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
             margin: 0;
+            color: #e0e0e0; /* Texto claro para fondo oscuro */
 
             background: 
                 url("/static/images/logo-ipn-blanco.png") no-repeat center center,
-                linear-gradient(170deg, #6c1d45, #ffffff 75%);
+                linear-gradient(170deg, #121212, #2c3e50 50%, #fff); /* Gradiente de negro a gris azulado */
 
             background-size: 750px, cover; 
             background-attachment: fixed;
             background-position: center 100px, center;
         }
 
-        /* ================= HEADER LOGOS (FLEXBOX) ================= */
+        /* ================= HEADER LOGOS ================= */
         .imagenes {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 1000px;
             margin: 0 auto 20px auto;
+            filter: grayscale(100%) brightness(1.2); /* Logos en escala de grises para combinar */
         }
 
         .imagenes img {
             width: 150px;
             height: auto;
-            position: static; /* Adiós position absolute */
         }
 
         h2 {
-            color: #6c1d45;
-            font-size: 2.5em;
-            margin: 10; /* Ajustamos el margen para que no sea tan grande */
+            color: #303030;
+            font-size: 2.4em;
             text-align: center;
-            background-color: #fff; /* Fondo blanco para mejor legibilidad */
-            padding: 10px 20px;
+            background-color: rgba(255, 255, 255); /* Fondo translúcido */
+            padding: 15px 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            margin: 20px auto;
         }
 
         /* ================= CONTENEDOR DEL FORMULARIO ================= */
         .form-container {
             max-width: 420px;
             margin: auto;
-            background-color: rgba(255, 255, 255, 0.95); /* Un poco más sólido para mejor lectura */
+            background-color: #1e1e1e; /* Fondo gris casi negro */
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            box-sizing: border-box; /* Previene que el padding desborde el ancho en celulares */
-            width: 100%; /* Asegura que tome el ancho en móviles */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         label, p.instruccion {
             display: block;
             margin-bottom: 10px;
-            color: #6c1d45;
+            color: #bb86fc; /* Color de acento neón suave (opcional, puedes usar gris claro #ccc) */
             font-weight: bold;
             font-size: 1.1em;
             text-align: center;
@@ -73,37 +78,41 @@
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 1px solid #444;
+            border-radius: 8px;
             box-sizing: border-box;
             font-size: 16px;
-            background-color: #fcfcfc;
+            background-color: #2d2d2d;
+            color: #fff;
+            transition: all 0.3s ease;
         }
 
         input[type="password"]:focus, select:focus {
             outline: none;
-            border-color: #6c1d45;
-            box-shadow: 0 0 5px rgba(108, 29, 69, 0.5);
+            border-color: #bb86fc;
+            box-shadow: 0 0 8px rgba(187, 134, 252, 0.3);
+            background-color: #333;
         }
 
         /* ================= BOTONES ================= */
         button.btn-accion {
             display: block;
             width: 100%;
-            padding: 12px;
-            background-color: #6c1d45;
+            padding: 14px;
+            background-color: #3700b3; /* Morado muy oscuro o puedes usar #333 */
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            transition: transform 400ms, background-color 300ms;
+            transition: all 400ms;
         }
 
         button.btn-accion:hover {
-            transform: scale(1.05);
-            background-color: #521533;
+            transform: translateY(-2px);
+            background-color: #4a148c;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
         }
 
         .regreso-container {
@@ -112,87 +121,58 @@
         }
 
         .regreso {
-            background-color: #6c1d45;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            background-color: #333;
+            color: #ccc;
+            border: 1px solid #444;
+            border-radius: 8px;
             cursor: pointer;
             padding: 12px 20px;
             font-size: 16px;
             width: 100%;
             max-width: 300px;
-            transition: transform 300ms;
+            transition: all 300ms;
         }
 
         .regreso:hover {
-            transform: scale(1.05);
-            background-color: #521533;
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
         }
-
-        a { text-decoration: none; }
 
         hr {
-            border: 0.7px solid #6c1d45;
+            border: 0;
+            border-top: 1px solid #444;
             margin: 20px 0;
-            opacity: 0.5;
         }
 
-        /* ================= ALERTAS Y MENSAJES ================= */
+        /* ================= ALERTAS ================= */
         .warning {
-            color: #856404;
-            background-color: #fff3cd;
+            color: #ffcc80;
+            background-color: rgba(255, 204, 128, 0.1);
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.95em;
-            border: 1px solid #ffeeba;
+            border: 1px solid rgba(255, 204, 128, 0.3);
             text-align: justify;
-            line-height: 1.4;
         }
 
         #msg-error {
-            color: #d9534f;
-            font-weight: bold;
-            display: none;
+            color: #ff8a80;
+            background-color: rgba(255, 138, 128, 0.1);
+            border: 1px solid #ff8a80;
+            padding: 10px;
+            border-radius: 8px;
             margin-top: 15px;
             text-align: center;
-            background-color: #f2dede;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ebccd1;
         }
 
         #panel-configuracion { display: none; }
 
-        /* ================= MEDIA QUERIES (CELULARES) ================= */
         @media (max-width: 600px) {
-            .imagenes {
-                justify-content: center;
-                gap: 20px; /* Separación entre logos en móvil */
-            }
-
-            .imagenes img { 
-                width: 110px; /* Logos más pequeños */
-            }
-
-            h2 {
-                color: #6c1d45;
-                font-size: 2.5em;
-                margin: 5; /* Quitamos el margen para que flexbox lo centre bien */
-                text-align: center;
-                background-color: #fff; /* Fondo blanco para mejor legibilidad */
-                padding: 10px 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            .form-container {
-                padding: 20px; /* Menos padding interno en celulares para ahorrar espacio */
-            }
-
-            body {
-                padding: 10px; /* Menos margen exterior */
-            }
+            .imagenes img { width: 100px; }
+            h2 { font-size: 1.8em; }
+            .form-container { padding: 20px; }
         }
     </style>
 </head>
@@ -210,8 +190,8 @@
         <div id="panel-password">
             <p class="instruccion">Validación Administrativa</p>
             <hr>
-            <label for="password" style="text-align: left; font-size: 1em; color: #333;">Contraseña de autorización:</label>
-            <input type="password" id="password" placeholder="Ingrese la contraseña interna">
+            <label for="password" style="text-align: left; font-size: 1em; color: #aaa;">Contraseña de autorización:</label>
+            <input type="password" id="password" placeholder="••••••••">
             
             <button class="btn-accion" onclick="verificarContrasena()">Verificar Credenciales</button>
             <div id="msg-error">Contraseña incorrecta. Intente nuevamente.</div>
@@ -225,9 +205,8 @@
                 <strong>⚠️ AVISO IMPORTANTE:</strong> Al habilitar esta función, el sistema omitirá la validación de horarios en la base de datos. Cualquier alumno con código QR institucional válido podrá acceder inmediatamente.
             </div>
             
-            <label for="selector-estado" style="text-align: left; font-size: 1em; color: #333;">Estado del acceso:</label>
-            <select id="selector-estado">
-                </select>
+            <label for="selector-estado" style="text-align: left; font-size: 1em; color: #aaa;">Estado del acceso:</label>
+            <select id="selector-estado"></select>
             
             <button class="btn-accion" onclick="subirCambios()">Aplicar Configuración</button>
         </div>
@@ -236,14 +215,14 @@
 
     <div class="regreso-container">
         <a href="/">
-            <button class="regreso" type="button">Regresar a la página principal</button>
+            <button class="regreso" type="button">Regresar al panel principal</button>
         </a>
     </div>
 
     <script>
+        // La lógica JS permanece igual para no romper la funcionalidad
         function verificarContrasena() {
             const password = document.getElementById('password').value;
-            
             fetch('/acceso_verificacion', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -252,15 +231,12 @@
             .then(res => res.json())
             .then(data => {
                 const msgError = document.getElementById('msg-error');
-                
                 if (data.status === 'success') {
                     msgError.style.display = 'none';
                     document.getElementById('panel-password').style.display = 'none';
                     document.getElementById('panel-configuracion').style.display = 'block';
-                    
                     const selector = document.getElementById('selector-estado');
                     selector.innerHTML = ''; 
-                    
                     if (data.estado === 'vacio') {
                         selector.innerHTML = '<option value="conceder">Habilitar acceso libre a todos</option>';
                     } else if (data.estado === 'concedido') {
@@ -277,11 +253,9 @@
         function subirCambios() {
             const accionSeleccionada = document.getElementById('selector-estado').value;
             const btn = document.querySelector('#panel-configuracion button');
-            
-            // Animación de carga en el botón
             btn.innerText = "Guardando...";
             btn.disabled = true;
-            btn.style.backgroundColor = "#ccc";
+            btn.style.backgroundColor = "#555";
 
             fetch('/acceso_verificacion', {
                 method: 'POST',
@@ -300,10 +274,9 @@
                 alert("Ocurrió un error al intentar guardar los cambios.");
                 btn.innerText = "Aplicar Configuración";
                 btn.disabled = false;
-                btn.style.backgroundColor = "#6c1d45";
+                btn.style.backgroundColor = "#3700b3";
             });
         }
     </script>
-
 </body>
 </html>
