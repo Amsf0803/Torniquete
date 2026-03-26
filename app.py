@@ -58,17 +58,23 @@ ESP32_PORT = 80
 # Esto permite que el HTML se actualice sin consultar la DB constantemente
 datos_accesos = {
     "izquierda": {
+        "boleta": "---",
         "nombre": "Esperando...",
         "mensaje": "Carril Izquierdo Habilitado",
-        "foto": "/static/img/placeholder.png", 
-        "color": "gray", # gray, green, red
+        "foto": "/static/images/placeholder.png", 
+        "estilo": "estado-esperando",
+        "titulo": "Listo",
+        "mochila": "---",
         "timestamp": 0
     },
     "derecha": {
+        "boleta": "---",
         "nombre": "Esperando...",
         "mensaje": "Carril Derecho Habilitado",
-        "foto": "/static/img/placeholder.png",
-        "color": "gray",
+        "foto": "/static/images/placeholder.png",
+        "estilo": "estado-esperando",
+        "titulo": "Listo",
+        "mochila": "---",
         "timestamp": 0
     }
 }
@@ -332,11 +338,19 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         titulo_tarjeta = "Integrante de LIA - Jesus"
         estilo_css = "inscrito-LIA"
         mensaje_mochila = "The cake is a lie"
+    
     # C) ALUMNOS NORMALES
+    
     elif acceso_concedido:
-        estilo_css = "inscrito-activo"
-        titulo_tarjeta = "Entrada Autorizada"
-        mensaje_mochila = "Bienvenido de nuevo."
+        # Llamamos a la funcion de operacion mochila
+        if verificador.operacion_mochila(boleta):
+            estilo_css = "inscrito-mochila"  # Este es el nuevo estilo azul
+            titulo_tarjeta = "Operación Mochila"
+            mensaje_mochila = "⚠️ FAVOR DE MOSTRAR MOCHILA ⚠️"
+        else:
+            estilo_css = "inscrito-activo"
+            titulo_tarjeta = "Entrada Autorizada"
+            mensaje_mochila = "Bienvenido de nuevo."
     else:
         if "suspendido" in mensaje_estado.lower():
             estilo_css = "inscrito-suspendido"
@@ -362,7 +376,11 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
             pass
 
     # --- 4. ACTUALIZAR MEMORIA GLOBAL ---
-    datos_accesos[lado_key] = {
+    # FIX: .update() modifica el mismo objeto en RAM compartida entre hilos.
+    # Reasignar datos_accesos[lado_key] = {...} puede crear un objeto nuevo
+    # que el hilo de Flask no ve si tiene una referencia al anterior.
+    ts = time.time()
+    datos_accesos[lado_key].update({
         "boleta": boleta,
         "nombre": nombre_alumno,
         "mensaje": mensaje_estado,
@@ -370,11 +388,10 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         "estilo": estilo_css,
         "titulo": titulo_tarjeta,
         "mochila": mensaje_mochila,
-        "timestamp": time.time()
-    }
-    
+        "timestamp": ts
+    })
     print(f"{'✅' if acceso_concedido else '❌'} [{lado_key.upper()}] {nombre_alumno} - {mensaje_estado}")
-    
+    print(f"🕐 timestamp guardado = {ts}")
     return acceso_concedido
 
 
@@ -386,43 +403,54 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
 # ============================================================================
 
 def servidor_escaneres_background():
-    HOST = '201.66.195.124'
+    # FIX: '0.0.0.0' escucha en TODAS las interfaces (local + red).
+    # Usar la IP pública en bind() causa que el SO rechace conexiones
+    # que vienen por la interfaz local/LAN aunque sean hacia esa IP.
+    HOST = '0.0.0.0'
     PORT = 65432
     
-    print(f"🔄 Iniciando servicio de escucha de Escáneres en puerto {PORT}...")
+    print(f"🔄 Iniciando servicio de escucha de Escáneres en {HOST}:{PORT}...")
     
-    while True: # Bucle de reinicio por si el socket muere
+    while True:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 s.bind((HOST, PORT))
                 s.listen()
+                print(f"✅ Socket listo — escuchando en puerto {PORT}")
                 
                 while True:
                     conn, addr = s.accept()
+                    print(f"📡 Conexión recibida desde: {addr}")  # DEBUG
                     with conn:
                         data = conn.recv(4096)
-                        if not data: continue
+                        if not data:
+                            print("⚠️ Paquete vacío recibido")
+                            continue
+                        
+                        raw = data.decode('utf-8')
+                        print(f"📦 Datos crudos recibidos: {raw[:200]}")  # DEBUG (primeros 200 chars)
+                        
                         try:
-                            # Decodificar mensaje de la Computadora A
-                            mensaje = json.loads(data.decode('utf-8'))
-                            
+                            mensaje = json.loads(raw)
                             texto_url = mensaje.get('texto', '').strip()
-                            
-                            # --- NUEVA LÓGICA DE DETECCIÓN DE LADO ---
                             escaner_id = mensaje.get('escaner', '')
                             es_izq = (escaner_id == 'IZQ')
-                            # -----------------------------------------
+                            
+                            print(f"🔍 escaner='{escaner_id}' | es_izq={es_izq} | texto='{texto_url[:80]}...'")  # DEBUG
                             
                             if texto_url:
-                                # Usar contexto de aplicación Flask para tener acceso a DB/Verificador
                                 with app.app_context():
                                     procesar_entrada_dual(texto_url, es_izq)
+                            else:
+                                print("⚠️ texto_url vacío — no se procesó")
                             
-                        except json.JSONDecodeError:
-                            print("⚠️ JSON corrupto recibido del escáner")
+                        except json.JSONDecodeError as e:
+                            print(f"⚠️ JSON inválido: {e} | raw: {raw[:100]}")
                         except Exception as e:
+                            import traceback
                             print(f"⚠️ Error procesando paquete: {e}")
+                            traceback.print_exc()
         except Exception as e:
             print(f"❌ Error en servidor socket (reiniciando en 5s): {e}")
             time.sleep(5)
@@ -814,6 +842,7 @@ class QRHorarioVerificador:
             
         return False
 
+
     def procesar_qr(self, url, solo_verificar=False, lado_izquierdo=True):
             """
             Procesa un QR. 
@@ -836,7 +865,7 @@ class QRHorarioVerificador:
                 return {
                     "tipo": "administrativo", "status": "OK", "puede_entrar": True, 
                     "mensaje": "Personal Administrativo", "nombre": "Administrativo", 
-                    "foto": "/static/img/admin.png", "boleta": "ADMIN"
+                    "foto": "/static/images/admin.png", "boleta": "ADMIN"
                 }
 
             # --- LÓGICA GUARDIA ---
@@ -848,7 +877,7 @@ class QRHorarioVerificador:
                 return {
                     "tipo": "guardia", "status": "OK", "puede_entrar": True, 
                     "mensaje": "Personal de Guardia", "nombre": "Guardia", 
-                    "foto": "/static/img/guardia.png", "boleta": "GUARDIA"
+                    "foto": "/static/images/guardia.png", "boleta": "GUARDIA"
                 }
 
             # Validar si es un enlace reconocido del IPN
@@ -863,12 +892,33 @@ class QRHorarioVerificador:
                     "puede_entrar": False,
                     "mensaje": "QR no reconocido",
                     "nombre": "Desconocido",
-                    "foto": "/static/img/placeholder.png",
+                    "foto": "/static/images/placeholder.png",
                     "boleta": "N/A"
                 }
 
+            # ---> PRIMERO BUSCAMOS AL ALUMNO PARA TENER SUS DATOS <---
+            print(f"📇 Enlace {tipo_enlace.upper()} detectado")
+            base_datos_grupo, boleta = self.buscar_alumno_por_url(url, tipo_enlace)
+            
+            nombre_alumno = "Alumno (Sin registro)"
+            foto_url = "/static/images/placeholder.png"
+            
+            if boleta and base_datos_grupo:
+                try:
+                    db_config_temp = self.db_config.copy()
+                    db_config_temp['database'] = base_datos_grupo
+                    with mysql.connector.connect(**db_config_temp, connection_timeout=5) as conn:
+                        with conn.cursor() as cursor:
+                            cursor.execute(f"SELECT nombre, imagen_path FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
+                            res = cursor.fetchone()
+                            if res:
+                                if res[0]: nombre_alumno = res[0]
+                                if res[1] and res[1].strip(): foto_url = res[1]
+                                else: foto_url = f"/static/images/{boleta}.jpg"
+                except Exception as e:
+                    print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
+
             # --- NUEVO: MODO INICIO DE SEMESTRE (ACCESO LIBRE) ---
-            # Se valida que el modo global esté activo Y que la base de datos confirme el acceso
             if MODO_INICIO_SEMESTRE and self.comprobar_acceso_ilimitado():
                 print("🔓 MODO INICIO DE SEMESTRE ACTIVO: QR válido y sistema verificado")
                 
@@ -879,32 +929,19 @@ class QRHorarioVerificador:
 
                 self.play_success_sound()
                 
-                # Devolvemos un estado positivo genérico para la pantalla HTML
+                # Devolvemos el estado positivo PERO CON LOS DATOS REALES DEL ALUMNO
                 return {
                     "status": "Acceso Libre",
                     "puede_entrar": True,
                     "mensaje": "Acceso Permitido",
-                    "nombre": "Alumno (Sin registro)",
-                    "foto": "/static/img/placeholder.png",
-                    "boleta": "Pendiente"
+                    "nombre": nombre_alumno,
+                    "foto": foto_url,
+                    "boleta": boleta if boleta else "Pendiente"
                 }
             elif MODO_INICIO_SEMESTRE:
-                # Opcional: Si está activo el modo pero falló la contraseña
                 print("🔒 Error: Modo Inicio de Semestre activo pero no se ha verificado el acceso en la DB.")
 
-        
-
-        
-            # --- LÓGICA ALUMNOS (DAE / SAES) ---
-            boleta = None
-            base_datos_grupo = None
-            tipo_qr = ""
-            
-            # 1. Identificar Tipo y Buscar en BD
-            print(f"📇 Enlace {tipo_enlace.upper()} detectado")
-            base_datos_grupo, boleta = self.buscar_alumno_por_url(url, tipo_enlace)
-            tipo_qr = tipo_enlace
-
+            # --- LÓGICA ALUMNOS NORMAL ---
             # Validaciones de Existencia
             if not boleta or not base_datos_grupo:
                 print("❌ Alumno no encontrado en la base de datos.")
@@ -914,29 +951,11 @@ class QRHorarioVerificador:
                     "puede_entrar": False, 
                     "mensaje": "Alumno no registrado o QR desconocido", 
                     "nombre": "Desconocido", 
-                    "foto": "",
+                    "foto": "/static/images/placeholder.png",
                     "boleta": ""
                 }
 
             print(f"✅ Datos recuperados -> Boleta: {boleta} | Grupo: {base_datos_grupo}")
-
-            # 2. Obtener nombre del alumno y foto
-            nombre_alumno = boleta  # Default
-            foto_url = f"/static/image/{boleta}.jpg"
-            
-            try:
-                db_config_temp = self.db_config.copy()
-                db_config_temp['database'] = base_datos_grupo
-                
-                with mysql.connector.connect(**db_config_temp, connection_timeout=5) as conn:
-                    with conn.cursor() as cursor:
-                        cursor.execute(f"SELECT nombre, imagen_path FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
-                        resultado = cursor.fetchone()
-                        if resultado:
-                            if resultado[0]: nombre_alumno = resultado[0]
-                            if resultado[1] and resultado[1].strip(): foto_url = resultado[1]
-            except Exception as e:
-                print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
 
             # 3. Buscar Horario (Verificar que exista la tabla con nombre de la boleta)
             base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
@@ -960,26 +979,19 @@ class QRHorarioVerificador:
                     "boleta": boleta
                 }
             
-            # ... (El resto de tu código sigue igual hacia abajo)
-
             # 5. Obtener estado final y activar torniquete si corresponde
             inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
             
-            # --- NUEVA LÓGICA PARA ADMINS ---
-
-            # --- NUEVA LÓGICA PARA ADMINS ---
+            # --- LÓGICA PARA ADMINS ---
             if boleta in ADMIN_BOLETAS:
                 print(f"👑 ADMIN DETECTADO: {boleta} - Saltando restricciones")
                 estado = {"acceso": True, "mensaje": "Acceso Administrador"}
                 
-                comando_admin = "2" if lado_izquierdo else "3"
-                
                 # MODIFICADO: Quitamos la validación de ".conectado" para forzar el intento
                 if not solo_verificar and self.esp32:
                     print("🔄 Intentando forzar apertura de torniquete...")
-                    self.esp32.enviar_comando(comando_admin)
-                    print(f"⚙️ Comando Admin '{comando_admin}' enviado al ESP32")
-
+                    self.esp32.enviar_comando(comando_torniquete)
+                    print(f"⚙️ Comando Admin '{comando_torniquete}' enviado al ESP32")
             else:
                 # Flujo normal para los demás alumnos
                 estado = self.obtener_estado_acceso_salida(
@@ -1012,9 +1024,6 @@ class QRHorarioVerificador:
                 "nombre": nombre_alumno,
                 "foto": foto_url
             }
-
-
-
 
 
     def crear_indices_sql_optimizacion(self):
@@ -1512,7 +1521,7 @@ class QRHorarioVerificador:
 
     def operacion_mochila(self, boleta):
         """Devuelve True o False para revisión de mochila (aleatorio 20%)"""
-        return random.random() < 0.2
+        return random.random() <= 1
     
     def registrar_acceso_excel(self, boleta, nombre, grupo, puede_entrar, es_salida):
         """Registra el acceso en un archivo Excel"""

@@ -1,0 +1,129 @@
+/home/lab-ia/Torniquete/venv/bin/python: can't open file '/home/lab-ia/Torniquete/server.py': [Errno 2] No such file or directory
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 1TM3
+ℹ️ Grupos disponibles para semestre 1: ['Pases_salida', '1TM1', '1TM2', '1TM3', '1TM4', '1TM5', '1TM6', '1TM7', '1TM8', '1TM9', '1TM10', '1TM11', '1TM12', '1TM13', '1TM14', '1TM15', '1TM16', '1TM17', '1TM18', '1TM19', '1TM20', '3CM1', '3CM2', '3AM1', '3AM2', '3MM1', '3MM2', '3MM3', '3MM4', '3IM1', '3PM1', '3EM1', '3EM2', '3EM3', '3EM4', '3LM1', '3LM2', '3LM3', '3LM4', '5CM1', '5CM2', '5AM1', '5AM2', '5MM1', '5MM2', '5MM3', '5MM4', '5IM1', '5PM1', '5EM1', '5EM2', '5EM3', '5EM4', '5LM1', '5LM2', '5LM3', '5LM4']
+✅ El grupo '1TM3' es válido para el semestre 1
+❌ Error al conectar a la base de datos del grupo: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM4'.
+el dia de hoy es numero: 1
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 1TM3
+ℹ️ Grupos disponibles para semestre 1: ['Pases_salida', '1TM1', '1TM2', '1TM3', '1TM4', '1TM5', '1TM6', '1TM7', '1TM8', '1TM9', '1TM10', '1TM11', '1TM12', '1TM13', '1TM14', '1TM15', '1TM16', '1TM17', '1TM18', '1TM19', '1TM20', '3CM1', '3CM2', '3AM1', '3AM2', '3MM1', '3MM2', '3MM3', '3MM4', '3IM1', '3PM1', '3EM1', '3EM2', '3EM3', '3EM4', '3LM1', '3LM2', '3LM3', '3LM4', '5CM1', '5CM2', '5AM1', '5AM2', '5MM1', '5MM2', '5MM3', '5MM4', '5IM1', '5PM1', '5EM1', '5EM2', '5EM3', '5EM4', '5LM1', '5LM2', '5LM3', '5LM4']
+✅ El grupo '1TM3' es válido para el semestre 1
+❌ Error al conectar a la base de datos del grupo: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '1TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '3LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en la base de datos '5LM4'.
+el dia de hoy es numero: 2
+Hoy no es fin de semana, no se reiniciarán las gráficas.

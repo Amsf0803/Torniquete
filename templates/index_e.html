@@ -1,369 +1,156 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Acceso Dual - IPN</title>
-    <link rel="icon" href="/static/images/LIA_Mini.png">
-    <style>
-        /* ================= ESTILOS GENERALES Y TEMA AZUL MARINO ================= */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow: hidden; /* Evitar scroll en el monitor */
-            
-            /* Fondo Azul Marino Profundo y Tecnológico */
-            background: 
-                url("/static/images/logo-ipn-blanco.png") no-repeat center center,
-                linear-gradient(135deg, #0a192f 0%, #1a365d 100%);
-            background-size: 550px, cover;
-            background-attachment: fixed;
-            background-blend-mode: overlay;
-        }
-
-        /* CONTENEDOR DIVIDIDO */
-        .split-screen {
-            display: flex;
-            width: 100%;
-            height: 100vh;
-        }
-
-        .lado-monitor {
-            flex: 1; /* 50% cada uno */
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-right: 2px solid rgba(255, 255, 255, 0.1); /* Separador sutil */
-            position: relative;
-            transition: background 0.3s;
-        }
-
-        .lado-monitor:last-child {
-            border-right: none;
-        }
-
-        /* ETIQUETA SUPERIOR (IZQ / DER) */
-        .etiqueta-lado {
-            position: absolute;
-            top: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            color: #64ffda; /* Un toque de cyan para contrastar con el azul marino */
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        /* ================= TARJETA DE INFORMACIÓN ================= */
-        .inscrito-card {
-            width: 85%;
-            max-width: 600px;
-            border-radius: 20px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            animation: fadeInUp 0.5s ease-out;
-            transition: all 0.3s ease;
-        }
-
-        /* ESTADO POR DEFECTO (ESPERANDO) - Estilo Glassmorphism */
-        .estado-esperando {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            min-height: 400px;
-            justify-content: center;
-        }
-
-        .estado-esperando h2 {
-            font-weight: 400;
-            letter-spacing: 1px;
-            color: #e2e8f0;
-        }
-
-        /* === CLASES DE ESTILO ORIGINALES (Intactas para mantener el código de colores) === */
-        .inscrito-activo {
-            background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%);
-            color: #ffffff;
-            border: none;
-        }
-        .inscrito-suspendido {
-            background: linear-gradient(145deg, #ffffff 0%, #fbbf24 100%);
-            color: #92400e;
-            border: 2px solid #fbbf24;
-        }
-        .inscrito-inactivo {
-            background: linear-gradient(145deg, #bd6161 0%, #760000 100%);
-            color: #ffffff;
-            border: none;
-        }
-        .inscrito-LIA {
-            background: linear-gradient(90deg,rgba(66, 19, 41, 1) 0%, #6c1d45 45%, rgba(255, 255, 255, 1) 150%);
-            color: #ffffff;
-            border: 2px solid #ff00ff;
-        }
-        .master {
-            background: linear-gradient(90deg,rgb(18, 17, 83) 0%, #221d6c 35%, rgba(255, 255, 255, 1) 125%);
-            color: #ffffff;
-            border: 2px solid gold;
-        }
-        .inscrito-Especial {
-            background: linear-gradient(90deg,rgb(59, 87, 49) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%);
-            color: #ffffff;
-        }
-
-        /* ELEMENTOS INTERNOS */
-        .boleta-display {
-            font-size: 2.2rem;
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
-            margin-bottom: 15px;
-            width: 100%;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        }
-
-        .status-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        }
-
-        .foto-alumno {
-            width: 200px;
-            height: 240px;
-            object-fit: cover;
-            border-radius: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            background-color: #0a192f;
-            margin-bottom: 20px;
-        }
-
-        .mochila-operation {
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            padding: 15px;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            width: 100%;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        /* LOGO DE FONDO (Transparente) */
-        .background-logo-card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.1;
-            width: 80%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .content-wrapper {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Animación */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .hidden { display: none; }
-
-        /* ================= MEDIA QUERIES ================= */
-        /* Por si se visualiza en una pantalla vertical / móvil */
-        @media (max-width: 900px) {
-            body {
-                overflow: auto; /* Permitir scroll si es necesario en móvil */
-            }
-            .split-screen {
-                flex-direction: column;
-                height: auto;
-            }
-            .lado-monitor {
-                border-right: none;
-                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-                min-height: 50vh;
-            }
-            .lado-monitor:last-child {
-                border-bottom: none;
-            }
-            .etiqueta-lado {
-                position: relative;
-                top: 0;
-                margin-bottom: 15px;
-            }
-            .estado-esperando {
-                min-height: 300px;
-            }
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Monitor de Acceso Dual - IPN</title> 
+    <link rel="icon" href="/static/images/LIA_Mini.png"> 
+    <style> 
+        body { 
+            margin: 0; padding: 0; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden;
+            background: url("/static/images/logo-ipn-blanco.png") no-repeat center center, 
+                        linear-gradient(135deg, #0a192f 0%, #1a365d 100%); /* Cambiado a Azul Oscuro */
+            background-size: 550px, cover; background-attachment: fixed; background-blend-mode: overlay; 
+        } 
+        .split-screen { display: flex; width: 100%; height: 100vh; } 
+        .lado-monitor { 
+            flex: 1; padding: 20px; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+            border-right: 4px solid rgba(0,0,0,0.2); position: relative; transition: background 0.3s; 
+        } 
+        .lado-monitor:last-child { border-right: none; } 
+        .etiqueta-lado { 
+            position: absolute; top: 20px; background: rgba(0,0,0,0.3); color: #64ffda; /* Letra clara para resaltar en fondo oscuro */
+            padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; 
+        } 
+        .inscrito-card { 
+            width: 85%; max-width: 600px; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; 
+            display: flex; flex-direction: column; align-items: center; text-align: center; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); transition: all 0.3s ease; 
+        } 
+        .estado-esperando { 
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 2px dashed rgba(255, 255, 255, 0.3); color: #ffffff; 
+            min-height: 400px; justify-content: center; 
+        } 
+        .inscrito-activo { background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: none; } 
+        .inscrito-suspendido { background: linear-gradient(145deg, #ffffff 0%, #fbbf24 100%); color: #92400e; border: 2px solid #fbbf24; } 
+        .inscrito-inactivo { background: linear-gradient(145deg, #bd6161 0%, #760000 100%); color: #ffffff; border: none; } 
+        .inscrito-LIA { background: linear-gradient(90deg,rgba(66, 19, 41, 1) 0%, #6c1d45 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: 2px solid #ff00ff; } 
+        .master { background: linear-gradient(90deg,rgb(18, 17, 83) 0%, #221d6c 35%, rgba(255, 255, 255, 1) 125%); color: #ffffff; border: 2px solid gold; } 
+        .inscrito-Especial { background: linear-gradient(90deg,rgb(59, 87, 49) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; } 
+        .boleta-display { font-size: 2.2rem; font-weight: bold; background: rgba(255, 255, 255, 0.2); padding: 10px 20px; border-radius: 15px; backdrop-filter: blur(5px); margin-bottom: 15px; width: 100%; } 
+        .status-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; } 
+        .foto-alumno { width: 200px; height: 240px; object-fit: cover; border-radius: 20px; border: 4px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); background-color: #0a192f; margin-bottom: 20px; } 
+        .mochila-operation { background: rgba(255, 255, 255, 0.2); color: inherit; padding: 15px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; width: 100%; border: 1px solid rgba(255,255,255,0.3); } 
+        .background-logo-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; width: 80%; pointer-events: none; z-index: 0; } 
+        .content-wrapper { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; } 
+        .hidden { display: none !important; } 
+        .inscrito-mochila { 
+            background: linear-gradient(90deg, #0a2540 0%, #2b84d1 45%, rgba(255, 255, 255, 1) 150%); 
+            color: #ffffff; 
+            border: 3px solid #64ffda; 
         }
     </style>
-</head>
-<body>
-
-    <div class="split-screen">
+</head> 
+<body> 
+    <div class="split-screen"> 
         
-        <div class="lado-monitor">
-            <div class="etiqueta-lado">Torniquete Izquierdo</div>
-            
-            <div id="card-izq" class="inscrito-card estado-esperando">
-                <div class="content-wrapper">
-                    <div id="espera-izq">
-                        <img src="/static/images/Logo-LIA-mini-blanco.png" width="90" style="opacity: 0.7; margin-bottom: 20px; filter: drop-shadow(0px 0px 8px rgba(255,255,255,0.7));">
-                        <h2>Escanea tu QR<br>Lado Izquierdo</h2>
-                    </div>
+        <div class="lado-monitor"> 
+            <div class="etiqueta-lado">Torniquete Izquierdo</div> 
+            <div id="card-izq" class="inscrito-card estado-esperando"> 
+                <div class="content-wrapper" id="espera-izq"> 
+                    <img src="/static/images/Logo-LIA-mini-blanco.png" width="80" style="opacity: 0.5; margin-bottom: 20px;"> 
+                    <h2>Escanea tu QR<br>Lado Izquierdo</h2> 
+                </div> 
 
-                    <div id="datos-izq" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-                        <img src="/static/images/Logo_LIA.png" class="background-logo-card">
-                        
-                        <div class="boleta-display" id="boleta-izq">---</div>
-                        <div class="status-display" id="titulo-izq">---</div>
-                        
-                        <img id="foto-izq" src="" class="foto-alumno">
-                        
-                        <div class="mochila-operation" id="msg-izq">---</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <div id="datos-izq" class="content-wrapper hidden"> 
+                    <img src="/static/images/LIA.png" class="background-logo-card"> 
+                    <div class="boleta-display" id="boleta-izq">---</div> 
+                    <div class="status-display" id="titulo-izq">---</div> 
+                    <img id="foto-izq" src="" class="foto-alumno"> 
+                    <div class="mochila-operation" id="msg-izq">---</div> 
+                </div> 
+            </div> 
+        </div> 
 
-        <div class="lado-monitor">
-            <div class="etiqueta-lado">Torniquete Derecho</div>
+        <div class="lado-monitor"> 
+            <div class="etiqueta-lado">Torniquete Derecho</div> 
+            <div id="card-der" class="inscrito-card estado-esperando"> 
+                <div class="content-wrapper" id="espera-der"> 
+                    <img src="/static/images/Logo-LIA-mini-blanco.png" width="80" style="opacity: 0.5; margin-bottom: 20px;"> 
+                    <h2>Escanea tu QR<br>Lado Derecho</h2> 
+                </div> 
 
-            <div id="card-der" class="inscrito-card estado-esperando">
-                <div class="content-wrapper">
-                    <div id="espera-der">
-                        <img src="/static/images/Logo-LIA-mini-blanco.png" width="90" style="opacity: 0.7; margin-bottom: 20px; filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.7));">
-                        <h2>Escanea tu QR<br>Lado Derecho</h2>
-                    </div>
+                <div id="datos-der" class="content-wrapper hidden"> 
+                    <img src="/static/images/LIA.png" class="background-logo-card"> 
+                    <div class="boleta-display" id="boleta-der">---</div> 
+                    <div class="status-display" id="titulo-der">---</div> 
+                    <img id="foto-der" src="" class="foto-alumno"> 
+                    <div class="mochila-operation" id="msg-der">---</div> 
+                </div> 
+            </div> 
+        </div> 
 
-                    <div id="datos-der" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-                        <img src="/static/images/Logo_LIA.png" class="background-logo-card">
-                        
-                        <div class="boleta-display" id="boleta-der">---</div>
-                        <div class="status-display" id="titulo-der">---</div>
-                        
-                        <img id="foto-der" src="" class="foto-alumno">
-                        
-                        <div class="mochila-operation" id="msg-der">---</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div> 
 
-    </div>
+    <script> 
+        let lastTimeIzq = 0; 
+        let lastTimeDer = 0; 
+        const RESET_TIME = 6;  
 
-    <script>
-        // Variables para controlar cuándo actualizar (para no parpadear)
-        let lastTimeIzq = 0;
-        let lastTimeDer = 0;
-        
-        // Tiempo en segundos antes de volver al estado "Esperando"
-        const RESET_TIME = 6; 
+        function actualizarMonitor() { 
+            fetch('/api/estado_monitor') 
+                .then(response => response.json()) 
+                .then(data => { 
+                    renderizarLado('izq', data.izquierda, lastTimeIzq); 
+                    renderizarLado('der', data.derecha, lastTimeDer); 
+                     
+                    if(data.izquierda.timestamp > lastTimeIzq) lastTimeIzq = data.izquierda.timestamp; 
+                    if(data.derecha.timestamp > lastTimeDer) lastTimeDer = data.derecha.timestamp; 
+                     
+                    checkReset('izq', data.izquierda.timestamp); 
+                    checkReset('der', data.derecha.timestamp); 
+                }) 
+                .catch(err => console.error("Error API:", err)); 
+        } 
 
-        function actualizarMonitor() {
-            fetch('/api/estado_monitor')
-                .then(response => response.json())
-                .then(data => {
-                    renderizarLado('izq', data.izquierda, lastTimeIzq);
-                    renderizarLado('der', data.derecha, lastTimeDer);
-                    
-                    // Actualizar referencias de tiempo
-                    if(data.izquierda.timestamp > lastTimeIzq) lastTimeIzq = data.izquierda.timestamp;
-                    if(data.derecha.timestamp > lastTimeDer) lastTimeDer = data.derecha.timestamp;
-                    
-                    // Checar limpieza automática (si pasó mucho tiempo sin scan)
-                    checkReset('izq', data.izquierda.timestamp);
-                    checkReset('der', data.derecha.timestamp);
-                })
-                .catch(err => console.error("Error API:", err));
-        }
+        function renderizarLado(lado, data, ultimoTiempoConocido) { 
+            if (data.timestamp > ultimoTiempoConocido && data.timestamp > 0) { 
+                const card = document.getElementById(`card-${lado}`); 
+                const esperaDiv = document.getElementById(`espera-${lado}`); 
+                const datosDiv = document.getElementById(`datos-${lado}`); 
+                 
+                document.getElementById(`boleta-${lado}`).innerText = data.boleta || data.nombre; 
+                document.getElementById(`titulo-${lado}`).innerText = data.titulo || "Acceso"; 
+                document.getElementById(`msg-${lado}`).innerText = data.mochila || "---"; 
+                document.getElementById(`foto-${lado}`).src = data.foto || "/static/images/placeholder.png"; 
 
-        function renderizarLado(lado, data, ultimoTiempoConocido) {
-            // Solo actualizamos si hay un dato NUEVO (timestamp mayor)
-            if (data.timestamp > ultimoTiempoConocido) {
-                
-                const card = document.getElementById(`card-${lado}`);
-                const esperaDiv = document.getElementById(`espera-${lado}`);
-                const datosDiv = document.getElementById(`datos-${lado}`);
-                
-                // Elementos de texto
-                const txtBoleta = document.getElementById(`boleta-${lado}`);
-                const txtTitulo = document.getElementById(`titulo-${lado}`);
-                const txtMsg = document.getElementById(`msg-${lado}`);
-                const imgFoto = document.getElementById(`foto-${lado}`);
+                esperaDiv.classList.add('hidden');
+                datosDiv.classList.remove('hidden');
+                 
+                card.className = 'inscrito-card ' + (data.estilo || 'inscrito-activo');  
+                 
+                card.style.transform = "scale(1.03)"; 
+                setTimeout(() => card.style.transform = "scale(1)", 200); 
+            } 
+        } 
 
-                // 1. Mostrar vista de datos y ocultar espera
-                esperaDiv.style.display = 'none';
-                datosDiv.style.display = 'flex';
-                
-                // 2. Llenar textos
-                txtBoleta.innerText = data.boleta || data.nombre;
-                txtTitulo.innerText = data.titulo;
-                txtMsg.innerText = data.mochila; // Aquí va el mensaje especial (Lead coder, etc)
-                imgFoto.src = data.foto;
+        function checkReset(lado, timestampData) { 
+            const ahora = Date.now() / 1000; 
+            if (ahora - timestampData > RESET_TIME && timestampData > 0) { 
+                const card = document.getElementById(`card-${lado}`); 
+                const esperaDiv = document.getElementById(`espera-${lado}`); 
+                const datosDiv = document.getElementById(`datos-${lado}`); 
+                 
+                if (!datosDiv.classList.contains('hidden')) { 
+                    card.className = 'inscrito-card estado-esperando'; 
+                    datosDiv.classList.add('hidden'); 
+                    esperaDiv.classList.remove('hidden'); 
+                } 
+            } 
+        } 
 
-                // 3. Aplicar CLASE CSS (La magia de los colores)
-                // Primero borramos todas las clases posibles para evitar conflictos
-                card.className = 'inscrito-card'; 
-                // Agregamos la clase que mandó Python (ej: 'inscrito-LIA')
-                card.classList.add(data.estilo);
-                
-                // 4. Efecto de "Flash" para notar el cambio
-                card.style.transform = "scale(1.02)";
-                setTimeout(() => card.style.transform = "scale(1)", 200);
-            }
-        }
-
-        function checkReset(lado, timestampData) {
-            // Si pasaron X segundos desde el último scan, volver a "Esperando"
-            const ahora = Date.now() / 1000;
-            if (ahora - timestampData > RESET_TIME && timestampData > 0) {
-                const card = document.getElementById(`card-${lado}`);
-                const esperaDiv = document.getElementById(`espera-${lado}`);
-                const datosDiv = document.getElementById(`datos-${lado}`);
-                
-                // Si ya está esperando, no hacer nada
-                if (esperaDiv.style.display !== 'none') return;
-
-                // Volver a estado neutro cristalino
-                card.className = 'inscrito-card estado-esperando';
-                datosDiv.style.display = 'none';
-                esperaDiv.style.display = 'block';
-            }
-        }
-
-        // Ejecutar cada 500ms (0.5 segundos)
-        setInterval(actualizarMonitor, 500);
-
-    </script>
-</body>
+        setInterval(actualizarMonitor, 500); 
+    </script> 
+</body> 
 </html>
