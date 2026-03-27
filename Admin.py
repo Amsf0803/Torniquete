@@ -18,6 +18,10 @@ import cv2
 from pyzbar.pyzbar import decode
 from PIL import Image
 import base64
+import smtplib
+from email.mime.text import MIMEText
+
+
 
 def cifrar_texto(texto):
     # Cifrado sencillo y eficiente
@@ -33,7 +37,29 @@ def descifrar_texto(texto_cifrado):
     except Exception:
         return ""
 
-
+def enviar_correo_recuperacion(destinatario, usuario, password_descifrada):
+    # ATENCIÓN: Necesitarás usar un correo real y una "Contraseña de Aplicación" de Google.
+    # No es tu contraseña normal de Gmail, debes generarla en la seguridad de tu cuenta de Google.
+    remitente = "tu_correo@gmail.com"  # PON TU CORREO AQUÍ
+    password_app = "jwcdwfksficyymqb"
+    
+    mensaje = f"Hola {usuario},\n\nHas solicitado recuperar tu contraseña.\nTu contraseña para el sistema LIA es: {password_descifrada}\n\nPor favor, guárdala en un lugar seguro."
+    
+    msg = MIMEText(mensaje)
+    msg['Subject'] = 'Recuperación de Contraseña - Sistema LIA'
+    msg['From'] = remitente
+    msg['To'] = destinatario
+    
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(remitente, password_app)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"❌ Error enviando correo: {e}")
+        return False
 
 contra_db = "P3l0n100j0t3$"  # Cambiar por tu contraseña de MySQL
 
@@ -1232,7 +1258,6 @@ class QRReaderWithDB:
                 print("🔌 Conexión a base de datos cerrada")
             print("👋 Lector de QR finalizado")
 
-
 def crear_bases_si_no_existen(bases_datos): 
     """Crea las bases de datos necesarias si no existen"""
     try:
@@ -1280,7 +1305,7 @@ def crear_bases_si_no_existen(bases_datos):
         except Error as e:
             print(f"🔹 Tabla modificaciones_temporales ya existe.")
         
-        # Crear tabla semestre en Semestre
+        # Crear tablas en Semestre
         try:
             cursor.execute("USE Semestre")
             semestre = """
@@ -1320,6 +1345,7 @@ def crear_bases_si_no_existen(bases_datos):
                 """
             cursor.execute(registros)
             print("✅ Tabla de registros creada/verificada correctamente")
+            
             registros_salida = """
                 CREATE TABLE IF NOT EXISTS registros_salida (
                     lunes INT,
@@ -1331,8 +1357,50 @@ def crear_bases_si_no_existen(bases_datos):
                 """
             cursor.execute(registros_salida)
             print("✅ Tabla de registros de salida creada/verificada correctamente")
+
+            # --- NUEVA TABLA: REINICIOS ---
+            reinicios = """
+                CREATE TABLE IF NOT EXISTS reinicios (
+                    lunes TINYINT(1) DEFAULT 0,
+                    martes TINYINT(1) DEFAULT 0,
+                    miercoles TINYINT(1) DEFAULT 0,
+                    jueves TINYINT(1) DEFAULT 0,
+                    viernes TINYINT(1) DEFAULT 0,
+                    sabado TINYINT(1) DEFAULT 0,
+                    domingo TINYINT(1) DEFAULT 0
+                )
+            """
+            cursor.execute(reinicios)
+            
+            # Insertar la fila con ceros si la tabla está completamente vacía
+            cursor.execute("SELECT COUNT(*) FROM reinicios")
+            if cursor.fetchone()[0] == 0:
+                cursor.execute("INSERT INTO reinicios (lunes, martes, miercoles, jueves, viernes, sabado, domingo) VALUES (0, 0, 0, 0, 0, 0, 0)")
+                connection.commit()
+            print("✅ Tabla de reinicios creada/verificada e inicializada correctamente")
+            
+            # --- NUEVA TABLA: USERS (LOGIN ADMIN) ---
+            users_table = """
+                CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    password_encrypted VARCHAR(255) NOT NULL
+                )
+            """
+            cursor.execute(users_table)
+            print("✅ Tabla de users creada/verificada correctamente")
+            
+            # Insertar usuario administrador LIA por defecto si no existe
+            cursor.execute("SELECT * FROM users WHERE username = 'LIA'")
+            if not cursor.fetchone():
+                pwd_cifrada = cifrar_texto("LIA_C16_4dmin")
+                cursor.execute("INSERT INTO users (username, password_encrypted) VALUES (%s, %s)", ('LIA', pwd_cifrada))
+                connection.commit()
+                print("✅ Usuario 'LIA' por defecto creado en la base de datos.")
+            # ------------------------------
+
         except Error as e:
-            print(f"🔹 Error al crear la tabla semestre: {e}")
+            print(f"🔹 Error al crear las tablas en Semestre: {e}")
 
 
         # Crear tabla suspensiones_registro en Suspensiones
@@ -1358,7 +1426,6 @@ def crear_bases_si_no_existen(bases_datos):
     
     except Error as e:
         print("❌ Error al conectar o crear base de datos:", e)
-
 
 # 1. PRIMERO DEFINIMOS LA FUNCIÓN (Afuera de todo para que siempre exista)
 def inicializar_tablas_grupos(lista_grupos, password_db):
@@ -1517,10 +1584,146 @@ app.config['TEMPLATES_AUTO_RELOAD'] = False
 
 verificador_registro = None
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.before_request
+def requerir_login():
+    # AÑADIMOS 'recuperar_password' A LAS RUTAS PERMITIDAS
+    rutas_permitidas = ['login', 'static', 'procesar_url', 'recuperar_password'] 
+    
+    if request.endpoint is None:
+        return
+        
+    if request.endpoint not in rutas_permitidas:
+        if not session.get('logeado'):
+            return redirect('/login')
+        
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario_input = request.form.get('user')
+        password_input = request.form.get('password')
+        
+        try:
+            conexion = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password=contra_db,
+                database="Semestre"
+            )
+            cursor = conexion.cursor(dictionary=True)
+            
+            cursor.execute("SELECT * FROM users WHERE username = %s", (usuario_input,))
+            user = cursor.fetchone()
+            
+            if user:
+                # Descifrar la contraseña guardada en la base de datos
+                db_password = descifrar_texto(user['password_encrypted'])
+                
+                if db_password == password_input:
+                    # Crear sesión al validar correctamente
+                    session['logeado'] = True
+                    session['usuario'] = usuario_input
+                    return redirect('/') # Redirigir al menú principal
+                else:
+                    return render_template('login.html', error="Contraseña incorrecta")
+            else:
+                return render_template('login.html', error="Usuario no encontrado")
+                
+        except Error as e:
+            return render_template('login.html', error="Error de conexión a la BD")
+        finally:
+            if 'cursor' in locals(): cursor.close()
+            if 'conexion' in locals() and conexion.is_connected(): conexion.close()
+            
+    return render_template('login.html')
+
+# Proteger la ruta del menú principal
+@app.route('/')
+def menu_principal():
+    # Si no hay sesión activa, redirige al login
+    if not session.get('logeado'):
+        return redirect('/login')
     return render_template('main_registro.html')
 
+@app.route('/registrar_usuario', methods=['GET', 'POST'])
+def registrar_usuario():
+    if not session.get('logeado'):
+        return redirect('/login')
+        
+    if request.method == 'POST':
+        nuevo_user = request.form.get('user')
+        nuevo_email = request.form.get('email')
+        nueva_pass = request.form.get('password')
+        confirm_pass = request.form.get('confirm_password')
+        
+        # 1. Validar que las contraseñas coincidan
+        if nueva_pass != confirm_pass:
+            return render_template('register.html', error="Las contraseñas no coinciden")
+            
+        pwd_cifrada = cifrar_texto(nueva_pass)
+        
+        try:
+            conexion = mysql.connector.connect(host="localhost", user="root", password=contra_db, database="Semestre")
+            cursor = conexion.cursor()
+            
+            # Truco: Intentar añadir la columna email por si la tabla ya existía de antes
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE AFTER username")
+            except Error:
+                pass # Si da error es porque la columna ya existe, seguimos normal
+                
+            cursor.execute("INSERT INTO users (username, email, password_encrypted) VALUES (%s, %s, %s)", (nuevo_user, nuevo_email, pwd_cifrada))
+            conexion.commit()
+            
+            return render_template('register.html', success="Usuario registrado exitosamente")
+            
+        except mysql.connector.IntegrityError as e:
+            if 'email' in str(e):
+                return render_template('register.html', error="Este correo ya está registrado")
+            return render_template('register.html', error="El nombre de usuario ya existe")
+        except Error as e:
+            return render_template('register.html', error="Error al registrar en la base de datos")
+        finally:
+            if 'cursor' in locals(): cursor.close()
+            if 'conexion' in locals() and conexion.is_connected(): conexion.close()
+            
+    return render_template('register.html')
+
+# --- NUEVA RUTA PARA RECUPERAR CONTRASEÑA ---
+@app.route('/recuperar_password', methods=['GET', 'POST'])
+def recuperar_password():
+    if request.method == 'POST':
+        email_input = request.form.get('email')
+        
+        try:
+            conexion = mysql.connector.connect(host="localhost", user="root", password=contra_db, database="Semestre")
+            cursor = conexion.cursor(dictionary=True)
+            
+            cursor.execute("SELECT * FROM users WHERE email = %s", (email_input,))
+            user = cursor.fetchone()
+            
+            if user:
+                # Descifrar la contraseña
+                db_password = descifrar_texto(user['password_encrypted'])
+                
+                # Enviar el correo
+                envio_exitoso = enviar_correo_recuperacion(user['email'], user['username'], db_password)
+                
+                if envio_exitoso:
+                    return render_template('recuperar.html', success="Te hemos enviado un correo con tu contraseña.")
+                else:
+                    return render_template('recuperar.html', error="Error de servidor al enviar el correo. Contacta a soporte.")
+            else:
+                return render_template('recuperar.html', error="No existe ninguna cuenta con ese correo electrónico.")
+                
+        except Error as e:
+            return render_template('recuperar.html', error="Error de conexión a la BD")
+        finally:
+            if 'cursor' in locals(): cursor.close()
+            if 'conexion' in locals() and conexion.is_connected(): conexion.close()
+            
+    return render_template('recuperar.html')
 
 @app.route('/seleccionar_metodo', methods=['GET'])
 def seleccionar_metodo():
@@ -2553,7 +2756,6 @@ def acceso_verificacion():
         if 'conexion' in locals() and conexion.is_connected(): conexion.close()
 
     return render_template('verificacion.html')
-
 
 if __name__ == '__main__':
     # Crear bases de datos necesarias

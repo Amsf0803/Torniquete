@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Usuario - LIA</title>
+    <link rel="icon" href="/static/images/LIA_Mini.png">
+    <style>
+        body {
+            margin: 0; padding: 0; font-family: 'Arial', sans-serif; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background: url("/static/images/logo-ipn-blanco.png") no-repeat center center, 
+                        linear-gradient(135deg, #0a192f 0%, #1a365d 100%);
+            background-size: 550px, cover; background-attachment: fixed; background-blend-mode: overlay;
+            color: #ffffff;
+        }
+        .card-container {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+            padding: 35px 40px; width: 90%; max-width: 450px; margin: 30px 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center;
+        }
+        h2 { color: #64ffda; margin-bottom: 25px; font-size: 1.6rem; }
+        .form-group { margin-bottom: 18px; text-align: left; position: relative; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 6px; color: #a8b2d1; }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%; padding: 12px 40px 12px 15px; border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 1rem;
+            box-sizing: border-box; transition: all 0.3s;
+        }
+        input:focus { outline: none; border-color: #64ffda; background: rgba(0,0,0,0.4); }
+        .toggle-btn {
+            position: absolute; right: 10px; top: 34px; background: none; border: none;
+            color: #a8b2d1; cursor: pointer; font-size: 1.2rem; transition: color 0.3s;
+        }
+        .toggle-btn:hover { color: #64ffda; }
+        .btn-submit {
+            width: 100%; padding: 12px; margin-top: 15px; border-radius: 10px;
+            background: linear-gradient(90deg, #0a2540 0%, #2b84d1 100%);
+            border: 1px solid #64ffda; color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .btn-submit:hover { background: linear-gradient(90deg, #2b84d1 0%, #64ffda 100%); color: #0a192f; }
+        .enlace { display: inline-block; margin-top: 20px; color: #64ffda; text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .enlace:hover { color: #ffffff; }
+        
+        .alert-error { background: rgba(255, 75, 75, 0.2); color: #ff6b6b; padding: 10px; border-radius: 8px; border: 1px solid #ff6b6b; margin-bottom: 20px; font-size: 0.9rem; }
+        .alert-success { background: rgba(100, 255, 218, 0.1); color: #64ffda; padding: 10px; border-radius: 8px; border: 1px solid #64ffda; margin-bottom: 20px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <h2>Registrar Nuevo Administrador</h2>
+        
+        {% if error %} <div class="alert-error">{{ error }}</div> {% endif %}
+        {% if success %} <div class="alert-success">{{ success }}</div> {% endif %}
+
+        <form action="/registrar_usuario" method="POST">
+            <div class="form-group">
+                <label for="new_user">Usuario:</label>
+                <input type="text" id="new_user" name="user" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="new_email">Correo Electrónico:</label>
+                <input type="email" id="new_email" name="email" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="new_password">Contraseña:</label>
+                <input type="password" id="new_password" name="password" required>
+                <button type="button" class="toggle-btn" onclick="togglePassword('new_password', this)">🙈</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirmar Contraseña:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+                <button type="button" class="toggle-btn" onclick="togglePassword('confirm_password', this)">🙈</button>
+            </div>
+            
+            <button type="submit" class="btn-submit">Crear Cuenta</button>
+        </form>
+        
+        <a href="/" class="enlace">← Volver al Menú Principal</a>
+    </div>
+
+    <script>
+        function togglePassword(fieldId, btn) {
+            var x = document.getElementById(fieldId);
+            if (x.type === "password") {
+                x.type = "text";
+                btn.innerHTML = "🐵"; // Cambia al ojo abierto cuando se ve la contraseña
+            } else {
+                x.type = "password";
+                btn.innerHTML = "🙈"; // Cambia al ojo cerrado cuando se oculta
+            }
+        }
+    </script>
+</body>
+</html>
