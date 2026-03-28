@@ -2405,6 +2405,7 @@ def segunda_confirmacion():
                     try:
                         cursor.execute(f"DROP DATABASE `{base}`")
                         print(f"✅ Base de datos '{base}' eliminada.")
+                        
                     except Exception as e:
                         print(f"❌ Error al eliminar '{base}': {e}")
 
@@ -2748,6 +2749,7 @@ def acceso_verificacion():
                 conexion.commit()
                 return jsonify({"status": "success"})
                 
+            
     except Error as e:
         print(f"Error de BD: {e}")
         return jsonify({"status": "error", "mensaje": "Error de conexión a la base de datos"})
@@ -2756,7 +2758,7 @@ def acceso_verificacion():
         if 'conexion' in locals() and conexion.is_connected(): conexion.close()
 
     return render_template('verificacion.html')
-
+    
 if __name__ == '__main__':
     # Crear bases de datos necesarias
     if 'bases_datos' in globals():

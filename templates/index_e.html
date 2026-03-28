@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Monitor de Acceso Dual - IPN</title> 
     <link rel="icon" href="/static/images/LIA_Mini.png"> 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style> 
         body { 
             margin: 0; padding: 0; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden;
@@ -49,6 +50,56 @@
             background: linear-gradient(90deg, #0a2540 0%, #2b84d1 45%, rgba(255, 255, 255, 1) 150%); 
             color: #ffffff; 
             border: 3px solid #64ffda; 
+        }
+        /* Gradiente animado para cumpleaños */
+        .inscrito-cumple {
+            background: linear-gradient(135deg, #ff007f, #ff8c00, #ffd700, #00bfff, #8a2be2);
+            background-size: 300% 300%;
+            animation: fiestaGradient 4s ease infinite;
+            color: white;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+
+        @keyframes fiestaGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+/* --- ESTILO ESPECIAL DIOS ANDRÉ --- */
+        .inscrito-lia-god {
+            /* Fondo base oscuro/morado */
+            background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
+            color: #ffffff;
+            /* Borde cian eléctrico inicial */
+            border: 3px solid #00ffff;
+            /* Sombra neon cian que pulsa */
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            animation: pulsoNeon 2s infinite;
+        }
+
+        @keyframes pulsoNeon {
+            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); border-color: #ffffff; }
+            100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
+        }
+/* Animación para sacudir la pantalla al caer el relámpago */
+        @keyframes shakeTerremoto {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-2px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        .shake-activado {
+            animation: shakeTerremoto 0.4s ease-in-out;
         }
     </style>
 </head> 
@@ -104,10 +155,10 @@
                 .then(data => { 
                     renderizarLado('izq', data.izquierda, lastTimeIzq); 
                     renderizarLado('der', data.derecha, lastTimeDer); 
-                     
+                    
                     if(data.izquierda.timestamp > lastTimeIzq) lastTimeIzq = data.izquierda.timestamp; 
                     if(data.derecha.timestamp > lastTimeDer) lastTimeDer = data.derecha.timestamp; 
-                     
+                    
                     checkReset('izq', data.izquierda.timestamp); 
                     checkReset('der', data.derecha.timestamp); 
                 }) 
@@ -132,16 +183,35 @@
                  
                 card.style.transform = "scale(1.03)"; 
                 setTimeout(() => card.style.transform = "scale(1)", 200); 
-            } 
-        } 
 
+                // --- GESTIÓN DE EFECTOS ESPECIALES ---
+
+                // 1. Efecto Cumpleaños (Confeti normal)
+                if (data.estilo === "inscrito-cumple") {
+                    confetti({
+                        particleCount: 150, 
+                        spread: 80,         
+                        origin: { y: 0.6, x: lado === 'izq' ? 0.25 : 0.75 }, 
+                        colors: ['#ff007f', '#ff8c00', '#ffd700', '#00bfff', '#8a2be2'] 
+                    });
+                }
+
+                // ⚡ 2. Efecto GOD ANDRÉ (Relámpagos Reales) ⚡
+                else if (data.estilo === "inscrito-lia-god") {
+                    // Lanzamos 3 descargas seguidas con pequeñas pausas para simular tormenta
+                    crearRelampagosGOD(lado);
+                    setTimeout(() => crearRelampagosGOD(lado), 150);
+                    setTimeout(() => crearRelampagosGOD(lado), 350);
+                }                
+            } 
+        }
         function checkReset(lado, timestampData) { 
             const ahora = Date.now() / 1000; 
             if (ahora - timestampData > RESET_TIME && timestampData > 0) { 
                 const card = document.getElementById(`card-${lado}`); 
                 const esperaDiv = document.getElementById(`espera-${lado}`); 
                 const datosDiv = document.getElementById(`datos-${lado}`); 
-                 
+                
                 if (!datosDiv.classList.contains('hidden')) { 
                     card.className = 'inscrito-card estado-esperando'; 
                     datosDiv.classList.add('hidden'); 
@@ -149,8 +219,70 @@
                 } 
             } 
         } 
+// --- MOTOR DE RELÁMPAGOS VANILLA JS ---
+        function crearRelampagosGOD(lado) {
+            // Seleccionamos la mitad de la pantalla donde se escaneó
+            const contenedor = document.getElementById(`card-${lado}`).parentElement;
 
-        setInterval(actualizarMonitor, 500); 
+            // 1. Efecto de flash brillante y sacudida
+            contenedor.style.transition = 'background-color 0.1s';
+            contenedor.style.backgroundColor = 'rgba(0, 255, 255, 0.4)'; // Flash Cian
+            contenedor.classList.add('shake-activado');
+            
+            setTimeout(() => {
+                contenedor.style.backgroundColor = '';
+                contenedor.classList.remove('shake-activado');
+            }, 150);
+
+            // 2. Crear un lienzo invisible encima de todo
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.width = contenedor.offsetWidth;
+            canvas.height = contenedor.offsetHeight;
+            canvas.style.pointerEvents = 'none'; // Para no estorbar si alguien da clic
+            canvas.style.zIndex = '9999';
+            contenedor.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+
+            // Configuración del neon del rayo
+            ctx.strokeStyle = '#ffffff'; // Corazón del rayo blanco
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00ffff'; // Resplandor cian eléctrico
+            ctx.lineJoin = 'miter';
+
+            // Dibujar 3 rayos simultáneos para que se vea potente
+            ctx.lineWidth = 4; // Rayo principal grueso
+            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2, canvas.height);
+            
+            ctx.lineWidth = 2; // Rayos secundarios delgados
+            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 + 150, canvas.height);
+            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 - 150, canvas.height);
+
+            // 3. Desvanecer y destruir el lienzo rápidamente
+            canvas.style.transition = 'opacity 0.4s ease-out';
+            setTimeout(() => canvas.style.opacity = '0', 50);
+            setTimeout(() => canvas.remove(), 500);
+        }
+
+        // Matemáticas para hacer que la línea se quiebre como electricidad
+        function dibujarRayoFractal(ctx, startX, startY, endX, endY) {
+            ctx.beginPath();
+            let x = startX;
+            let y = startY;
+            ctx.moveTo(x, y);
+
+            while (y < endY) {
+                y += Math.random() * 40 + 10; // Cae hacia abajo
+                x += (Math.random() - 0.5) * 90; // Se desvía caóticamente a los lados
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+        setInterval(actualizarMonitor, 500);
     </script> 
+
 </body> 
 </html>

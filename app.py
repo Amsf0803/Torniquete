@@ -257,15 +257,13 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     comando_esp = "2" if es_lado_izquierdo else "3"
     
     print(f"\n🔄 [PROCESANDO {lado_key.upper()}] Código recibido...")
-    print(f"🔗 URL: {url_codigo}...")
-
+    
     # --- 1. EXTRACCIÓN Y VERIFICACIÓN ---
     try:
-        # Llamamos al verificador pasando el lado para que sepa qué torniquete abrir
         resultado = verificador.procesar_qr(
             url_codigo, 
-            solo_verificar=False,  # Sí queremos abrir torniquete
-            lado_izquierdo=es_lado_izquierdo  # Nuevo parámetro
+            solo_verificar=False, 
+            lado_izquierdo=es_lado_izquierdo
         )
         
         acceso_concedido = resultado.get('puede_entrar', False)
@@ -273,6 +271,9 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         mensaje_estado = resultado.get('mensaje', 'Procesando...')
         foto_url = resultado.get('foto', '/static/images/placeholder.png')
         boleta = str(resultado.get('boleta', ''))
+        
+        # NUEVO: Obtenemos el booleano del cumpleaños (por defecto False)
+        es_cumple = resultado.get('es_cumple', False)
         
     except Exception as e:
         print(f"❌ Error en verificador: {e}")
@@ -283,6 +284,7 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         mensaje_estado = f"Fallo en verificación: {str(e)}"
         foto_url = ""
         boleta = ""
+        es_cumple = False
 
     # --- 2. DETERMINAR ESTILO VISUAL ---
     estilo_css = "inscrito-inactivo"
@@ -302,13 +304,20 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         mensaje_mochila = "Bienvenid@"
         acceso_concedido = True
 
-    # B) BOLETAS ESPECIALES
+    # B) CUMPLEAÑOS (Va justo antes de las boletas especiales de LIA)
+    elif es_cumple and acceso_concedido:
+        estilo_css = "inscrito-cumple"
+        primer_nombre = nombre_alumno.split()[0] if nombre_alumno else "Alumno"
+        titulo_tarjeta = f"¡Feliz Cumpleaños {primer_nombre}! 🎂"
+        mensaje_mochila = "🎉 ¡Que tengas un excelente día! 🥳"
+
+    # C) BOLETAS ESPECIALES (LIA)
     elif boleta == "2024160324":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Ebani"
         mensaje_mochila = "🔧 Lead Técnico -- Tester 💻"
     elif boleta == "2024160385":
-        estilo_css = "inscrito-LIA"
+        estilo_css = "inscrito-lia-god"
         titulo_tarjeta = "Integrante de LIA - André"
         mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻 -- Papoi"
     elif boleta == "2024160550":
@@ -339,7 +348,7 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         estilo_css = "inscrito-LIA"
         mensaje_mochila = "The cake is a lie"
     
-    # C) ALUMNOS NORMALES
+    # D) ALUMNOS NORMALES
     
     elif acceso_concedido:
         # Llamamos a la funcion de operacion mochila
@@ -902,6 +911,7 @@ class QRHorarioVerificador:
             
             nombre_alumno = "Alumno (Sin registro)"
             foto_url = "/static/images/placeholder.png"
+            es_cumple = False # NUEVO: Variable bandera para el cumpleaños
             
             if boleta and base_datos_grupo:
                 try:
@@ -909,12 +919,25 @@ class QRHorarioVerificador:
                     db_config_temp['database'] = base_datos_grupo
                     with mysql.connector.connect(**db_config_temp, connection_timeout=5) as conn:
                         with conn.cursor() as cursor:
-                            cursor.execute(f"SELECT nombre, imagen_path FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
+                            # Pedimos también el curp en la consulta
+                            cursor.execute(f"SELECT nombre, imagen_path, curp FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
                             res = cursor.fetchone()
                             if res:
                                 if res[0]: nombre_alumno = res[0]
                                 if res[1] and res[1].strip(): foto_url = res[1]
                                 else: foto_url = f"/static/images/{boleta}.jpg"
+                                
+                                # NUEVO: Lógica de validación de cumpleaños
+                                if len(res) > 2 and res[2]:
+                                    curp = str(res[2]).upper()
+                                    if len(curp) >= 10:
+                                        mes_curp = curp[6:8]
+                                        dia_curp = curp[8:10]
+                                        # Comparamos con el día y mes actual
+                                        hoy = datetime.now()
+                                        if mes_curp == hoy.strftime("%m") and dia_curp == hoy.strftime("%d"):
+                                            es_cumple = True
+                                        
                 except Exception as e:
                     print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
 
@@ -1022,7 +1045,8 @@ class QRHorarioVerificador:
                 "puede_entrar": puede_entrar,
                 "mensaje": estado.get("mensaje", "Acceso Denegado"),
                 "nombre": nombre_alumno,
-                "foto": foto_url
+                "foto": foto_url,
+                "es_cumple": es_cumple # <--- ¡Solo mandamos el True/False!
             }
 
 
@@ -1641,6 +1665,28 @@ def api_estado_monitor():
 def test_esp():
     estado = esp32.enviar_comando("2") # Prueba apertura izquierda
     return jsonify({'enviado': estado, 'conectado': esp32.conectado})
+
+
+@app.route('/simular_escaneo')
+def simular_escaneo():
+    """
+    Ruta para probar el sistema sin el torniquete físico.
+    Uso en el navegador: http://localhost:5000/simular_escaneo?url=TU_URL&lado=izq
+    """
+    # Tomamos la URL del QR de los parámetros de la página (o usamos una por defecto)
+    url_qr = request.args.get('url', 'https://saes.cecyt16.ipn.mx/alumno?boleta=2024160385')
+    lado = request.args.get('lado', 'izq')
+    es_izquierdo = (lado == 'izq')
+    
+    # 1. Ejecutamos la función como si el torniquete lo hubiera mandado
+    print(f"🧪 [MODO PRUEBA] Simulando escaneo de: {url_qr}")
+    procesar_entrada_dual(url_qr, es_izquierdo)
+    
+    return jsonify({
+        "status": "Simulación Exitosa", 
+        "lado_simulado": "Izquierdo" if es_izquierdo else "Derecho",
+        "url_procesada": url_qr
+    })
 
 # ============================================================================
 # MAIN
