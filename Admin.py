@@ -1393,15 +1393,40 @@ def crear_bases_si_no_existen(bases_datos):
             # Insertar usuario administrador LIA por defecto si no existe
             cursor.execute("SELECT * FROM users WHERE username = 'LIA'")
             if not cursor.fetchone():
-                pwd_cifrada = cifrar_texto("LIA_C16_4dmin")
+                # 👇 AQUÍ ESTÁ TU CONTRASEÑA ENCRIPTADA
+                pwd_cifrada = "AHgAAAgCbxMFJTIiXQ=="
                 cursor.execute("INSERT INTO users (username, password_encrypted) VALUES (%s, %s)", ('LIA', pwd_cifrada))
                 connection.commit()
                 print("✅ Usuario 'LIA' por defecto creado en la base de datos.")
+
+            # --- NUEVA TABLA: CONFIRMACIONES ---
+            confirmaciones_table = """
+                CREATE TABLE IF NOT EXISTS confirmaciones (
+                    primera_confirmacion VARCHAR(255),
+                    segunda_confirmacion VARCHAR(255)
+                )
+            """
+            cursor.execute(confirmaciones_table)
+            
+            # Insertar la única fila con las contraseñas encriptadas si la tabla está vacía
+            cursor.execute("SELECT COUNT(*) FROM confirmaciones")
+            if cursor.fetchone()[0] == 0:
+                # 👇 AQUÍ ESTÁN TUS DOS CONTRASEÑAS DE BORRADO ENCRIPTADAS
+                contra1_cifrada = "DwB3AH9XNH1fHj17QQt4Qx4bCQ=="
+                contra2_cifrada = "DwB3AAgDNypYcC0mBzp9AS8Af1c0fV8eGwk="
+                
+                cursor.execute(
+                    "INSERT INTO confirmaciones (primera_confirmacion, segunda_confirmacion) VALUES (%s, %s)",
+                    (contra1_cifrada, contra2_cifrada)
+                )
+                connection.commit()
+                print("✅ Tabla de confirmaciones creada y contraseñas inicializadas correctamente.")
+            else:
+                print("✅ Tabla de confirmaciones verificada correctamente.")
             # ------------------------------
 
         except Error as e:
             print(f"🔹 Error al crear las tablas en Semestre: {e}")
-
 
         # Crear tabla suspensiones_registro en Suspensiones
         try: 
@@ -2271,9 +2296,13 @@ def not_found(e):
 def reset():
     return render_template('reset.html')
 
-
-@app.route('/confirmacion', methods=['POST'])
+@app.route('/confirmacion', methods=['GET', 'POST'])
 def confirmacion():
+    # 🛡️ SEGURIDAD: Bloquear acceso directo si escriben la URL en el navegador
+    if request.method == 'GET':
+        session.clear()
+        return redirect('/')
+
     # ✅ Paso 1: primera confirmación
     if 'confirmación' in request.form:
         confirmacion_valor = int(request.form.get('confirmación'))
@@ -2294,27 +2323,48 @@ def confirmacion():
             session.clear()
             return redirect('/')
 
-    # ✅ NUEVO PASO INTERMEDIO: Verificación de Contraseña
+    # ✅ NUEVO PASO INTERMEDIO: Verificación de Contraseña 1 desde DB
     elif 'password_input' in request.form:
         password = request.form.get('password_input')
-        
-        # Verificamos la contraseña hardcodeada
-        if password == "P3l0n100j0t3$":
+        contra_correcta = False
+
+        try:
+            # Conectamos a DB para traer la primera contraseña
+            conexion = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password=contra_db,
+                database="Semestre"
+            )
+            cursor = conexion.cursor()
+            cursor.execute("SELECT primera_confirmacion FROM confirmaciones LIMIT 1")
+            resultado = cursor.fetchone()
+            
+            if resultado and resultado[0]:
+                contra_encriptada_db = resultado[0]
+                # Desciframos lo que está en DB y comparamos con lo que escribió el usuario
+                if password == descifrar_texto(contra_encriptada_db):
+                    contra_correcta = True
+                    
+            cursor.close()
+            conexion.close()
+        except Exception as e:
+            print(f"❌ Error al consultar primera contraseña en DB: {e}")
+
+        # 🔒 Verificamos si la validación fue exitosa
+        if contra_correcta:
             session['contra_inicial'] = True
-            # Al ser correcta, devolvemos 'contra_inicial=1' para desbloquear el siguiente paso en HTML
             return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, contra_inicial=1)
         else:
-            # Si es incorrecta, borramos sesión y mandamos al inicio
+            print("❌ Primera contraseña incorrecta")
             session.clear()
             return redirect('/')
 
-    # ✅ Paso 3: selección de semestre (Tu código existente ya protege esto con el if not session...)
+    # ✅ Paso 3: selección de semestre
     elif 'semestre' in request.form:
         if not session.get('contra_inicial'):
             return redirect('/')
         
-        # ... (Resto de tu código del paso 3) ...
-
         semestre_valor = int(request.form.get('semestre'))
         session['semestre'] = semestre_valor  
 
@@ -2322,7 +2372,7 @@ def confirmacion():
             conexion = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password= contra_db,
+                password=contra_db,
                 database="Semestre"
             )
             cursor = conexion.cursor()
@@ -2336,7 +2386,7 @@ def confirmacion():
             session.clear()
             return redirect('/')
 
-        return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, semestre=semestre_valor)
+        return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, contra_inicial=1, semestre=semestre_valor)
 
     # ✅ Paso 4: selección de grupos
     elif '1_2_TM' in request.form or '3_4_CM' in request.form:
@@ -2354,7 +2404,7 @@ def confirmacion():
             conexion = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password= contra_db,
+                password=contra_db,
                 database="Semestre"
             )
             cursor = conexion.cursor()
@@ -2363,7 +2413,6 @@ def confirmacion():
                 valor = request.form.get(grupo)
                 grupos[grupo] = int(valor) if valor and valor.isdigit() else 0
                 cursor.execute(f"UPDATE semestre SET {grupo} = %s", (grupos[grupo],))
-                print(f"📌 {grupo}: {grupos[grupo]}")
 
             conexion.commit()
             cursor.close()
@@ -2375,28 +2424,53 @@ def confirmacion():
             return redirect('/')
 
         session['grupos'] = True
-        return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, semestre=1, grupos=1)
+        return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, contra_inicial=1, semestre=1, grupos=1)
 
-    # ❌ Si alguien entra directo a /confirmacion sin datos → al inicio
     return redirect('/')
 
 
-@app.route('/segunda_confirmacion', methods=['POST'])
+@app.route('/segunda_confirmacion', methods=['GET', 'POST'])
 def segunda_confirmacion():
+    # 🛡️ SEGURIDAD: Bloquear acceso directo por URL
+    if request.method == 'GET':
+        session.clear()
+        return redirect('/')
+
+    # 🛡️ PROTECCIÓN: Verificar que pasó el paso 4
     if not session.get('grupos'):
         return redirect('/')
 
-    contraseña = request.form.get('contraseña')
-    if contraseña == 'P3l0n100j0t3$': # Contraseña correcta
+    password_ingresada = request.form.get('contraseña')
+    contra_correcta = False
+
+    try:
+        # Conectamos a DB para traer la segunda contraseña
+        conexion = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password=contra_db,
+            database="Semestre"
+        )
+        cursor = conexion.cursor()
+        cursor.execute("SELECT segunda_confirmacion FROM confirmaciones LIMIT 1")
+        resultado = cursor.fetchone()
+        
+        if resultado and resultado[0]:
+            contra_encriptada_db = resultado[0]
+            # Desciframos y comparamos
+            if password_ingresada == descifrar_texto(contra_encriptada_db):
+                contra_correcta = True
+                
+    except Exception as e:
+        print(f"❌ Error al consultar segunda contraseña en DB: {e}")
+
+    
+    # 🔒 Verificamos si la SEGUNDA contraseña fue exitosa
+    if contra_correcta: 
         excluir = {'Pases_salida', 'Semestre', 'Suspensiones', 'sys', 'mysql', 'information_schema', 'performance_schema'}
 
         try:
-            conexion = mysql.connector.connect(
-                host='localhost',
-                user='root',
-                password= contra_db
-            )
-            cursor = conexion.cursor()
+            # 1. BORRADO DE BASES DE DATOS
             cursor.execute("SHOW DATABASES")
             bases = cursor.fetchall()
 
@@ -2405,26 +2479,42 @@ def segunda_confirmacion():
                     try:
                         cursor.execute(f"DROP DATABASE `{base}`")
                         print(f"✅ Base de datos '{base}' eliminada.")
-                        
                     except Exception as e:
                         print(f"❌ Error al eliminar '{base}': {e}")
 
             cursor.close()
             conexion.close()
 
+            # 2. BORRADO INTELIGENTE DE IMÁGENES
+            carpeta_imagenes = os.path.join(app.root_path, 'static', 'images') 
+            
+            if os.path.exists(carpeta_imagenes):
+                print("🧹 Iniciando limpieza de fotos de alumnos...")
+                for archivo in os.listdir(carpeta_imagenes):
+                    nombre_sin_ext, ext = os.path.splitext(archivo)
+                    if nombre_sin_ext.isdigit():
+                        try:
+                            os.remove(os.path.join(carpeta_imagenes, archivo))
+                            print(f"🗑️ Foto eliminada: {archivo}")
+                        except Exception as e:
+                            print(f"⚠️ No se pudo borrar {archivo}: {e}")
+            else:
+                print("⚠️ No se encontró la carpeta de imágenes para limpiar.")
+
         except Exception as error:
-            print(f"❌ Error de conexión: {error}")
+            print(f"❌ Error de conexión general: {error}")
             session.clear()
             return redirect('/')
     else:
-        print("❌ Contraseña incorrecta")
+        print("❌ Segunda contraseña incorrecta")
+        if 'cursor' in locals() and cursor: cursor.close()
+        if 'conexion' in locals() and conexion: conexion.close()
         session.clear()
         return redirect('/')
 
-    # ✅ limpiar la sesión para que al refrescar no se quede en reset.html
+    # ✅ Limpiar la sesión para que todo el ciclo se reinicie
     session.clear()
-    return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, borrado_exitoso=True)
-
+    return render_template('reset.html', confirmacion=1, segunda_confirmacion=1, contra_inicial=1, semestre=1, grupos=1, borrado_exitoso=True)
 
 
 @app.route('/admin_cambios', methods=['GET', 'POST'])
