@@ -10,7 +10,7 @@
         body { 
             margin: 0; padding: 0; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden;
             background: url("/static/images/logo-ipn-blanco.png") no-repeat center center, 
-                        linear-gradient(135deg, #0a192f 0%, #1a365d 100%); /* Cambiado a Azul Oscuro */
+                        linear-gradient(135deg, #0a192f 0%, #1a365d 100%);
             background-size: 550px, cover; background-attachment: fixed; background-blend-mode: overlay; 
         } 
         .split-screen { display: flex; width: 100%; height: 100vh; } 
@@ -21,7 +21,7 @@
         } 
         .lado-monitor:last-child { border-right: none; } 
         .etiqueta-lado { 
-            position: absolute; top: 20px; background: rgba(0,0,0,0.3); color: #64ffda; /* Letra clara para resaltar en fondo oscuro */
+            position: absolute; top: 20px; background: rgba(0,0,0,0.3); color: #64ffda; 
             padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; 
         } 
         .inscrito-card { 
@@ -34,97 +34,54 @@
             min-height: 400px; justify-content: center; 
         } 
         .inscrito-activo { background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: none; } 
-        .inscrito-suspendido { background: linear-gradient(145deg, #ffffff 0%, #fbbf24 100%); color: #92400e; border: 2px solid #fbbf24; } 
-        .inscrito-inactivo { background: linear-gradient(145deg, #bd6161 0%, #760000 100%); color: #ffffff; border: none; } 
         .inscrito-LIA { background: linear-gradient(90deg,rgba(66, 19, 41, 1) 0%, #6c1d45 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: 2px solid #ff00ff; } 
-        .master { background: linear-gradient(90deg,rgb(18, 17, 83) 0%, #221d6c 35%, rgba(255, 255, 255, 1) 125%); color: #ffffff; border: 2px solid gold; } 
-        .inscrito-Especial { background: linear-gradient(90deg,rgb(59, 87, 49) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; } 
+        
+        /* --- ESTILOS DIOSES --- */
+        .inscrito-lia-god {
+            background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
+            color: #ffffff;
+        }
+
+        .inscrito-lia-god.andre {
+            border: 3px solid #00ffff;
+            animation: pulsoCian 2s infinite;
+        }
+
+        .inscrito-lia-god.epani {
+            border: 3px solid #5900ff;
+            animation: pulsoMorado 2s infinite;
+        }
+
         .boleta-display { font-size: 2.2rem; font-weight: bold; background: rgba(255, 255, 255, 0.2); padding: 10px 20px; border-radius: 15px; backdrop-filter: blur(5px); margin-bottom: 15px; width: 100%; } 
         .status-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; } 
-        .foto-alumno { width: 200px; height: 240px; object-fit: cover; border-radius: 20px; border: 4px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); background-color: #0a192f; margin-bottom: 20px; } 
+        .foto-alumno { width: 200px; height: 240px; object-fit: cover; border-radius: 20px; border: 4px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); background-color: #0a192f; margin-bottom: 20px; z-index: 5; position: relative;} 
         .mochila-operation { background: rgba(255, 255, 255, 0.2); color: inherit; padding: 15px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; width: 100%; border: 1px solid rgba(255,255,255,0.3); } 
         .background-logo-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; width: 80%; pointer-events: none; z-index: 0; } 
         .content-wrapper { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; } 
         .hidden { display: none !important; } 
-        .inscrito-mochila { 
-            background: linear-gradient(90deg, #0a2540 0%, #2b84d1 45%, rgba(255, 255, 255, 1) 150%); 
-            color: #ffffff; 
-            border: 3px solid #64ffda; 
-        }
-        /* Gradiente animado para cumpleaños */
-        .inscrito-cumple {
-            background: linear-gradient(135deg, #ff007f, #ff8c00, #ffd700, #00bfff, #8a2be2);
-            background-size: 300% 300%;
-            animation: fiestaGradient 4s ease infinite;
-            color: white;
-            border: 3px solid #ffd700;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+
+        @keyframes pulsoCian {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
+            50% { box-shadow: 0 0 30px #00ffff, 0 0 10px #ffffff; border-color: #ffffff; }
         }
 
-        @keyframes fiestaGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @keyframes pulsoMorado {
+            0%, 100% { box-shadow: 0 0 15px rgba(89, 0, 255, 0.7); border-color: #5900ff; }
+            50% { box-shadow: 0 0 30px #5900ff, 0 0 10px #ffffff; border-color: #ffffff; }
         }
 
-/* 1. DEFINICIÓN DE LOS DIOSES (Colores base) */
-
-/* Clase base que activa los rayos (la que el JS reconoce) */
-.inscrito-lia-god {
-    background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
-    color: #ffffff;
-}
-
-/* Colores específicos de André */
-.inscrito-lia-god.andre {
-    border: 3px solid #00ffff;
-    animation: pulsoCian 2s infinite;
-    --color-rayo: #00ffff; /* Variable para que el rayo sea cian */
-}
-
-/* Colores específicos de Epani */
-.inscrito-lia-god.epani {
-    border: 3px solid #5900ff;
-    animation: pulsoMorado 2s infinite;
-    --color-rayo: #5900ff; /* Variable para que el rayo sea morado */
-}
-
-/* 2. EL RAYO (Clase genérica para ambos) */
-/* Asegúrate de que tus elementos de rayo tengan esta clase */
-.rayo-efecto {
-    stroke: var(--color-rayo); /* Si es SVG */
-    color: var(--color-rayo);   /* Si es texto/icono */
-    filter: drop-shadow(0 0 10px var(--color-rayo)); /* El brillo del rayo */
-}
-
-/* 3. ANIMACIONES (Nombres diferentes para que no choquen) */
-
-@keyframes pulsoCian {
-    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
-    50% { box-shadow: 0 0 30px #00ffff, 0 0 10px #ffffff; border-color: #ffffff; }
-}
-
-@keyframes pulsoMorado {
-    0%, 100% { box-shadow: 0 0 15px rgba(89, 0, 255, 0.7); border-color: #5900ff; }
-    50% { box-shadow: 0 0 30px #5900ff, 0 0 10px #ffffff; border-color: #ffffff; }
-}
-
-/* 4. EL TERREMOTO (Igual para todos) */
-@keyframes shakeTerremoto {
-    0%, 100% { transform: translate(0,0); }
-    10%, 30%, 50%, 70%, 90% { transform: translate(-2px, -1px); }
-    20%, 40%, 60%, 80% { transform: translate(2px, 1px); }
-}
-.shake-activado {
-    animation: shakeTerremoto 0.4s ease-in-out;
-}
-
-
+        @keyframes shakeTerremoto {
+            0%, 100% { transform: translate(0,0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-2px, -1px); }
+            20%, 40%, 60%, 80% { transform: translate(2px, 1px); }
+        }
+        .shake-activado {
+            animation: shakeTerremoto 0.4s ease-in-out;
+        }
     </style>
 </head> 
 <body> 
     <div class="split-screen"> 
-        
         <div class="lado-monitor"> 
             <div class="etiqueta-lado">Torniquete Izquierdo</div> 
             <div id="card-izq" class="inscrito-card estado-esperando"> 
@@ -132,7 +89,6 @@
                     <img src="/static/images/Logo-LIA-mini-blanco.png" width="80" style="opacity: 0.5; margin-bottom: 20px;"> 
                     <h2>Escanea tu QR<br>Lado Izquierdo</h2> 
                 </div> 
-
                 <div id="datos-izq" class="content-wrapper hidden"> 
                     <img src="/static/images/LIA.png" class="background-logo-card"> 
                     <div class="boleta-display" id="boleta-izq">---</div> 
@@ -150,7 +106,6 @@
                     <img src="/static/images/Logo-LIA-mini-blanco.png" width="80" style="opacity: 0.5; margin-bottom: 20px;"> 
                     <h2>Escanea tu QR<br>Lado Derecho</h2> 
                 </div> 
-
                 <div id="datos-der" class="content-wrapper hidden"> 
                     <img src="/static/images/LIA.png" class="background-logo-card"> 
                     <div class="boleta-display" id="boleta-der">---</div> 
@@ -160,7 +115,6 @@
                 </div> 
             </div> 
         </div> 
-
     </div> 
 
     <script> 
@@ -203,27 +157,22 @@
                 card.style.transform = "scale(1.03)"; 
                 setTimeout(() => card.style.transform = "scale(1)", 200); 
 
-                // --- GESTIÓN DE EFECTOS ESPECIALES ---
+                // --- GESTIÓN DE EFECTOS ---
 
-                // 1. Efecto Cumpleaños (Confeti normal)
-                if (data.estilo === "inscrito-cumple") {
-                    confetti({
-                        particleCount: 150, 
-                        spread: 80,         
-                        origin: { y: 0.6, x: lado === 'izq' ? 0.25 : 0.75 }, 
-                        colors: ['#ff007f', '#ff8c00', '#ffd700', '#00bfff', '#8a2be2'] 
-                    });
-                }
+                // ⚡ DETECCIÓN DE DIOSES (Usa includes para que no falle por el nombre extra) ⚡
+                if (data.estilo && data.estilo.includes("inscrito-lia-god")) {
+                    // Definimos el color según el nombre que venga en la clase
+                    let colorRayo = '#00ffff'; // Default André (Cian)
+                    if (data.estilo.includes('epani')) {
+                        colorRayo = '#5900ff'; // Morado Epani
+                    }
 
-                // ⚡ 2. Efecto GOD ANDRÉ (Relámpagos Reales) ⚡
-                else if (data.estilo === "inscrito-lia-god") {
-                    // Lanzamos 3 descargas seguidas con pequeñas pausas para simular tormenta
-                    crearRelampagosGOD(lado);
-                    setTimeout(() => crearRelampagosGOD(lado), 150);
-                    setTimeout(() => crearRelampagosGOD(lado), 350);
+                    // Lanzamos la tormenta con el color elegido
+                    crearTormentaGOD(lado, colorRayo);
                 }                
             } 
         }
+
         function checkReset(lado, timestampData) { 
             const ahora = Date.now() / 1000; 
             if (ahora - timestampData > RESET_TIME && timestampData > 0) { 
@@ -238,70 +187,67 @@
                 } 
             } 
         } 
-// --- MOTOR DE RELÁMPAGOS VANILLA JS ---
-        function crearRelampagosGOD(lado) {
-            // Seleccionamos la mitad de la pantalla donde se escaneó
+
+        // MOTOR DE RELÁMPAGOS DINÁMICO
+        function crearTormentaGOD(lado, color) {
             const contenedor = document.getElementById(`card-${lado}`).parentElement;
 
-            // 1. Efecto de flash brillante y sacudida
+            // Flash de fondo del color del rayo
             contenedor.style.transition = 'background-color 0.1s';
-            contenedor.style.backgroundColor = 'rgba(0, 255, 255, 0.4)'; // Flash Cian
+            contenedor.style.backgroundColor = color.replace(')', ', 0.3)').replace('rgb', 'rgba'); 
+            // Si el color es Hex, usamos una versión simplificada:
+            contenedor.style.backgroundColor = color + '44'; 
+            
             contenedor.classList.add('shake-activado');
             
             setTimeout(() => {
                 contenedor.style.backgroundColor = '';
                 contenedor.classList.remove('shake-activado');
-            }, 150);
+            }, 200);
 
-            // 2. Crear un lienzo invisible encima de todo
+            // Crear ráfagas
+            for(let i=0; i<3; i++) {
+                setTimeout(() => crearRayoUnico(contenedor, color), i * 150);
+            }
+        }
+
+        function crearRayoUnico(contenedor, color) {
             const canvas = document.createElement('canvas');
             canvas.style.position = 'absolute';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
+            canvas.style.top = '0'; canvas.style.left = '0';
             canvas.width = contenedor.offsetWidth;
             canvas.height = contenedor.offsetHeight;
-            canvas.style.pointerEvents = 'none'; // Para no estorbar si alguien da clic
-            canvas.style.zIndex = '9999';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '999';
             contenedor.appendChild(canvas);
 
             const ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#ffffff';
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = color;
+            ctx.lineWidth = 3;
 
-            // Configuración del neon del rayo
-            ctx.strokeStyle = '#ffffff'; // Corazón del rayo blanco
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#00ffff'; // Resplandor cian eléctrico
-            ctx.lineJoin = 'miter';
+            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 + (Math.random()-0.5)*200, canvas.height);
 
-            // Dibujar 3 rayos simultáneos para que se vea potente
-            ctx.lineWidth = 4; // Rayo principal grueso
-            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2, canvas.height);
-            
-            ctx.lineWidth = 2; // Rayos secundarios delgados
-            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 + 150, canvas.height);
-            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 - 150, canvas.height);
-
-            // 3. Desvanecer y destruir el lienzo rápidamente
-            canvas.style.transition = 'opacity 0.4s ease-out';
-            setTimeout(() => canvas.style.opacity = '0', 50);
-            setTimeout(() => canvas.remove(), 500);
+            canvas.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(() => { canvas.style.opacity = '0'; }, 100);
+            setTimeout(() => canvas.remove(), 400);
         }
 
-        // Matemáticas para hacer que la línea se quiebre como electricidad
         function dibujarRayoFractal(ctx, startX, startY, endX, endY) {
             ctx.beginPath();
             let x = startX;
             let y = startY;
             ctx.moveTo(x, y);
-
             while (y < endY) {
-                y += Math.random() * 40 + 10; // Cae hacia abajo
-                x += (Math.random() - 0.5) * 90; // Se desvía caóticamente a los lados
+                y += Math.random() * 50 + 10;
+                x += (Math.random() - 0.5) * 100;
                 ctx.lineTo(x, y);
             }
             ctx.stroke();
         }
+
         setInterval(actualizarMonitor, 500);
     </script> 
-
 </body> 
 </html>
