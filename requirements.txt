@@ -1,0 +1,14 @@
+cat <<EOT > requirements.txt
+Flask
+numpy
+pygame
+requests
+beautifulsoup4
+mysql-connector-python
+pyserial
+certifi
+opencv-python
+pyzbar
+Pillow
+evdev
+EOT
