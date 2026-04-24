@@ -313,13 +313,13 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
 
     # C) BOLETAS ESPECIALES (LIA)
     elif boleta == "2024160324":
-        estilo_css = "inscrito-LIA"
+        estilo_css = "inscrito-lia-god-epani"
         titulo_tarjeta = "Integrante de LIA - Ebani"
         mensaje_mochila = "🔧 Lead Técnico -- Tester 💻"
     elif boleta == "2024160385":
         estilo_css = "inscrito-lia-god"
         titulo_tarjeta = "Integrante de LIA - André"
-        mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻 -- Papoi"
+        mensaje_mochila = "🔧 Lead Coder -- Backend -- GOD 💻"
     elif boleta == "2024160550":
         estilo_css = "inscrito-LIA"
         titulo_tarjeta = "Integrante de LIA - Mati"
