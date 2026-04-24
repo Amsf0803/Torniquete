@@ -69,26 +69,24 @@
 
 /* 1. DEFINICIÓN DE LOS DIOSES (Colores base) */
 
-/* Estilo para ANDRÉ (Cian/Azul) */
+/* Clase base que activa los rayos (la que el JS reconoce) */
 .inscrito-lia-god {
-    --color-rayo: #00ffff;
-    --color-sombra: rgba(0, 255, 255, 0.7);
-    --animacion-pulso: pulsoCian;
-    
     background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
-    border: 3px solid var(--color-rayo);
-    animation: pulsoCian 2s infinite;
+    color: #ffffff;
 }
 
-/* Estilo para EPANI (Morado/Violeta) */
-.inscrito-lia-god-epani {
-    --color-rayo: #5900ff;
-    --color-sombra: rgba(89, 0, 255, 0.7);
-    --animacion-pulso: pulsoMorado;
+/* Colores específicos de André */
+.inscrito-lia-god.andre {
+    border: 3px solid #00ffff;
+    animation: pulsoCian 2s infinite;
+    --color-rayo: #00ffff; /* Variable para que el rayo sea cian */
+}
 
-    background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
-    border: 3px solid var(--color-rayo);
+/* Colores específicos de Epani */
+.inscrito-lia-god.epani {
+    border: 3px solid #5900ff;
     animation: pulsoMorado 2s infinite;
+    --color-rayo: #5900ff; /* Variable para que el rayo sea morado */
 }
 
 /* 2. EL RAYO (Clase genérica para ambos) */
