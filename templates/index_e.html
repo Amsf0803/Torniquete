@@ -67,76 +67,59 @@
             100% { background-position: 0% 50%; }
         }
 
-/* --- ESTILO ESPECIAL DIOS ANDRÉ --- */
-        .inscrito-lia-god {
-            /* Fondo base oscuro/morado */
-            background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
-            color: #ffffff;
-            /* Borde cian eléctrico inicial */
-            border: 3px solid #00ffff;
-            /* Sombra neon cian que pulsa */
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
-            animation: pulsoNeon 2s infinite;
-        }
+/* 1. DEFINICIÓN DE LOS DIOSES (Colores base) */
 
-        @keyframes pulsoNeon {
-            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
-            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); border-color: #ffffff; }
-            100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
-        }
-/* Animación para sacudir la pantalla al caer el relámpago */
-        @keyframes shakeTerremoto {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-2px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
-        }
-        .shake-activado {
-            animation: shakeTerremoto 0.4s ease-in-out;
-        }
+/* Estilo para ANDRÉ (Cian/Azul) */
+.inscrito-lia-god {
+    --color-rayo: #00ffff;
+    --color-sombra: rgba(0, 255, 255, 0.7);
+    --animacion-pulso: pulsoCian;
+    
+    background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
+    border: 3px solid var(--color-rayo);
+    animation: pulsoCian 2s infinite;
+}
 
+/* Estilo para EPANI (Morado/Violeta) */
+.inscrito-lia-god-epani {
+    --color-rayo: #5900ff;
+    --color-sombra: rgba(89, 0, 255, 0.7);
+    --animacion-pulso: pulsoMorado;
 
-/* --- ESTILO ESPECIAL epani --- */
-        .inscrito-lia-god-epani {
-            /* Fondo base oscuro/morado */
-            background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
-            color: #ffffff;
-            /* Borde cian eléctrico inicial */
-            border: 3px solid #5900ff;
-            /* Sombra neon cian que pulsa */
-            box-shadow: 0 0 15px rgba(38, 0, 255, 0.7);
-            animation: pulsoNeon 2s infinite;
-        }
+    background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%);
+    border: 3px solid var(--color-rayo);
+    animation: pulsoMorado 2s infinite;
+}
 
-        @keyframes pulsoNeon {
-            0% { box-shadow: 0 0 15px rgba(38, 0, 255, 0.7); border-color: #5900ff; }
-            50% { box-shadow: 0 0 30px rgba(38, 0, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); border-color: #ffffff; }
-            100% { box-shadow: 0 0 15px rgba(38, 0, 255, 0.7); border-color: #5900ff; }
-        }
-/* Animación para sacudir la pantalla al caer el relámpago */
-        @keyframes shakeTerremoto {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-2px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
-        }
-        .shake-activado {
-            animation: shakeTerremoto 0.4s ease-in-out;
-        }
+/* 2. EL RAYO (Clase genérica para ambos) */
+/* Asegúrate de que tus elementos de rayo tengan esta clase */
+.rayo-efecto {
+    stroke: var(--color-rayo); /* Si es SVG */
+    color: var(--color-rayo);   /* Si es texto/icono */
+    filter: drop-shadow(0 0 10px var(--color-rayo)); /* El brillo del rayo */
+}
+
+/* 3. ANIMACIONES (Nombres diferentes para que no choquen) */
+
+@keyframes pulsoCian {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
+    50% { box-shadow: 0 0 30px #00ffff, 0 0 10px #ffffff; border-color: #ffffff; }
+}
+
+@keyframes pulsoMorado {
+    0%, 100% { box-shadow: 0 0 15px rgba(89, 0, 255, 0.7); border-color: #5900ff; }
+    50% { box-shadow: 0 0 30px #5900ff, 0 0 10px #ffffff; border-color: #ffffff; }
+}
+
+/* 4. EL TERREMOTO (Igual para todos) */
+@keyframes shakeTerremoto {
+    0%, 100% { transform: translate(0,0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-2px, -1px); }
+    20%, 40%, 60%, 80% { transform: translate(2px, 1px); }
+}
+.shake-activado {
+    animation: shakeTerremoto 0.4s ease-in-out;
+}
 
 
     </style>
