@@ -3,6 +3,7 @@ import time
 import re
 import os
 import base64
+import zipfile
 import requests
 import pygame
 import numpy as np
@@ -20,6 +21,7 @@ from PIL import Image
 import base64
 import smtplib
 from email.mime.text import MIMEText
+import pandas as pd
 
 
 
@@ -1280,7 +1282,7 @@ def crear_bases_si_no_existen(bases_datos):
                 print(f"🔹 Base de datos '{bd}' ya existe.")
         
         # Crear base de datos adicionales
-        for db_name in ['Pases_salida', 'Semestre', 'Suspensiones']:
+        for db_name in ['Pases_salida', 'Semestre', 'Suspensiones', 'Casos_curiosos']:
             cursor.execute(f"SHOW DATABASES LIKE '{db_name}'")
             resultado = cursor.fetchone()
             if not resultado:
@@ -1304,7 +1306,6 @@ def crear_bases_si_no_existen(bases_datos):
             print("✅ Tabla modificaciones_temporales creada.")
         except Error as e:
             print(f"🔹 Tabla modificaciones_temporales ya existe.")
-        
         # Crear tablas en Semestre
         try:
             cursor.execute("USE Semestre")
@@ -1331,7 +1332,27 @@ def crear_bases_si_no_existen(bases_datos):
                 )
             """
             cursor.execute(semestre)
-            print("✅ Tabla de semestre creada/verificada correctamente")
+            
+            # --- NUEVA LÓGICA: INYECTAR VALORES POR DEFECTO ---
+            cursor.execute("SELECT COUNT(*) FROM semestre")
+            if cursor.fetchone()[0] == 0:
+                # El 1 en la columna semestre activará los prefijos impares (1TM, 3MM, 5MM...)
+                # Modifiqué el 5_6_MM a 4 para que por defecto alcance a crear hasta el 5MM4
+                cursor.execute("""
+                    INSERT INTO semestre (
+                        semestre, grupo, `1_2_TM`,
+                        `3_4_CM`, `3_4_AM`, `3_4_MM`, `3_4_IM`, `3_4_PM`, `3_4_EM`, `3_4_LM`,
+                        `5_6_CM`, `5_6_AM`, `5_6_MM`, `5_6_IM`, `5_6_PM`, `5_6_EM`, `5_6_LM`
+                    ) VALUES (
+                        1, '5MM4', 10, 
+                        1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 4, 1, 1, 1, 1
+                    )
+                """)
+                connection.commit()
+                print("✅ Valores por defecto (semestres impares) insertados en la tabla 'semestre'.")
+            else:
+                print("✅ Tabla de semestre creada/verificada correctamente")
 
             # Funcion nueva que ps se planea poner un contador de cuantas veces entrar cada dia a la semana :)
             registros = """
@@ -1602,6 +1623,25 @@ if bases_datos:
 # Configurar Flask
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = 'clave_secreta_segura'
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 * 1024  # 2 GB de límite
+
+# Werkzeug >=2.2.3 limita a 1000 partes por formulario multipart. Lo subimos
+# para que no corte la subida cuando hay miles de archivos (aunque ahora
+# usamos ZIP, lo dejamos alto por si otro formulario lo necesita).
+try:
+    from werkzeug.middleware.proxy_fix import ProxyFix  # noqa — solo para importar werkzeug
+    import werkzeug
+    # MAX_FORM_PARTS es un atributo de clase de Request en Werkzeug ≥2.3
+    if hasattr(werkzeug.serving, '__version__'):  # cualquier versión
+        from werkzeug.sansio.http import HTTP_STATUS_CODES  # noqa
+except Exception:
+    pass
+try:
+    from werkzeug.serving import WSGIRequestHandler  # noqa
+    from flask.wrappers import Request as FlaskRequest
+    FlaskRequest.max_form_parts = 100_000
+except Exception:
+    pass
 
 # Configuración optimizada para Flask
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -1768,6 +1808,8 @@ def method():
                 return redirect('/seleccionar_ciclo')
             elif metodo_seleccionado == 'automatico':
                 return redirect('/seleccionar_grupo')
+            elif metodo_seleccionado == 'masivo_excel':
+                return redirect('/registro_masivo_excel')
 
 
 
@@ -2428,7 +2470,6 @@ def confirmacion():
 
     return redirect('/')
 
-
 @app.route('/segunda_confirmacion', methods=['GET', 'POST'])
 def segunda_confirmacion():
     # 🛡️ SEGURIDAD: Bloquear acceso directo por URL
@@ -2442,6 +2483,8 @@ def segunda_confirmacion():
 
     password_ingresada = request.form.get('contraseña')
     contra_correcta = False
+    cursor = None
+    conexion = None
 
     try:
         # Conectamos a DB para traer la segunda contraseña
@@ -2467,10 +2510,11 @@ def segunda_confirmacion():
     
     # 🔒 Verificamos si la SEGUNDA contraseña fue exitosa
     if contra_correcta: 
+        # Esta lista es tu escudo: Semestre, Pases y Suspensiones jamás se borrarán.
         excluir = {'Pases_salida', 'Semestre', 'Suspensiones', 'sys', 'mysql', 'information_schema', 'performance_schema'}
 
         try:
-            # 1. BORRADO DE BASES DE DATOS
+            # 1. BORRADO DE BASES DE DATOS (Solo los schemas de los grupos)
             cursor.execute("SHOW DATABASES")
             bases = cursor.fetchall()
 
@@ -2478,28 +2522,30 @@ def segunda_confirmacion():
                 if base not in excluir:
                     try:
                         cursor.execute(f"DROP DATABASE `{base}`")
-                        print(f"✅ Base de datos '{base}' eliminada.")
+                        print(f"✅ Base de datos de grupo '{base}' eliminada.")
                     except Exception as e:
                         print(f"❌ Error al eliminar '{base}': {e}")
 
             cursor.close()
             conexion.close()
 
-            # 2. BORRADO INTELIGENTE DE IMÁGENES
-            carpeta_imagenes = os.path.join(app.root_path, 'static', 'images') 
+            # 2. BORRADO INTELIGENTE DE IMÁGENES DE ALUMNOS (Corregido a static/image)
+            carpeta_alumnos = os.path.join(app.root_path, 'static', 'image') 
             
-            if os.path.exists(carpeta_imagenes):
+            if os.path.exists(carpeta_alumnos):
                 print("🧹 Iniciando limpieza de fotos de alumnos...")
-                for archivo in os.listdir(carpeta_imagenes):
+                for archivo in os.listdir(carpeta_alumnos):
                     nombre_sin_ext, ext = os.path.splitext(archivo)
+                    
+                    # Validamos que el nombre sea un número (boleta) para no borrar archivos de sistema
                     if nombre_sin_ext.isdigit():
                         try:
-                            os.remove(os.path.join(carpeta_imagenes, archivo))
+                            os.remove(os.path.join(carpeta_alumnos, archivo))
                             print(f"🗑️ Foto eliminada: {archivo}")
                         except Exception as e:
                             print(f"⚠️ No se pudo borrar {archivo}: {e}")
             else:
-                print("⚠️ No se encontró la carpeta de imágenes para limpiar.")
+                print("⚠️ No se encontró la carpeta static/image para limpiar.")
 
         except Exception as error:
             print(f"❌ Error de conexión general: {error}")
@@ -2507,8 +2553,8 @@ def segunda_confirmacion():
             return redirect('/')
     else:
         print("❌ Segunda contraseña incorrecta")
-        if 'cursor' in locals() and cursor: cursor.close()
-        if 'conexion' in locals() and conexion: conexion.close()
+        if cursor: cursor.close()
+        if conexion and conexion.is_connected(): conexion.close()
         session.clear()
         return redirect('/')
 
@@ -2849,6 +2895,721 @@ def acceso_verificacion():
 
     return render_template('verificacion.html')
     
+# ═══════════════════════════════════════════════════════════════════════════════
+# FASE 3: REGISTRO MASIVO CON EXCEL PROCESADO
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ALLOWED_EXTENSIONS_EXCEL = {'xlsx', 'xls'}
+ALLOWED_EXTENSIONS_ZIP   = {'zip'}
+
+def allowed_file_excel(filename):
+    """Verifica si el archivo tiene extensión de Excel"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_EXCEL
+
+def allowed_file_zip(filename):
+    """Verifica si el archivo tiene extensión ZIP"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_ZIP
+
+
+def asegurar_schema_y_tabla_grupo(schema, password_db):
+    """
+    Crea el schema (base de datos) y la tabla principal del grupo si no existen.
+    La tabla principal tiene el mismo nombre que el schema.
+    Retorna True si todo fue correcto, False si hubo error.
+    """
+    conn = None
+    try:
+        # 1. Crear schema si no existe
+        conn = mysql.connector.connect(
+            host="localhost", user="root", password=password_db
+        )
+        cursor = conn.cursor()
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{schema}`")
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # 2. Crear tabla principal del grupo dentro del schema
+        conn = mysql.connector.connect(
+            host="localhost", user="root", password=password_db, database=schema
+        )
+        cursor = conn.cursor()
+        tabla_sql = f"""
+        CREATE TABLE IF NOT EXISTS `{schema}` (
+            boleta VARCHAR(20) PRIMARY KEY,
+            nombre VARCHAR(255),
+            curp VARCHAR(18),
+            escuela VARCHAR(255),
+            turno VARCHAR(50),
+            inscrito TINYINT(1) DEFAULT 0,
+            imagen_path TEXT,
+            url_origen TEXT,
+            url_saes TEXT,
+            abrio VARCHAR(10),
+            cerro VARCHAR(10)
+        )
+        """
+        cursor.execute(tabla_sql)
+
+        # Seguridad: agregar url_saes si la tabla ya existía sin ella
+        try:
+            cursor.execute(f"ALTER TABLE `{schema}` ADD COLUMN url_saes TEXT")
+        except Error:
+            pass  # Ya existe
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+
+    except Error as e:
+        print(f"❌ Error asegurando schema/tabla '{schema}': {e}")
+        if conn and conn.is_connected():
+            conn.close()
+        return False
+
+
+def procesar_masivo_horario(url, boleta, schema, password_db):
+    """
+    Procesa un horario SAES y lo guarda dinámicamente en el schema correspondiente.
+    1. HTTP request → scrape → extraer horario.
+    2. Crear tabla individual de la boleta.
+    3. Insertar horario (si ≥8 materias → Horario_Grupal).
+    4. INSERT/UPDATE en tabla principal del grupo.
+    Retorna (True/False, mensaje)
+    """
+    conn = None
+    try:
+        # 1. Obtener HTML del horario
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, headers=headers, timeout=120, verify=certifi.where())
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # 2. Extraer info del horario (reutilizamos la lógica existente de la clase)
+        horario_info = {
+            'titulo': '',
+            'materias': []
+        }
+        # Extraer título
+        p_elem = soup.find('p')
+        if p_elem:
+            horario_info['titulo'] = p_elem.get_text().strip()
+
+        # Extraer materias de la tabla
+        tablas = soup.find_all('table')
+        for tabla in tablas:
+            filas = tabla.find_all('tr')
+            if len(filas) < 2:
+                continue
+
+            # Mapear días a índices
+            encabezados = []
+            fila_header = filas[0]
+            celdas_header = fila_header.find_all(['th', 'td'])
+            encabezados = [celda.get_text().strip().lower() for celda in celdas_header]
+
+            dias_indices = {}
+            dias_buscar = ['lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes']
+            for i, encabezado in enumerate(encabezados):
+                for dia in dias_buscar:
+                    if dia in encabezado:
+                        dia_clean = 'miercoles' if dia == 'miércoles' else dia
+                        dias_indices[dia_clean] = i
+                        break
+
+            for fila in filas[1:]:
+                celdas = fila.find_all(['th', 'td'])
+                if len(celdas) < 4:
+                    continue
+
+                materia_info = {
+                    'grupo': celdas[0].get_text().strip() if len(celdas) > 0 else '',
+                    'materia': celdas[1].get_text().strip() if len(celdas) > 1 else '',
+                    'profesor': celdas[3].get_text().strip() if len(celdas) > 3 else '',
+                    'lunes': '', 'martes': '', 'miercoles': '', 'jueves': '', 'viernes': ''
+                }
+
+                for dia, indice in dias_indices.items():
+                    if indice < len(celdas):
+                        horario_dia = celdas[indice].get_text().strip()
+                        materia_info[dia] = horario_dia if horario_dia else ''
+
+                if materia_info['materia'] and materia_info['grupo']:
+                    horario_info['materias'].append(materia_info)
+
+        if not horario_info['materias']:
+            return False, "No se encontraron materias en el horario"
+
+        # 3. Conectar al schema dinámico y crear tabla individual de la boleta
+        conn = mysql.connector.connect(
+            host="localhost", user="root", password=password_db, database=schema
+        )
+        cursor = conn.cursor()
+
+        # Crear tabla individual con nombre de la boleta
+        create_tabla_boleta = f"""
+        CREATE TABLE IF NOT EXISTS `{boleta}` (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            grupo VARCHAR(50),
+            materia VARCHAR(255),
+            profesor VARCHAR(255),
+            lunes VARCHAR(50),
+            martes VARCHAR(50),
+            miercoles VARCHAR(50),
+            jueves VARCHAR(50),
+            viernes VARCHAR(50),
+            fecha_escaneado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            url_origen TEXT
+        )
+        """
+        cursor.execute(create_tabla_boleta)
+        conn.commit()
+
+        # Insertar materias en la tabla individual
+        query_insert = f"""
+        INSERT INTO `{boleta}` (grupo, materia, profesor, lunes, martes, miercoles, jueves, viernes, url_origen)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        registros = 0
+        for materia in horario_info['materias']:
+            values = (
+                materia['grupo'], materia['materia'], materia['profesor'],
+                materia['lunes'], materia['martes'], materia['miercoles'],
+                materia['jueves'], materia['viernes'], url
+            )
+            cursor.execute(query_insert, values)
+            registros += 1
+
+        conn.commit()
+        print(f"    📅 Tabla '{boleta}' creada con {registros} materias en schema '{schema}'")
+
+        # 4. Horario Grupal (si ≥ 8 materias)
+        if registros >= 8:
+            try:
+                cursor.execute(f"""
+                    SELECT COUNT(*) FROM information_schema.tables
+                    WHERE table_schema = '{schema}' AND table_name = 'Horario_Grupal'
+                """)
+                tabla_existe = cursor.fetchone()[0] > 0
+
+                if not tabla_existe:
+                    cursor.execute("""
+                        CREATE TABLE Horario_Grupal (
+                            lunes VARCHAR(100),
+                            martes VARCHAR(100),
+                            miercoles VARCHAR(100),
+                            jueves VARCHAR(100),
+                            viernes VARCHAR(100)
+                        )
+                    """)
+                    conn.commit()
+                    print(f"    ✅ Tabla Horario_Grupal creada en schema '{schema}'")
+
+                # Verificar si está vacía
+                cursor.execute("SELECT COUNT(*) FROM Horario_Grupal")
+                filas_grupal = cursor.fetchone()[0]
+
+                if filas_grupal == 0:
+                    query_grupal = """
+                    INSERT INTO Horario_Grupal (lunes, martes, miercoles, jueves, viernes)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """
+                    for materia in horario_info['materias']:
+                        if materia['lunes'] or materia['martes'] or materia['miercoles'] or materia['jueves'] or materia['viernes']:
+                            cursor.execute(query_grupal, (
+                                materia['lunes'], materia['martes'], materia['miercoles'],
+                                materia['jueves'], materia['viernes']
+                            ))
+                    conn.commit()
+                    print(f"    ✅ Horario_Grupal llenado en schema '{schema}'")
+
+            except Exception as e:
+                print(f"    ⚠️ Error con Horario_Grupal: {e}")
+
+        # 5. INSERT/UPDATE en tabla principal del grupo
+        check_query = f"SELECT boleta FROM `{schema}` WHERE boleta = %s"
+        cursor.execute(check_query, (boleta,))
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            insert_query = f"""
+            INSERT INTO `{schema}` (boleta, url_saes, inscrito)
+            VALUES (%s, %s, 1)
+            """
+            cursor.execute(insert_query, (boleta, url))
+        else:
+            update_query = f"UPDATE `{schema}` SET url_saes = %s WHERE boleta = %s"
+            cursor.execute(update_query, (url, boleta))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return True, f"Horario guardado ({registros} materias) en '{schema}'"
+
+    except requests.exceptions.RequestException as e:
+        return False, f"Error HTTP: {e}"
+    except Error as e:
+        return False, f"Error MySQL: {e}"
+    except Exception as e:
+        return False, f"Error inesperado: {e}"
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+
+def procesar_masivo_credencial(url, boleta, schema, password_db):
+    """
+    Procesa una credencial DAE y la guarda dinámicamente en el schema correspondiente.
+    1. HTTP request → scrape → extraer datos de credencial.
+    2. INSERT/UPDATE en tabla principal del grupo.
+    Retorna (True/False, mensaje)
+    """
+    conn = None
+    try:
+        # 1. Obtener HTML de la credencial
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, headers=headers, timeout=120, verify=certifi.where())
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # 2. Extraer info de la credencial (reutilizamos la lógica existente)
+        credencial_info = {
+            'boleta': '', 'nombre': '', 'curp': '',
+            'escuela': '', 'turno': '', 'inscrito': 0
+        }
+
+        elementos_por_clase = {
+            'boleta': soup.find('div', class_='boleta'),
+            'curp': soup.find('div', class_='curp'),
+            'nombre': soup.find('div', class_='nombre'),
+            'escuela': soup.find('div', class_='escuela'),
+        }
+
+        for campo, elemento in elementos_por_clase.items():
+            if elemento:
+                texto = elemento.get_text().strip()
+                if texto:
+                    credencial_info[campo] = texto
+
+        # Buscar turno e inscripción
+        divs_turno = soup.find_all('div', style=lambda x: x and '#199881' in x if x else False)
+        for div in divs_turno:
+            texto_div = div.get_text()
+            html_turno = str(div)
+
+            if 'Inscrito' in texto_div and 'No inscrito' not in texto_div:
+                credencial_info['inscrito'] = 1
+            elif 'No inscrito' in texto_div or 'Sin inscripción' in texto_div:
+                credencial_info['inscrito'] = 0
+
+            match_turno = re.search(r'Turno:\s*<b>([^<]+)</b>', html_turno)
+            if match_turno:
+                credencial_info['turno'] = match_turno.group(1).strip()
+
+        # Limpiar datos
+        for campo in credencial_info:
+            if isinstance(credencial_info[campo], str):
+                credencial_info[campo] = re.sub(r'\s+', ' ', credencial_info[campo]).strip()
+
+        if not credencial_info['boleta'] and not credencial_info['nombre']:
+            return False, "No se pudo extraer información de la credencial"
+
+        # Guardar imagen del rostro
+        imagen_path = ''
+        try:
+            divs_pic = soup.find_all('div', class_='pic')
+            for div in divs_pic:
+                img = div.find('img')
+                if img and img.has_attr('src'):
+                    src = img['src']
+                    if src.startswith("data:image/jpeg;base64,"):
+                        base64_data = src.split(',')[1]
+                        if boleta:
+                            filename = f"static/image/{boleta}.jpg"
+                            os.makedirs(os.path.dirname(filename), exist_ok=True)
+                            if not os.path.exists(filename):
+                                with open(filename, "wb") as f:
+                                    f.write(base64.b64decode(base64_data))
+                                print(f"    📸 Imagen guardada: {filename}")
+                            imagen_path = filename
+                            break
+        except Exception as img_error:
+            print(f"    ⚠️ Error guardando imagen: {img_error}")
+
+        # 3. Conectar al schema e INSERT/UPDATE
+        conn = mysql.connector.connect(
+            host="localhost", user="root", password=password_db, database=schema
+        )
+        cursor = conn.cursor()
+
+        check_query = f"SELECT boleta FROM `{schema}` WHERE boleta = %s"
+        cursor.execute(check_query, (boleta,))
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            insert_query = f"""
+            INSERT INTO `{schema}` (boleta, nombre, curp, escuela, turno, inscrito, imagen_path, url_origen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (
+                boleta, credencial_info['nombre'], credencial_info['curp'],
+                credencial_info['escuela'], credencial_info['turno'],
+                credencial_info['inscrito'], imagen_path, url
+            ))
+        else:
+            update_query = f"""
+            UPDATE `{schema}` SET
+                nombre = COALESCE(NULLIF(%s, ''), nombre),
+                curp = COALESCE(NULLIF(%s, ''), curp),
+                escuela = COALESCE(NULLIF(%s, ''), escuela),
+                turno = COALESCE(NULLIF(%s, ''), turno),
+                inscrito = %s,
+                imagen_path = COALESCE(NULLIF(%s, ''), imagen_path),
+                url_origen = %s
+            WHERE boleta = %s
+            """
+            cursor.execute(update_query, (
+                credencial_info['nombre'], credencial_info['curp'],
+                credencial_info['escuela'], credencial_info['turno'],
+                credencial_info['inscrito'], imagen_path, url, boleta
+            ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return True, f"Credencial de '{credencial_info['nombre']}' guardada en '{schema}'"
+
+    except requests.exceptions.RequestException as e:
+        return False, f"Error HTTP: {e}"
+    except Error as e:
+        return False, f"Error MySQL: {e}"
+    except Exception as e:
+        return False, f"Error inesperado: {e}"
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+
+@app.route('/registro_masivo_excel', methods=['GET', 'POST'])
+def registro_masivo_excel():
+    """
+    Ruta para el registro masivo de QR codes usando un Excel procesado
+    (QR_procesado.xlsx) como mapa de referencia para el schema dinámico.
+    """
+    global contra_db
+
+    if request.method == 'POST':
+        # ─── Validar archivos ───
+        if 'excel_file' not in request.files:
+            return jsonify({'error': 'No se envió el archivo Excel'}), 400
+
+        excel_file = request.files['excel_file']
+        if excel_file.filename == '':
+            return jsonify({'error': 'No se seleccionó archivo Excel'}), 400
+        if not allowed_file_excel(excel_file.filename):
+            return jsonify({'error': 'El archivo debe ser .xlsx o .xls'}), 400
+
+        # ─── Detectar modo: ZIP (recomendado para >500 imágenes) o imágenes sueltas ───
+        usar_zip = 'qr_zip' in request.files and request.files['qr_zip'].filename != ''
+        usar_individual = 'qr_files' in request.files
+
+        if not usar_zip and not usar_individual:
+            return jsonify({'error': 'No se enviaron archivos QR (ni ZIP ni imágenes)'}), 400
+
+        # ─── Guardar archivos temporalmente ───
+        timestamp = int(time.time())
+        carpeta_temp = os.path.join(UPLOAD_FOLDER, f'masivo_{timestamp}')
+        os.makedirs(carpeta_temp, exist_ok=True)
+
+        # Guardar Excel
+        ruta_excel = os.path.join(carpeta_temp, excel_file.filename)
+        excel_file.save(ruta_excel)
+
+        if usar_zip:
+            # ── Modo ZIP: extraer todas las imágenes del ZIP ──
+            zip_file = request.files['qr_zip']
+            if not allowed_file_zip(zip_file.filename):
+                return jsonify({'error': 'El archivo de QRs debe ser un .zip'}), 400
+
+            ruta_zip = os.path.join(carpeta_temp, zip_file.filename)
+            zip_file.save(ruta_zip)
+
+            print(f"📦 Extrayendo ZIP: {zip_file.filename}...")
+            imagenes_extraidas = 0
+            try:
+                with zipfile.ZipFile(ruta_zip, 'r') as zf:
+                    for nombre_interno in zf.namelist():
+                        # Solo extraer imágenes, ignorar carpetas y archivos ocultos
+                        basename = os.path.basename(nombre_interno)
+                        if not basename or basename.startswith('.'):
+                            continue
+                        ext = basename.rsplit('.', 1)[-1].lower() if '.' in basename else ''
+                        if ext in {'png', 'jpg', 'jpeg', 'bmp', 'gif'}:
+                            # Extraer al destino con nombre plano (sin subruta)
+                            destino = os.path.join(carpeta_temp, basename)
+                            with zf.open(nombre_interno) as src, open(destino, 'wb') as dst:
+                                dst.write(src.read())
+                            imagenes_extraidas += 1
+            except zipfile.BadZipFile:
+                return jsonify({'error': 'El archivo ZIP está dañado o no es un ZIP válido'}), 400
+            except Exception as e:
+                return jsonify({'error': f'Error al extraer el ZIP: {e}'}), 500
+
+            os.remove(ruta_zip)  # Borrar el ZIP, ya no lo necesitamos
+            print(f"✅ ZIP extraído: {imagenes_extraidas} imágenes")
+
+            if imagenes_extraidas == 0:
+                return jsonify({'error': 'El ZIP no contiene imágenes válidas (PNG, JPG, JPEG, BMP, GIF)'}), 400
+        else:
+            # ── Modo individual: guardar imágenes sueltas (compatible con ≤500 archivos) ──
+            qr_files = request.files.getlist('qr_files')
+            if not qr_files or qr_files[0].filename == '':
+                return jsonify({'error': 'No se seleccionaron archivos QR'}), 400
+            for qr_file in qr_files:
+                if qr_file and allowed_file(qr_file.filename):
+                    filepath = os.path.join(carpeta_temp, qr_file.filename)
+                    qr_file.save(filepath)
+
+        # ─── 1. Leer Excel procesado ───
+        try:
+            df = pd.read_excel(ruta_excel, engine='openpyxl')
+        except Exception as e:
+            return jsonify({'error': f'Error leyendo el Excel: {e}'}), 400
+
+        # Buscar columna "Boleta" y "Grupo original" (case-insensitive)
+        col_boleta = None
+        col_grupo = None
+        for c in df.columns:
+            if c.strip().lower() == 'boleta':
+                col_boleta = c
+            if c.strip().lower() == 'grupo original':
+                col_grupo = c
+
+        if col_boleta is None:
+            return jsonify({'error': 'No se encontró la columna "Boleta" en el Excel'}), 400
+        if col_grupo is None:
+            return jsonify({'error': 'No se encontró la columna "Grupo original" en el Excel. ¿Usaste el script preprocesar_excel.py?'}), 400
+
+        # Crear diccionario {boleta: schema}
+        df[col_boleta] = df[col_boleta].astype(str).str.strip()
+        df[col_grupo] = df[col_grupo].astype(str).str.strip()
+        mapa_boleta_grupo = dict(zip(df[col_boleta], df[col_grupo]))
+
+        print(f"📊 Excel cargado: {len(mapa_boleta_grupo)} boletas mapeadas")
+
+        # ─── 2. Procesar cada QR ───
+        patron_boleta = re.compile(r'(\d{10})')
+        archivos_qr = [
+            f for f in os.listdir(carpeta_temp)
+            if allowed_file(f)
+        ]
+
+        registros_exitosos = 0
+        registros_fallidos = 0
+        sin_match_excel = 0
+        qrs_ilegibles = 0
+        errores = []
+        total = len(archivos_qr)
+
+        print(f"\n🔄 Procesando {total} QRs...\n")
+
+        for idx, archivo in enumerate(sorted(archivos_qr), 1):
+            ruta_qr = os.path.join(carpeta_temp, archivo)
+            print(f"  [{idx}/{total}] Procesando: {archivo}")
+
+            # a) Extraer boleta del nombre del archivo
+            match_boleta = patron_boleta.search(archivo)
+            if not match_boleta:
+                errores.append(f"⚠️ {archivo}: No se encontró boleta en el nombre")
+                registros_fallidos += 1
+                continue
+
+            boleta = match_boleta.group(1)
+
+            # b) Buscar boleta en el diccionario del Excel
+            schema = mapa_boleta_grupo.get(boleta)
+            if not schema or schema == '' or schema == 'nan':
+                errores.append(f"⚠️ {archivo}: Boleta {boleta} no encontrada en el Excel")
+                sin_match_excel += 1
+                registros_fallidos += 1
+                continue
+
+            # c) Decodificar QR
+            url = decodificar_qr(ruta_qr)
+            if not url:
+                errores.append(f"⚠️ {archivo}: No se pudo decodificar el QR")
+                qrs_ilegibles += 1
+                registros_fallidos += 1
+                continue
+
+            # d) Asegurar que el schema y tabla principal existan
+            if not asegurar_schema_y_tabla_grupo(schema, contra_db):
+                errores.append(f"❌ {archivo}: Error creando schema '{schema}'")
+                registros_fallidos += 1
+                continue
+
+            # e) Determinar tipo (SAES o DAE) y procesar
+            # Usamos una instancia temporal solo para verificar tipo de URL
+            es_saes = any(re.search(p, url, re.IGNORECASE) for p in [
+                r'saes\.cecyt\d+\.ipn\.mx.*ValidaHorario',
+                r'.*ValidaHorario\.aspx.*',
+                r'.*saes.*horario.*',
+                r'.*ipn\.mx.*saes.*',
+                r'servicios\.saes\.ipn\.mx',
+            ])
+            es_dae = any(re.search(p, url, re.IGNORECASE) for p in [
+                r'servicios\.dae\.ipn\.mx.*vcred',
+                r'.*vcred/\?h=.*',
+                r'.*dae.*cred.*',
+                r'.*ipn\.mx.*dae.*',
+                r'dae\.ipn\.mx',
+            ])
+
+            if es_saes:
+                exito, mensaje = procesar_masivo_horario(url, boleta, schema, contra_db)
+            elif es_dae:
+                exito, mensaje = procesar_masivo_credencial(url, boleta, schema, contra_db)
+            else:
+                errores.append(f"⚠️ {archivo}: URL no reconocida como SAES ni DAE")
+                registros_fallidos += 1
+                continue
+
+            if exito:
+                registros_exitosos += 1
+                print(f"    ✅ {mensaje}")
+            else:
+                registros_fallidos += 1
+                errores.append(f"❌ {archivo}: {mensaje}")
+                print(f"    ❌ {mensaje}")
+
+            # Pausa entre requests
+            time.sleep(0.5)
+
+        # ─── 3. Limpieza de archivos temporales ───
+        print("\n🧹 Limpiando archivos temporales...")
+        try:
+            for f in os.listdir(carpeta_temp):
+                os.remove(os.path.join(carpeta_temp, f))
+            os.rmdir(carpeta_temp)
+        except Exception as e:
+            print(f"⚠️ Error limpiando temporales: {e}")
+
+        # ─── 4. Resumen ───
+        print(f"""
+        ═══════════════════════════════════════
+        📊 RESUMEN DEL PROCESO MASIVO
+        ═══════════════════════════════════════
+        ✅ Registros exitosos:    {registros_exitosos}
+        ❌ Registros fallidos:    {registros_fallidos}
+        ⚠️ Sin match en Excel:   {sin_match_excel}
+        🔍 QRs ilegibles:        {qrs_ilegibles}
+        📋 Total procesados:     {total}
+        ═══════════════════════════════════════
+        """)
+
+        return jsonify({
+            'success': True,
+            'mensaje': 'Proceso masivo completado',
+            'registros_exitosos': registros_exitosos,
+            'registros_fallidos': registros_fallidos,
+            'sin_match_excel': sin_match_excel,
+            'qrs_ilegibles': qrs_ilegibles,
+            'total': total,
+            'errores': errores if errores else None
+        })
+
+    # GET → mostrar formulario de carga
+    return render_template('registro_masivo_excel.html')
+
+
+@app.route('/resetear_inscritos', methods=['POST'])
+def resetear_inscritos():
+    """
+    Recorre TODOS los schemas de MySQL que son de grupos (excluye los de sistema
+    y los protegidos) y en cada uno busca la tabla principal (misma que el schema,
+    ej. 4MM2.4MM2). Si existe, pone inscrito = 1 en todos los registros.
+    """
+    global contra_db
+
+    excluir = {
+        'sys', 'mysql', 'information_schema', 'performance_schema',
+        'Pases_salida', 'Semestre', 'Suspensiones'
+    }
+
+    conn = None
+    grupos_actualizados = []
+    errores_reset = []
+
+    try:
+        conn = mysql.connector.connect(
+            host="localhost", user="root", password=contra_db
+        )
+        cursor = conn.cursor()
+
+        # Obtener todas las bases de datos
+        cursor.execute("SHOW DATABASES")
+        bases = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+
+        for schema in bases:
+            if schema in excluir:
+                continue
+
+            conn_grupo = None
+            try:
+                conn_grupo = mysql.connector.connect(
+                    host="localhost", user="root", password=contra_db, database=schema
+                )
+                cur = conn_grupo.cursor()
+
+                # Verificar si existe una tabla con el mismo nombre que el schema
+                cur.execute(f"""
+                    SELECT COUNT(*) FROM information_schema.tables
+                    WHERE table_schema = %s AND table_name = %s
+                """, (schema, schema))
+
+                if cur.fetchone()[0] > 0:
+                    # Verificar que la tabla tenga columna 'inscrito'
+                    cur.execute(f"""
+                        SELECT COUNT(*) FROM information_schema.columns
+                        WHERE table_schema = %s AND table_name = %s AND column_name = 'inscrito'
+                    """, (schema, schema))
+
+                    if cur.fetchone()[0] > 0:
+                        cur.execute(f"UPDATE `{schema}` SET inscrito = 1")
+                        filas = cur.rowcount
+                        conn_grupo.commit()
+                        grupos_actualizados.append(f"{schema} ({filas} alumnos)")
+                        print(f"  ✅ {schema}: {filas} alumnos marcados como inscritos")
+
+                cur.close()
+                conn_grupo.close()
+
+            except Error as e:
+                errores_reset.append(f"{schema}: {e}")
+                print(f"  ❌ Error en {schema}: {e}")
+                if conn_grupo and conn_grupo.is_connected():
+                    conn_grupo.close()
+
+        return jsonify({
+            'success': True,
+            'mensaje': f'Se actualizaron {len(grupos_actualizados)} grupos',
+            'grupos_actualizados': grupos_actualizados,
+            'errores': errores_reset if errores_reset else None
+        })
+
+    except Error as e:
+        print(f"❌ Error general en resetear_inscritos: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+
 if __name__ == '__main__':
     # Crear bases de datos necesarias
     if 'bases_datos' in globals():
@@ -2862,6 +3623,3 @@ Codigo en mysql para agregar una base de datos nueva
 CREATE DATABASE 4IM1;  --Cambiar el grupo 
 
 """
-
-
-
