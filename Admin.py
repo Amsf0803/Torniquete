@@ -3530,7 +3530,8 @@ def resetear_inscritos():
     """
     Recorre TODOS los schemas de MySQL que son de grupos (excluye los de sistema
     y los protegidos) y en cada uno busca la tabla principal (misma que el schema,
-    ej. 4MM2.4MM2). Si existe, pone inscrito = 1 en todos los registros.
+    ej. 4MM2.4MM2). Si existe, pone inscrito = 1 en todos los registros y cambia 
+    los estados 'abrio' y 'cerro' de NULL a 0.
     """
     global contra_db
 
@@ -3567,29 +3568,49 @@ def resetear_inscritos():
                 cur = conn_grupo.cursor()
 
                 # Verificar si existe una tabla con el mismo nombre que el schema
-                cur.execute(f"""
+                cur.execute("""
                     SELECT COUNT(*) FROM information_schema.tables
                     WHERE table_schema = %s AND table_name = %s
                 """, (schema, schema))
 
                 if cur.fetchone()[0] > 0:
-                    # Verificar que la tabla tenga columna 'inscrito'
-                    cur.execute(f"""
-                        SELECT COUNT(*) FROM information_schema.columns
-                        WHERE table_schema = %s AND table_name = %s AND column_name = 'inscrito'
+                    # Obtener todas las columnas de esa tabla para evitar errores si falta alguna
+                    cur.execute("""
+                        SELECT column_name FROM information_schema.columns
+                        WHERE table_schema = %s AND table_name = %s
                     """, (schema, schema))
+                    
+                    columnas_existentes = [row[0] for row in cur.fetchall()]
+                    
+                    actualizaciones = []
+                    
+                    # 1. Preparar actualización para 'inscrito'
+                    if 'inscrito' in columnas_existentes:
+                        actualizaciones.append("inscrito = 1")
+                        
+                    # 2. Preparar actualización para 'abrio' y 'cerro' (de NULL a 0)
+                    if 'abrio' in columnas_existentes:
+                        actualizaciones.append("abrio = IFNULL(abrio, 0)")
+                        
+                    if 'cerro' in columnas_existentes:
+                        actualizaciones.append("cerro = IFNULL(cerro, 0)")
 
-                    if cur.fetchone()[0] > 0:
-                        cur.execute(f"UPDATE `{schema}` SET inscrito = 1")
+                    # Si hay algo que actualizar, ejecutamos el UPDATE
+                    if actualizaciones:
+                        set_clause = ", ".join(actualizaciones)
+                        query_update = f"UPDATE `{schema}` SET {set_clause}"
+                        
+                        cur.execute(query_update)
                         filas = cur.rowcount
                         conn_grupo.commit()
-                        grupos_actualizados.append(f"{schema} ({filas} alumnos)")
-                        print(f"  ✅ {schema}: {filas} alumnos marcados como inscritos")
+                        
+                        grupos_actualizados.append(f"{schema} ({filas} registros)")
+                        print(f"  ✅ {schema}: {filas} registros actualizados (inscritos/abrio/cerro)")
 
                 cur.close()
                 conn_grupo.close()
 
-            except Error as e:
+            except mysql.connector.Error as e:
                 errores_reset.append(f"{schema}: {e}")
                 print(f"  ❌ Error en {schema}: {e}")
                 if conn_grupo and conn_grupo.is_connected():
@@ -3602,13 +3623,12 @@ def resetear_inscritos():
             'errores': errores_reset if errores_reset else None
         })
 
-    except Error as e:
+    except mysql.connector.Error as e:
         print(f"❌ Error general en resetear_inscritos: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         if conn and conn.is_connected():
             conn.close()
-
 
 if __name__ == '__main__':
     # Crear bases de datos necesarias
