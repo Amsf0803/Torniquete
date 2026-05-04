@@ -1547,9 +1547,8 @@ class QRHorarioVerificador:
         print("🛑 Verificador detenido")
 
     def operacion_mochila(self, boleta):
-        """Devuelve True o False para revisión de mochila (aleatorio 20%)"""
-        return random.random() <= 1
-    
+        """Devuelve True o False para revisión de mochila (0.2 -> aleatorio 20%)"""
+        return random.random() <= 0.2
     def registrar_acceso_excel(self, boleta, nombre, grupo, puede_entrar, es_salida):
         """Registra el acceso en un archivo Excel"""
         try:
