@@ -1,0 +1,57 @@
+# Resumen del Proyecto "Torniquete"
+
+Este documento contiene una explicación general de la estructura del proyecto, la función principal de cada archivo de Python (.py) y las interfaces de usuario (HTML). Se omiten carpetas de entorno virtual (venv), cachés (__pycache__) y carpetas de almacenamiento (uploads) por ser estándares o de uso temporal.
+
+## Archivos Python Principales (.py)
+
+1. **Admin.py**
+   - **Propósito:** Es el panel de administración web principal (backend construido con Flask).
+   - **Funciones principales:** Maneja el inicio de sesión de administradores, registro de usuarios/alumnos (manual, con escáner, o masivo), recuperación y reseteo de contraseñas. También gestiona la configuración del sistema, suspensiones de alumnos y visualización de gráficas de acceso.
+
+2. **app.py**
+   - **Propósito:** Es la aplicación principal que unifica y controla la lógica de los torniquetes de entrada y salida, así como los monitores.
+   - **Funciones principales:** Gestiona estados de monitoreo del sistema, cuenta con la lógica de "entrada dual" (procesar tanto entradas como salidas verificando horarios), se comunica con el microcontrolador (ESP32) para dar accesos, y ejecuta rutinas en segundo plano para procesar la información constante de los lectores de QR.
+
+3. **Server.py**
+   - **Propósito:** Es un script de mantenimiento rutinario de la base de datos (generalmente para ejecutarse de forma automática vía Cron o similar).
+   - **Funciones principales:** Se encarga de hacer los reinicios de la base de datos al final o inicio del día. Limpia los pases de salida de la jornada, actualiza los estados de suspensión de los alumnos (activándolas o removiéndolas según la fecha) y resetea contadores para las gráficas estadísticas.
+
+4. **preprocesar_excel.py**
+   - **Propósito:** Herramienta de automatización y extracción de datos (Web Scraping).
+   - **Funciones principales:** Analiza archivos Excel y ZIP (con imágenes de QR). Extrae las URLs del SAES (sistema escolar), scrapea la página web para obtener los horarios de los alumnos y mediante un algoritmo determina a qué "grupo original" pertenecen para facilitar su alta masiva.
+
+5. **compuA.py**
+   - **Propósito:** Script enfocado en la transmisión o sincronización de datos.
+   - **Funciones principales:** Contiene rutinas para mandar paquetes de datos (payloads) de forma síncrona hacia otros módulos o computadoras dentro de la red del sistema.
+
+*Nota: Archivos como `app_e.py`, `app_s.py`, `prueba.py`, `pruebas.py`, `examensito.py`, y `prueba_conectar_serial.py` son scripts de testeo para pruebas aisladas (como probar conexiones de entrada/salida o descifrado).*
+
+---
+
+## Archivos HTML (Carpeta `templates/`)
+
+Estas son las vistas o páginas web (Front-end) que ven los usuarios finales o administradores.
+
+### Interfaces de Monitor de Torniquete
+- **index_e.html:** Pantalla proyectada en el monitor del torniquete de Entrada. Muestra la foto, nombre y estado (acceso concedido/denegado) del alumno que acaba de escanear.
+
+### Panel de Administración (Relacionados con Admin.py)
+- **login.html:** Pantalla de autenticación inicial para el personal administrativo.
+- **admin_cambios.html:** Panel de control principal (dashboard) para acceder a los distintos ajustes del sistema.
+- **grafica.html:** Módulo visual que grafica estadísticas semanales sobre las entradas y salidas del plantel.
+- **suspension.html:** Formulario administrativo para buscar un alumno y aplicarle o removerle un periodo de suspensión temporal.
+- **duda.html:** Sección informativa o de ayuda técnica para los operadores del sistema.
+
+### Vistas de Registro y Gestión de Alumnos
+- **main_registro.html:** Pantalla principal (menú) que permite elegir qué método usar para dar de alta nuevos alumnos.
+- **registro_masivo_excel.html:** Interfaz donde el administrador puede subir el archivo Excel analizado y el archivo ZIP con los QRs masivos para registrar toda la escuela rápidamente.
+- **registro_scanner.html / registro_automatico.html:** Interfaces que permiten dar de alta el código QR de un estudiante utilizando los escáneres físicos conectados al equipo.
+- **seleccionar_ciclo.html / seleccionar_grupo.html / seleccionar_metodo.html:** Vistas auxiliares que guían paso a paso al administrador cuando registra información manual o escoge a qué grupo va dirigido un ajuste.
+- **register.html / ver.html / verificacion.html:** Páginas diseñadas para crear registros singulares o visualizar que los datos y QR de un alumno estén guardados correctamente en la base de datos.
+
+### Vistas de Recuperación y Reseteo de Cuentas
+- **recuperar.html:** Vista para iniciar la recuperación de una contraseña olvidada.
+- **reset.html:** Formulario donde, una vez aprobada la recuperación, se introduce y confirma la nueva contraseña administrativa.
+
+### Vistas de Error
+- **404.html / 404_registro.html:** Páginas de error "No Encontrado" personalizadas que aparecen si alguien navega a un enlace inexistente.
