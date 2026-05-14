@@ -576,3 +576,763 @@ Hoy no es fin de semana, no se reiniciarán las gráficas.
 ✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
 Hoy no es fin de semana, no se reiniciarán las gráficas.
 🎉 ÉXITO: El día MARTES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: VIERNES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM15
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día VIERNES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: SABADO...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM15
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día SABADO se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: DOMINGO...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM15
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Iniciando reinicio de graficas de entrada y salida de alumnos...
+✅ Se han reiniciado los valores a 0 correctamente de las graficas.
+🎉 ÉXITO: El día DOMINGO se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: LUNES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM15
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Iniciando reinicio de graficas de entrada y salida de alumnos...
+✅ Se han reiniciado los valores a 0 correctamente de las graficas.
+🎉 ÉXITO: El día LUNES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: MARTES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM15
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día MARTES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: MIERCOLES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM15
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día MIERCOLES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: VIERNES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM12
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día VIERNES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: SABADO...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM12
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día SABADO se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: DOMINGO...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM12
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Iniciando reinicio de graficas de entrada y salida de alumnos...
+✅ Se han reiniciado los valores a 0 correctamente de las graficas.
+🎉 ÉXITO: El día DOMINGO se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: LUNES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM12
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Iniciando reinicio de graficas de entrada y salida de alumnos...
+✅ Se han reiniciado los valores a 0 correctamente de las graficas.
+🎉 ÉXITO: El día LUNES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: MARTES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM12
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día MARTES se ha marcado como completado (1) y el resto de la semana se limpió (0).
+⚙️ Iniciando rutinas de reinicio para preparar el día: MIERCOLES...
+[]
+🗑️ 0 fila(s) eliminada(s) de la base de datos de Pases de salida.
+✅ Grupo seleccionado: 2TM12
+ℹ️ Grupos disponibles para semestre 2: ['Pases_salida', '2TM1', '2TM2', '2TM3', '2TM4', '2TM5', '2TM6', '2TM7', '2TM8', '2TM9', '2TM10', '2TM11', '2TM12', '2TM13', '2TM14', '2TM15', '2TM16', '2TM17', '2TM18', '2TM19', '2TM20', '4CM1', '4CM2', '4AM1', '4AM2', '4MM1', '4MM2', '4MM3', '4MM4', '4IM1', '4PM1', '4EM1', '4EM2', '4EM3', '4EM4', '4LM1', '4LM2', '4LM3', '4LM4', '6CM1', '6CM2', '6AM1', '6AM2', '6MM1', '6MM2', '6MM3', '6MM4', '6IM1', '6PM1', '6EM1', '6EM2', '6EM3', '6LM1', '6LM2', '6LM3', '6LM4']
+❌ Error al reiniciar grupo Pases_salida: 1146 (42S02): Table 'Pases_salida.Pases_salida' doesn't exist
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM5'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM6'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM7'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM8'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM9'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM10'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM11'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM12'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM13'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM14'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM15'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM16'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM17'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM18'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM19'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '2TM20'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4EM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '4LM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6CM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6AM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6MM4'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6IM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6PM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6EM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM1'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM2'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM3'.
+✅ Se han reiniciado los campos 'abrio' y 'cerro' en '6LM4'.
+Hoy no es fin de semana, no se reiniciarán las gráficas.
+🎉 ÉXITO: El día MIERCOLES se ha marcado como completado (1) y el resto de la semana se limpió (0).

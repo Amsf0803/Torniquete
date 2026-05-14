@@ -23,8 +23,6 @@ import smtplib
 from email.mime.text import MIMEText
 import pandas as pd
 
-
-
 def cifrar_texto(texto):
     # Cifrado sencillo y eficiente
     clave = "L1A_K3Y"
