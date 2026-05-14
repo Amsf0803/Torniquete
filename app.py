@@ -414,6 +414,48 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
 # SERVIDOR SOCKET PARA ESCÁNERES (SEGUNDO HILO)
 # ============================================================================
 
+def procesar_conexion(conn, addr):
+    """Maneja una conexión individual del escáner en su propio hilo."""
+    with conn:
+        # Añadir timeout para evitar que un cliente desconectado bloquee el hilo
+        conn.settimeout(5.0)
+        try:
+            data = conn.recv(4096)
+        except socket.timeout:
+            print(f"⚠️ Tiempo de espera agotado al recibir datos de {addr}")
+            return
+        except Exception as e:
+            print(f"⚠️ Error recibiendo datos de {addr}: {e}")
+            return
+            
+        if not data:
+            print("⚠️ Paquete vacío recibido")
+            return
+        
+        raw = data.decode('utf-8')
+        print(f"📦 Datos crudos recibidos de {addr}: {raw[:200]}")  # DEBUG
+        
+        try:
+            mensaje = json.loads(raw)
+            texto_url = mensaje.get('texto', '').strip()
+            escaner_id = mensaje.get('escaner', '')
+            es_izq = (escaner_id == 'IZQ')
+            
+            print(f"🔍 escaner='{escaner_id}' | es_izq={es_izq} | texto='{texto_url[:80]}...'")  # DEBUG
+            
+            if texto_url:
+                with app.app_context():
+                    procesar_entrada_dual(texto_url, es_izq)
+            else:
+                print("⚠️ texto_url vacío — no se procesó")
+            
+        except json.JSONDecodeError as e:
+            print(f"⚠️ JSON inválido: {e} | raw: {raw[:100]}")
+        except Exception as e:
+            import traceback
+            print(f"⚠️ Error procesando paquete: {e}")
+            traceback.print_exc()
+
 def servidor_escaneres_background():
     # FIX: '0.0.0.0' escucha en TODAS las interfaces (local + red).
     # Usar la IP pública en bind() causa que el SO rechace conexiones
@@ -434,35 +476,13 @@ def servidor_escaneres_background():
                 while True:
                     conn, addr = s.accept()
                     print(f"📡 Conexión recibida desde: {addr}")  # DEBUG
-                    with conn:
-                        data = conn.recv(4096)
-                        if not data:
-                            print("⚠️ Paquete vacío recibido")
-                            continue
-                        
-                        raw = data.decode('utf-8')
-                        print(f"📦 Datos crudos recibidos: {raw[:200]}")  # DEBUG (primeros 200 chars)
-                        
-                        try:
-                            mensaje = json.loads(raw)
-                            texto_url = mensaje.get('texto', '').strip()
-                            escaner_id = mensaje.get('escaner', '')
-                            es_izq = (escaner_id == 'IZQ')
-                            
-                            print(f"🔍 escaner='{escaner_id}' | es_izq={es_izq} | texto='{texto_url[:80]}...'")  # DEBUG
-                            
-                            if texto_url:
-                                with app.app_context():
-                                    procesar_entrada_dual(texto_url, es_izq)
-                            else:
-                                print("⚠️ texto_url vacío — no se procesó")
-                            
-                        except json.JSONDecodeError as e:
-                            print(f"⚠️ JSON inválido: {e} | raw: {raw[:100]}")
-                        except Exception as e:
-                            import traceback
-                            print(f"⚠️ Error procesando paquete: {e}")
-                            traceback.print_exc()
+                    
+                    # Delegamos el procesamiento a un hilo para evitar que el servidor se trabe
+                    # si una conexión se queda colgada o tarda en procesarse.
+                    hilo_cliente = threading.Thread(target=procesar_conexion, args=(conn, addr))
+                    hilo_cliente.daemon = True
+                    hilo_cliente.start()
+                    
         except Exception as e:
             print(f"❌ Error en servidor socket (reiniciando en 5s): {e}")
             time.sleep(5)
