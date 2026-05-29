@@ -3,19 +3,20 @@ import evdev
 from evdev import ecodes
 import socket
 import json
-import os
 import time
-import threading # <-- Importante para no trabar la lectura
+import threading 
 
-# --- RUTAS FÍSICAS ---
-RUTA_FISICA_IZQ = '/dev/input/by-path/pci-0000:00:1a.0-usbv2-0:1.1:1.1-event-kbd'
-RUTA_FISICA_DER = '/dev/input/by-path/pci-0000:00:1a.0-usbv2-0:1.3:1.1-event-kbd'
-
+# --- CONFIGURACIÓN DE RED ---
 HOST_DESTINO = '201.66.195.124' 
 PUERTO_DESTINO = 65432
 TIEMPO_COOLDOWN = 3.0 
 
-# --- MAPA DE TECLAS AVANZADO (NORMAL vs SHIFT) ---
+# --- CONFIGURACIÓN DE ESCÁNERES ---
+NOMBRE_ESCANER = "YOKO HID GUM"
+PUERTO_FISICO_IZQ = "1.1" 
+PUERTO_FISICO_DER = "1.3"
+
+# --- MAPAS DE TECLAS ---
 MAPA_NORMAL = {
     ecodes.KEY_A: 'a', ecodes.KEY_B: 'b', ecodes.KEY_C: 'c', ecodes.KEY_D: 'd',
     ecodes.KEY_E: 'e', ecodes.KEY_F: 'f', ecodes.KEY_G: 'g', ecodes.KEY_H: 'h',
@@ -49,7 +50,6 @@ MAPA_SHIFT = {
 }
 
 def enviar_datos_sync(payload):
-    """Envío en segundo plano para no frenar la lectura"""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(2) 
@@ -62,92 +62,98 @@ def enviar_datos_sync(payload):
     except Exception as e:
         print(f"⚠️ Error red: {e}")
 
-async def leer_escaner(ruta_by_path, es_izquierdo):
+async def leer_escaner(puerto_fisico, es_izquierdo):
     nombre_lado = "IZQ" if es_izquierdo else "DER"
     ultimo_escaneo = 0
     
     while True:
         try:
-            dispositivo = evdev.InputDevice(ruta_by_path)
-            dispositivo.grab()
-            print(f"🟢 LISTO: {nombre_lado}")
+            # 1. BÚSQUEDA DINÁMICA CONTINUA
+            # En cada intento, busca cuál es la ruta evdev actual del puerto físico
+            ruta_actual = None
+            for path in evdev.list_devices():
+                try:
+                    dev = evdev.InputDevice(path)
+                    # VALIDACIÓN ESTRICTA: Se agrega "/" para asegurar coincidencia exacta
+                    if dev.name == NOMBRE_ESCANER and f"{puerto_fisico}/" in dev.phys:
+                        ruta_actual = dev.path
+                        break
+                except Exception:
+                    pass
+            
+            if not ruta_actual:
+                # Si no lo encuentra, espera 2 segundos y vuelve a buscar en silencio
+                await asyncio.sleep(2)
+                continue
+
+            # 2. CONEXIÓN AL DISPOSITIVO
+            dispositivo = evdev.InputDevice(ruta_actual)
+            dispositivo.grab()  # Pide permisos exclusivos (Requiere SUDO)
+            print(f"🟢 CONECTADO: {nombre_lado} en {ruta_actual} (Físico: {puerto_fisico})")
             
             buffer = [] 
             shift_presionado = False 
             
+            # 3. BUCLE DE LECTURA
             async for event in dispositivo.async_read_loop():
-                # 1. COOLDOWN
                 if time.time() - ultimo_escaneo < TIEMPO_COOLDOWN:
                     buffer = []
                     continue
 
                 if event.type == ecodes.EV_KEY:
-                    # Gestionar estado del SHIFT
                     if event.code in [ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT]:
                         shift_presionado = (event.value == 1 or event.value == 2) 
                         continue
 
-                    if event.value == 1: # Solo al presionar tecla
+                    if event.value == 1: 
                         key_code = event.code
                         
                         if key_code == ecodes.KEY_ENTER:
                             if len(buffer) > 0:
                                 url_temp = "".join(buffer)
                                 
-                                # --- PARCHE: UNIR CÓDIGOS FRAGMENTADOS ---
                                 if "saes.cecyt16" in url_temp.lower() and len(url_temp) < 100:
-                                    print("⚠️ Fragmento SAES detectado, uniendo con la siguiente parte...")
-                                    continue # Ignoramos este Enter y seguimos sumando al buffer
-                                # -----------------------------------------
+                                    print("⚠️ Fragmento detectado, uniendo...")
+                                    continue 
                                 
-                                url = url_temp
-                                
-                                # --- ARMADO Y ENVÍO DEL JSON ---
                                 payload = {
                                     'escaner': nombre_lado,
-                                    'texto': url
+                                    'texto': url_temp
                                 }
-                                # Enviamos en un hilo para que el escáner siga leyendo rapidísimo
+                                
                                 hilo_envio = threading.Thread(target=enviar_datos_sync, args=(payload,))
                                 hilo_envio.daemon = True
                                 hilo_envio.start()
-                                # ---------------------------------------
                                 
                                 ultimo_escaneo = time.time()
                                 buffer = []
                             else:
                                 buffer = [] 
                         else:
-                            # 2. LÓGICA DE MAPEO
-                            if shift_presionado:
-                                char = MAPA_SHIFT.get(key_code)
-                            else:
-                                char = MAPA_NORMAL.get(key_code)
-                                
+                            char = MAPA_SHIFT.get(key_code) if shift_presionado else MAPA_NORMAL.get(key_code)
                             if char:
                                 buffer.append(char)
-                            
-        except FileNotFoundError:
-            await asyncio.sleep(5)
-        except OSError:
-            print(f"🔴 {nombre_lado} desconectado")
+
+        # Si el escáner se desconecta físicamente o cambia de puerto:
+        except (FileNotFoundError, OSError):
+            print(f"🔴 {nombre_lado} perdió conexión. Re-escaneando puertos USB...")
             await asyncio.sleep(2)
         except Exception as e:
-            print(f"Error {nombre_lado}: {e}")
+            print(f"⚠️ Error inesperado en {nombre_lado}: {e}")
             await asyncio.sleep(2)
 
 async def main():
-    print("--- LECTOR DE ALTA VELOCIDAD Y ENSAMBLAJE (DUAL SCANNER) ---")
-    if not os.path.exists(RUTA_FISICA_IZQ): print("⚠️ Faltan rutas IZQ")
-    if not os.path.exists(RUTA_FISICA_DER): print("⚠️ Faltan rutas DER")
-
+    print("--- INICIANDO LECTOR DUAL TOLERANTE A FALLOS ---")
+    print("Recordatorio: Este script requiere permisos 'sudo'")
+    
+    # Iniciamos las dos tareas en paralelo usando el puerto físico
     await asyncio.gather(
-        leer_escaner(RUTA_FISICA_IZQ, True),
-        leer_escaner(RUTA_FISICA_DER, False)
+        leer_escaner(PUERTO_FISICO_IZQ, True),
+        leer_escaner(PUERTO_FISICO_DER, False)
     )
 
 if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        pass
+        print("\nPrograma terminado por el usuario.")
