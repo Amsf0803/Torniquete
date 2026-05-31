@@ -54,7 +54,7 @@ except Exception as e:
 
 # --- 2. CÓDIGO ORIGINAL (SUSPENSIONES, PASES, SEMESTRES, GRAFICAS) ---
 
-#Aqui se revisan las suspensiones
+# Aquí se revisan las suspensiones
 try:
     conexion = mysql.connector.connect(
         host="localhost",
@@ -63,94 +63,81 @@ try:
         database="Suspensiones"
     )
     cursor = conexion.cursor()
+    
     hoy = date.today()
-
+    # Se sigue calculando mañana por si quieres aplicar el bloqueo desde la noche anterior
+    hoy_suspensiones = hoy + timedelta(days=1) 
+    
     cursor.execute("SELECT boleta, grupo, nombre_alumno, fecha_inicio, fecha_fin FROM suspensiones_registro")
     suspensiones = cursor.fetchall()
-    print(suspensiones)
 
     for boleta, grupo, nombre_alumno, fecha_inicio, fecha_fin in suspensiones:
         try:
-            # Si hoy inicia la suspensión
-            if fecha_inicio == hoy:
+            # 1. APLICAR O MANTENER LA SUSPENSIÓN
+            # Si la suspensión empieza mañana o empezó en el pasado, Y hoy todavía es antes de la fecha de fin.
+            if fecha_inicio <= hoy_suspensiones and hoy < fecha_fin:
                 try:
                     conexion_grupo = mysql.connector.connect(
-                        host="localhost", user="root", password= contraDB, database=grupo
+                        host="localhost", user="root", password=contraDB, database=grupo
                     )
                     cursor_grupo = conexion_grupo.cursor()
                     cursor_grupo.execute(f"UPDATE `{grupo}` SET inscrito = 2 WHERE boleta = %s", (boleta,))
                     conexion_grupo.commit()
-                    print(f"🟡 El Alumno {nombre_alumno} del grupo {grupo} con boleta: {boleta} esta suspendido desde hoy.")
+                    
+                    if fecha_inicio == hoy_suspensiones or fecha_inicio == hoy:
+                        print(f"🟡 El Alumno {nombre_alumno} del grupo {grupo} con boleta: {boleta} ha sido suspendido.")
+                    else:
+                        print(f"🟡 El Alumno {nombre_alumno} del grupo {grupo} con boleta: {boleta} mantiene su suspensión activa.")
+                        
                     cursor_grupo.close()
                     conexion_grupo.close()
                 except Exception as e:
-                    print(f"❌ Error al suspender {boleta} en {grupo}: {e}")
+                    print(f"❌ Error al aplicar/mantener suspensión de {boleta} en {grupo}: {e}")
 
-            # Si hoy termina la suspensión
-            elif fecha_fin <= hoy:
+            # 2. LEVANTAR LA SUSPENSIÓN
+            # Si el día de hoy ya alcanzó o superó la fecha de fin.
+            elif hoy >= fecha_fin:
                 try:
                     conexion_grupo = mysql.connector.connect(
-                        host="localhost", user="root", password= contraDB, database=grupo
+                        host="localhost", user="root", password=contraDB, database=grupo
                     )
                     cursor_grupo = conexion_grupo.cursor()
                     cursor_grupo.execute(f"UPDATE `{grupo}` SET inscrito = 1 WHERE boleta = %s", (boleta,))
                     conexion_grupo.commit()
-                    print(f"🟢 Al Alumno {nombre_alumno} del grupo {grupo} con boleta: {boleta} se le ha sido removida su suspension.")
+                    print(f"🟢 Al Alumno {nombre_alumno} del grupo {grupo} con boleta: {boleta} se le ha removido su suspensión.")
                     cursor_grupo.close()
                     conexion_grupo.close()
 
+                    # Eliminar el registro de la base de Suspensiones
                     try:
                         conexion_susp = mysql.connector.connect(
-                            host="localhost", user="root", password= contraDB, database="Suspensiones"
+                            host="localhost", user="root", password=contraDB, database="Suspensiones"
                         )
                         cursor_susp = conexion_susp.cursor()
                         cursor_susp.execute("DELETE FROM suspensiones_registro WHERE boleta = %s", (boleta,))
                         conexion_susp.commit()
-                        print(f"{cursor_susp.rowcount} fila(s) eliminada(s).")
+                        print(f"   -> Registro de suspensión eliminado ({cursor_susp.rowcount} fila).")
                     except mysql.connector.Error as e:
-                        print("Error al eliminar la fila:", e)
+                        print("❌ Error al eliminar la fila de la base de Suspensiones:", e)
                     finally:
-                        if conexion_susp.is_connected():
+                        if 'conexion_susp' in locals() and conexion_susp.is_connected():
                             cursor_susp.close()
                             conexion_susp.close()
                 except Exception as e:
                     print(f"❌ Error al reactivar {boleta} en {grupo}: {e}")
 
-            elif fecha_inicio > hoy:
-                try:
-                    conexion_grupo = mysql.connector.connect(
-                        host="localhost", user="root", password= contraDB, database=grupo
-                    )
-                    cursor_grupo = conexion_grupo.cursor()
-                    cursor_grupo.execute(f"UPDATE `{grupo}` SET inscrito = 1 WHERE boleta = %s", (boleta,))
-                    conexion_grupo.commit()
-                    print(f"🟢 Al Alumno {nombre_alumno} del grupo {grupo} con boleta: {boleta} se le ha sido removida su suspension por algun error externo.")
-                    cursor_grupo.close()
-                    conexion_grupo.close()
-                except Exception as e:
-                    print(f"❌ Error al reactivar {boleta} en {grupo}: {e}")
-                
-                try:
-                    conexion_susp = mysql.connector.connect(
-                        host="localhost", user="root", password= contraDB, database="Suspensiones"
-                    )
-                    cursor_susp = conexion_susp.cursor()
-                    cursor_susp.execute("DELETE FROM suspensiones_registro WHERE boleta = %s", (boleta,))
-                    conexion_susp.commit()
-                    print(f"{cursor_susp.rowcount} fila(s) eliminada(s).")
-                except mysql.connector.Error as e:
-                    print("Error al eliminar la fila:", e)
-                finally:
-                    if conexion_susp.is_connected():
-                        cursor_susp.close()
-                        conexion_susp.close()
+            # 3. SUSPENSIONES PROGRAMADAS PARA EL FUTURO
+            # Si la suspensión es para después de mañana, simplemente la dejamos en la base de datos sin hacer nada.
+            elif fecha_inicio > hoy_suspensiones:
+                print(f"⏳ La suspensión de {boleta} del grupo {grupo} está programada para el futuro ({fecha_inicio}).")
+
         except Exception as e:
             print(f"⚠️ Error al procesar boleta {boleta}: {e}")
 
     cursor.close()
     conexion.close()
 except Exception as e:
-    print(f"❌ Error general en suspensiones: {e}")
+    print(f"❌ Error general en la conexión inicial de suspensiones: {e}")
 
 # Aqui se borra todo de la tabla de Pases de salida
 try:

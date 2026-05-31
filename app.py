@@ -17,7 +17,7 @@ import json
 import os
 import urllib.parse
 import base64
-#Cambio#
+#Cambio
 def cifrar_texto(texto):
     # Cifrado sencillo y eficiente
     clave = "L1A_K3Y"
