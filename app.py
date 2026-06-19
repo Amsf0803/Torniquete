@@ -1369,7 +1369,7 @@ class QRHorarioVerificador:
         """
         acceso = False
         bloquear_a = 0
-        comando_torniquete = "1" if lado_izquierdo else "2"
+        comando_torniquete = "2" if lado_izquierdo else "3"
         
         if grupo is None:
             grupo = self.buscar_grupo_por_boleta(boleta)
@@ -1626,7 +1626,7 @@ try:
 
         prefijos = bloque_prefijo.get(semestre, bloque_prefijo[2])
 
-        bases_datos = ["Pases_salida"]
+        bases_datos = ["Pases_salida", "Casos_curiosos"]
         if row['1_2_TM']:
             bases_datos.extend([f"{prefijos['TM']}{i}" for i in range(1, row['1_2_TM'] + 1)])
         for tipo in ['CM', 'AM', 'MM', 'IM', 'PM', 'EM', 'LM']:
@@ -1643,7 +1643,7 @@ try:
         print("❌ No se encontró información en 'semestre'")
         grupo_seleccionado = None
         semestre = 2
-        bases_datos = []
+        bases_datos = ["Casos_curiosos"]
 
     cursor.close()
     conexion.close()
@@ -1652,7 +1652,7 @@ except Error as e:
     print(f"❌ Error al conectar a 'Semestre': {e}")
     grupo_seleccionado = None
     semestre = 2
-    bases_datos = []
+    bases_datos = ["Casos_curiosos"]
 
 print("✅ Bases de datos cargadas:", bases_datos)
 
@@ -1696,7 +1696,7 @@ def simular_escaneo():
     Uso en el navegador: http://localhost:5000/simular_escaneo?url=TU_URL&lado=izq
     """
     # Tomamos la URL del QR de los parámetros de la página (o usamos una por defecto)
-    url_qr = request.args.get('url', 'https://saes.cecyt16.ipn.mx/alumno?boleta=2024160385')
+    url_qr = request.args.get('url', 'https://www.saes.cecyt16.ipn.mx/valqr/ValidaHorario.aspx?Bl=auVpq6cnuPVH1ghS5iXpC%2fI1L92fzgk5zoQY5caI1k0%3d')
     lado = request.args.get('lado', 'izq')
     es_izquierdo = (lado == 'izq')
     
