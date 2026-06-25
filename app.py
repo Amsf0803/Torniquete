@@ -31,7 +31,7 @@ def descifrar_texto(texto_cifrado):
         return "".join(chr(ord(c) ^ ord(clave[i % len(clave)])) for i, c in enumerate(descifrado_b64))
     except Exception:
         return ""
-#Debe de salir
+
 # ============================================================================
 # CONFIGURACIÓN GLOBAL
 # ============================================================================
