@@ -44,7 +44,7 @@ contra_db = "P3l0n100j0t3$"
 MODO_INICIO_SEMESTRE = True 
 
 # LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
-ADMIN_BOLETAS = ["2024160385", "2024160324", "2024160550", "2024160095" , "2024160104" , "2024160378" , "2024160383","2024160227","2025160403"] 
+ADMIN_BOLETAS = ["2024160385", "2024160324", "2024160550", "2024160095" , "2024160104" , "2024160378" , "2024160383","2024160227","2025160403","2024160152"] 
 
 # CONFIGURACIÓN ESP32 CON IP PÚBLICA
 ESP32_IP = "201.66.195.11"
@@ -1379,7 +1379,7 @@ class QRHorarioVerificador:
                     "salir": False, 
                     "bloquear_a": bloquear_a, 
                     "acceso": acceso,
-                    "mensaje": "Grupo no encontrado"
+                    "mensaje": "No estás registrado"
                 }
         
         base_datos = self.buscar_horario_en_mismo_grupo(boleta, grupo)
@@ -1389,7 +1389,7 @@ class QRHorarioVerificador:
                 "salir": False, 
                 "bloquear_a": bloquear_a, 
                 "acceso": acceso,
-                "mensaje": "Sin horario registrado"
+                "mensaje": "No estás registrado"
             }
         
         if inscrito_valor is None:
@@ -1398,7 +1398,14 @@ class QRHorarioVerificador:
             inscrito = inscrito_valor
         
         if inscrito != 1:
-            return {
+            if inscrito == 2:
+                return {
+                    "salir": False, 
+                    "bloquear_a": bloquear_a, 
+                    "acceso": acceso,
+                    "mensaje": "Estas suspendido"
+                }
+            return{
                 "salir": False, 
                 "bloquear_a": bloquear_a, 
                 "acceso": acceso,
@@ -1460,7 +1467,7 @@ class QRHorarioVerificador:
                 abrio_actual = int(resultado_abrio["abrio"]) if resultado_abrio["abrio"] is not None else 0
                 if abrio_actual == 1:
                     bloquear_a = 1
-                    mensaje = "Ya ingresaste hoy"
+                    mensaje = "Ya entraste"
                     print("❌ Entrada bloqueada (ya ingresó)")
                     cursor_grupo.close()
                     conexion_grupo.close()
@@ -1542,7 +1549,7 @@ class QRHorarioVerificador:
                         
                     print("✅ Acceso permitido dentro del horario")
                 else:
-                    mensaje = "Fuera de horario"
+                    mensaje = "Aún no es tu hora"
 
             cursor_grupo.close()
             conexion_grupo.close()
