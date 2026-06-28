@@ -352,11 +352,10 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         mensaje_mochila = "The cake is a lie"
     
     # D) ALUMNOS NORMALES
-    
     elif acceso_concedido:
-        # Llamamos a la funcion de operacion mochila
+        # Llamamos a la función de operación mochila
         if verificador.operacion_mochila(boleta):
-            estilo_css = "inscrito-mochila"  # Este es el nuevo estilo azul
+            estilo_css = "inscrito-mochila"  # Estilo azul animado
             titulo_tarjeta = "Operación Mochila"
             mensaje_mochila = "⚠️ FAVOR DE MOSTRAR MOCHILA ⚠️"
         else:
@@ -364,16 +363,36 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
             titulo_tarjeta = "Entrada Autorizada"
             mensaje_mochila = "Bienvenido de nuevo."
     else:
+        # Mapeo estricto de errores de acceso basados en los mensajes de la BD:
         if "suspendido" in mensaje_estado.lower():
             estilo_css = "inscrito-suspendido"
             titulo_tarjeta = "Cuenta Suspendida"
-        elif "ya ingresó" in mensaje_estado.lower() or "bloqueada" in mensaje_estado.lower():
+            mensaje_mochila = "⚠️ Diríjase a Gestión Escolar"
+
+        elif "ya entraste" in mensaje_estado.lower() or "ya ingresó" in mensaje_estado.lower() or "bloqueada" in mensaje_estado.lower():
             estilo_css = "inscrito-inactivo"
             titulo_tarjeta = "Ya ingresaste"
             mensaje_mochila = "Solo una entrada por día"
+
+        elif "no estás inscrito" in mensaje_estado.lower():
+            estilo_css = "inscrito-inactivo"
+            titulo_tarjeta = "No Inscrito"
+            mensaje_mochila = "Acude a Ventanillas"
+
+        elif "no estás registrado" in mensaje_estado.lower():
+            estilo_css = "inscrito-inactivo"
+            titulo_tarjeta = "No Registrado"
+            mensaje_mochila = "Código QR Inexistente"
+
+        elif "aún no es tu hora" in mensaje_estado.lower():
+            estilo_css = "inscrito-inactivo"
+            titulo_tarjeta = "Fuera de Horario"
+            mensaje_mochila = "Revisa tu horario de entrada"
+            
         else:
             estilo_css = "inscrito-inactivo"
-            titulo_tarjeta = "No puedes entrar"
+            titulo_tarjeta = "Acceso Denegado"
+            mensaje_mochila = mensaje_estado # Muestra el error crudo si no está clasificado
 
     # --- 3. SONIDOS ---
     if acceso_concedido:
