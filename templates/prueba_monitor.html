@@ -4,12 +4,15 @@
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Sandbox - Monitor de Acceso Dual</title> 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="/static/js/confetti.js"></script>
+
     <style> 
         body { 
             margin: 0; padding: 0; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden;
-            background: linear-gradient(135deg, #0a192f 0%, #1a365d 100%);
-            background-attachment: fixed;
+            /* SE MANTIENE EL FONDO AZUL OSCURO EXACTO EN EL SANDBOX TAMBIÉN */
+            background: url("/static/images/logo-ipn-blanco.png") no-repeat center center, 
+                        linear-gradient(135deg, #0a192f 0%, #1a365d 100%); 
+            background-size: 550px, cover; background-attachment: fixed; background-blend-mode: overlay; 
         } 
         .split-screen { display: flex; width: 100%; height: calc(100vh - 120px); } 
         .lado-monitor { 
@@ -21,90 +24,89 @@
         .etiqueta-lado { 
             position: absolute; top: 20px; background: rgba(0,0,0,0.3); color: #64ffda; 
             padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; 
+            z-index: 5;
         } 
+        
+        /* Modificación enfocada en las Tarjetas */
         .inscrito-card { 
             width: 85%; max-width: 600px; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; 
             display: flex; flex-direction: column; align-items: center; text-align: center; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.5); transition: all 0.3s ease; 
+            min-height: 500px;
         } 
+
+        /* Círculos geométricos en la tarjeta */
+        .inscrito-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.1;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="2"/></svg>');
+            background-size: 50px; pointer-events: none; z-index: 0;
+        }
+
         .estado-esperando { 
             background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 2px dashed rgba(255, 255, 255, 0.3); color: #ffffff; 
-            min-height: 400px; justify-content: center; 
+            justify-content: center; 
         } 
-        /* Tus estilos de tarjetas intactos */
         .inscrito-activo { background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: none; } 
-        .inscrito-suspendido { background: linear-gradient(145deg, #ffffff 0%, #fbbf24 100%); color: #92400e; border: 2px solid #fbbf24; } 
+        .inscrito-suspendido { background: linear-gradient(145deg, #fff9c0 0%, #ffb701 100%); color: #92400e; border: 2px solid #fbbf24; } 
         .inscrito-inactivo { background: linear-gradient(145deg, #bd6161 0%, #760000 100%); color: #ffffff; border: none; } 
         .inscrito-LIA { background: linear-gradient(90deg,rgba(66, 19, 41, 1) 0%, #6c1d45 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: 2px solid #ff00ff; } 
         .master { background: linear-gradient(90deg,rgb(18, 17, 83) 0%, #221d6c 35%, rgba(255, 255, 255, 1) 125%); color: #ffffff; border: 2px solid gold; } 
         .inscrito-Especial { background: linear-gradient(90deg,rgb(59, 87, 49) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; } 
         .inscrito-mochila { background: linear-gradient(90deg, #0a2540 0%, #2b84d1 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: 3px solid #64ffda; }
         
-        .boleta-display { font-size: 2.2rem; font-weight: bold; background: rgba(255, 255, 255, 0.2); padding: 10px 20px; border-radius: 15px; backdrop-filter: blur(5px); margin-bottom: 15px; width: 100%; } 
-        .status-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; } 
-        .foto-alumno { width: 200px; height: 240px; object-fit: cover; border-radius: 20px; border: 4px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); background-color: #0a192f; margin-bottom: 20px; } 
-        .mochila-operation { background: rgba(255, 255, 255, 0.2); color: inherit; padding: 15px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; width: 100%; border: 1px solid rgba(255,255,255,0.3); } 
+        .boleta-display { font-size: 2.2rem; font-weight: bold; background: rgba(255, 255, 255, 0.2); padding: 10px 20px; border-radius: 15px; backdrop-filter: blur(5px); margin-bottom: 15px; width: 100%; position: relative; z-index: 2; border: 2px solid rgba(255,255,255,0.15); } 
+        .status-display { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; position: relative; z-index: 2; } 
+        .foto-alumno { width: 200px; height: 240px; object-fit: cover; border-radius: 20px; border: 4px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); background-color: #0a192f; margin-bottom: 20px; position: relative; z-index: 2; transition: all 0.3s ease; } 
+        .foto-alumno:hover { transform: scale(1.04); }
+        .mochila-operation { background: rgba(255, 255, 255, 0.2); color: inherit; padding: 15px; border-radius: 25px; font-size: 1.1rem; font-weight: bold; width: 90%; border: 2px solid rgba(255,255,255,0.3); position: relative; z-index: 2; backdrop-filter: blur(5px); } 
         .content-wrapper { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; } 
         .hidden { display: none !important; } 
 
-        /* Cumpleaños */
+        /* Ajuste posicional del logo interno de la tarjeta */
+        .background-logo-card { 
+            position: absolute; top: 50%; left: 80%; transform: translate(-50%, -50%); 
+            opacity: 0.35; width: 300px; height: auto; pointer-events: none; z-index: 0; 
+        } 
+        .background-logo-card-izq { 
+            position: absolute; top: 50%; left: 20%; transform: translate(-50%, -50%); 
+            opacity: 0.35; width: 250px; height: auto; pointer-events: none; z-index: 0; 
+        } 
         .inscrito-cumple {
             background: linear-gradient(135deg, #ff007f, #ff8c00, #ffd700, #00bfff, #8a2be2);
-            background-size: 300% 300%;
-            animation: fiestaGradient 4s ease infinite;
+            background-size: 300% 300%; animation: fiestaGradient 4s ease infinite;
             color: white; border: 3px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
         }
-        @keyframes fiestaGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes fiestaGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* Dios André */
         .inscrito-lia-god {
             background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%); color: #ffffff;
             border: 3px solid #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); animation: pulsoNeon 2s infinite;
         }
-        @keyframes pulsoNeon {
-            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
-            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); border-color: #ffffff; }
-            100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; }
-        }
-        @keyframes shakeTerremoto {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-2px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
-        }
+        @keyframes pulsoNeon { 0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; } 50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); border-color: #ffffff; } 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; } }
+        @keyframes shakeTerremoto { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-2px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
         .shake-activado { animation: shakeTerremoto 0.4s ease-in-out; }
 
-        /* --- NUEVO CONTENEDOR DE PRUEBAS (BOTONERA) --- */
+        /* Panel de Control Inferior */
         .sandbox-controls {
-            height: 120px; background: #07111e; border-top: 3px solid #64ffda;
+            height: 120px; background: rgba(10, 25, 47, 0.8); border-top: 3px solid #64ffda; backdrop-filter: blur(10px);
             padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px;
-            justify-content: center; align-items: center;
+            justify-content: center; align-items: center; position: relative; z-index: 10;
         }
         .row-controls { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: center; }
         .sandbox-btn {
-            background: #172a45; color: #64ffda; border: 1px solid #64ffda;
+            background: rgba(255, 255, 255, 0.1); color: #64ffda; border: 1px solid #64ffda;
             padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold;
             transition: all 0.2s; font-size: 0.85rem;
         }
-        .sandbox-btn:hover { background: #64ffda; color: #0a192f; shadow: 0 0 10px #64ffda; }
+        .sandbox-btn:hover { background: #64ffda; color: #0a192f; box-shadow: 0 0 10px #64ffda; }
         .sandbox-btn.danger { border-color: #ff3366; color: #ff3366; }
         .sandbox-btn.danger:hover { background: #ff3366; color: white; }
-        select { background: #172a45; color: #fff; border: 1px solid #64ffda; padding: 5px; border-radius: 5px; font-weight: bold; }
+        select { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid #64ffda; padding: 5px; border-radius: 5px; font-weight: bold; }
+        select option { background: #0a192f; color: white; }
     </style>
 </head> 
 <body> 
-
     <div class="split-screen"> 
         <div class="lado-monitor"> 
             <div class="etiqueta-lado">Torniquete Izquierdo</div> 
@@ -114,6 +116,8 @@
                     <h2>Escanea tu QR<br>Lado Izquierdo</h2> 
                 </div> 
                 <div id="datos-izq" class="content-wrapper hidden"> 
+                    <img src="/static/images/Logo_LIA.png" class="background-logo-card"> 
+                    <img src="/static/images/logo-ipn-blanco.png" class="background-logo-card-izq">
                     <div class="boleta-display" id="boleta-izq">---</div> 
                     <div class="status-display" id="titulo-izq">---</div> 
                     <img id="foto-izq" src="" class="foto-alumno"> 
@@ -130,6 +134,8 @@
                     <h2>Escanea tu QR<br>Lado Derecho</h2> 
                 </div> 
                 <div id="datos-der" class="content-wrapper hidden"> 
+                    <img src="/static/images/Logo_LIA.png" class="background-logo-card"> 
+                    <img src="/static/images/logo-ipn-blanco.png" class="background-logo-card-izq">
                     <div class="boleta-display" id="boleta-der">---</div> 
                     <div class="status-display" id="titulo-der">---</div> 
                     <img id="foto-der" src="" class="foto-alumno"> 
@@ -146,67 +152,37 @@
                 <option value="izq">Torniquete Izquierdo</option>
                 <option value="der">Torniquete Derecho</option>
             </select>
-            <button class="sandbox-btn danger" onclick="forzarReset()">🔄 Forzar Reset (Pantalla de Espera)</button>
+            <button class="sandbox-btn danger" onclick="forzarReset()">🔄 Forzar Reset</button>
         </div>
         <div class="row-controls">
             <button class="sandbox-btn" onclick="lanzarPrueba('activo')">🟢 Permitido (Activo)</button>
-            <button class="sandbox-btn" onclick="lanzarPrueba('suspendido')">🟡 Ver Suspensión</button>
-            <button class="sandbox-btn" onclick="lanzarPrueba('inactivo')">🔴 No Registrado / Inactivo</button>
+            <button class="sandbox-btn" onclick="lanzarPrueba('suspendido')">🟡 Suspensión</button>
+            <button class="sandbox-btn" onclick="lanzarPrueba('inactivo')">🔴 Ya Ingresó / Inactivo</button>
             <button class="sandbox-btn" onclick="lanzarPrueba('lia')">🟣 Alumno LIA</button>
-            <button class="sandbox-btn" onclick="lanzarPrueba('administrativo')">💼 Administrativo (Master)</button>
-            <button class="sandbox-btn" onclick="lanzarPrueba('guardia')">🛡️ Guardia (Especial)</button>
-            <button class="sandbox-btn" onclick="lanzarPrueba('mochila')">🎒 Operación Mochila</button>
+            <button class="sandbox-btn" onclick="lanzarPrueba('administrativo')">💼 Master</button>
+            <button class="sandbox-btn" onclick="lanzarPrueba('guardia')">🛡️ Guardia</button>
+            <button class="sandbox-btn" onclick="lanzarPrueba('mochila')">🎒 Op. Mochila</button>
             <button class="sandbox-btn" onclick="lanzarPrueba('cumple')">🎂 Cumpleaños</button>
             <button class="sandbox-btn" onclick="lanzarPrueba('god')">⚡ ANDRÉ GOD</button>
         </div>
     </div>
 
     <script> 
-        // Banco de datos falsos (Mocks) para simular los payloads de tu API
         const casosPrueba = {
-            activo: {
-                boleta: "2024601122", titulo: "Acceso Autorizado", mochila: "Revisión General Completa",
-                foto: "https://picsum.photos/id/22/200/240", estilo: "inscrito-activo"
-            },
-            suspendido: {
-                boleta: "2023600451", titulo: "Usuario Suspendido", mochila: "⚠️ Diríjase a Gestión Escolar",
-                foto: "https://picsum.photos/id/64/200/240", estilo: "inscrito-suspendido"
-            },
-            inactivo: {
-                boleta: "No Registrado", titulo: "Acceso Denegado", mochila: "❌ Credencial Inexistente o Vencida",
-                foto: "https://picsum.photos/id/1062/200/240", estilo: "inscrito-inactivo"
-            },
-            lia: {
-                boleta: "2025600999", titulo: "Comunidad LIA", mochila: "Acceso VIP - Laboratorios libres",
-                foto: "https://picsum.photos/id/91/200/240", estilo: "inscrito-LIA"
-            },
-            administrativo: {
-                boleta: "P. Administrativo", titulo: "Pase de Administrador", mochila: "Acceso Completo Concedido",
-                foto: "https://picsum.photos/id/633/200/240", estilo: "master"
-            },
-            guardia: {
-                boleta: "Personal de Seguridad", titulo: "Acceso Especial", mochila: "Cuerpo de Vigilancia IPN",
-                foto: "https://picsum.photos/id/1025/200/240", estilo: "inscrito-Especial"
-            },
-            mochila: {
-                boleta: "2024600111", titulo: "Acceso Aleatorio", mochila: "🎒 SELECCIONADO PARA OPERACIÓN MOCHILA",
-                foto: "https://picsum.photos/id/338/200/240", estilo: "inscrito-mochila"
-            },
-            cumple: {
-                boleta: "2022601555", titulo: "¡Feliz Cumpleaños!", mochila: "🎉 ¡La comunidad IPN te desea lo mejor!",
-                foto: "https://picsum.photos/id/342/200/240", estilo: "inscrito-cumple"
-            },
-            god: {
-                boleta: "ANDRÉ GOD", titulo: "CREATOR / OVERLORD", mochila: "⚡ Sistema a sus pies, mi señor ⚡",
-                foto: "https://picsum.photos/id/1074/200/240", estilo: "inscrito-lia-god"
-            }
+            activo: { boleta: "2024601122", titulo: "Entrada Autorizada", mochila: "Bienvenido de nuevo.", foto: "https://picsum.photos/id/22/200/240", estilo: "inscrito-activo" },
+            suspendido: { boleta: "2023600451", titulo: "Cuenta Suspendida", mochila: "⚠️ Diríjase a Gestión Escolar", foto: "https://picsum.photos/id/64/200/240", estilo: "inscrito-suspendido" },
+            inactivo: { boleta: "No Registrado", titulo: "Ya ingresaste", mochila: "Solo una entrada por día", foto: "https://picsum.photos/id/1062/200/240", estilo: "inscrito-inactivo" },
+            lia: { boleta: "2025600999", titulo: "Integrante de LIA", mochila: "Laboratorios Libres", foto: "https://picsum.photos/id/91/200/240", estilo: "inscrito-LIA" },
+            administrativo: { boleta: "P. Administrativo", titulo: "Pase Administrativo", mochila: "Acceso Completo", foto: "https://picsum.photos/id/633/200/240", estilo: "master" },
+            guardia: { boleta: "Seguridad IPN", titulo: "Personal de Guardia", mochila: "Cuerpo de Vigilancia", foto: "https://picsum.photos/id/1025/200/240", estilo: "inscrito-Especial" },
+            mochila: { boleta: "2024600111", titulo: "Operación Mochila", mochila: "⚠️ FAVOR DE MOSTRAR MOCHILA ⚠️", foto: "https://picsum.photos/id/338/200/240", estilo: "inscrito-mochila" },
+            cumple: { boleta: "2022601555", titulo: "¡Feliz Cumpleaños!", mochila: "🎉 ¡Que tengas un excelente día! 🥳", foto: "https://picsum.photos/id/342/200/240", estilo: "inscrito-cumple" },
+            god: { boleta: "2024160385", titulo: "Integrante de LIA - André", mochila: "🔧 Lead Coder -- Backend -- GOD 💻", foto: "https://picsum.photos/id/1074/200/240", estilo: "inscrito-lia-god" }
         };
 
-        // Función encargada de inyectar los datos en la UI directamente
         function lanzarPrueba(tipoCasos) {
             const lado = document.getElementById('lado-destino').value;
             const data = casosPrueba[tipoCasos];
-            
             const card = document.getElementById(`card-${lado}`); 
             const esperaDiv = document.getElementById(`espera-${lado}`); 
             const datosDiv = document.getElementById(`datos-${lado}`); 
@@ -216,29 +192,15 @@
             document.getElementById(`msg-${lado}`).innerText = data.mochila; 
             document.getElementById(`foto-${lado}`).src = data.foto; 
 
-            esperaDiv.classList.add('hidden');
-            datosDiv.classList.remove('hidden');
-             
+            esperaDiv.classList.add('hidden'); datosDiv.classList.remove('hidden');
             card.className = 'inscrito-card ' + data.estilo;  
-             
-            // Animación pequeña de entrada
-            card.style.transform = "scale(1.05)"; 
-            setTimeout(() => card.style.transform = "scale(1)", 200); 
+            card.style.transform = "scale(1.05)"; setTimeout(() => card.style.transform = "scale(1)", 200); 
 
-            // Confeti para cumpleaños
             if (data.estilo === "inscrito-cumple") {
-                confetti({
-                    particleCount: 150, spread: 80,         
-                    origin: { y: 0.5, x: lado === 'izq' ? 0.25 : 0.75 }, 
-                    colors: ['#ff007f', '#ff8c00', '#ffd700', '#00bfff', '#8a2be2'] 
-                });
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.5, x: lado === 'izq' ? 0.25 : 0.75 }, colors: ['#ff007f', '#ff8c00', '#ffd700', '#00bfff', '#8a2be2'] });
             }
-
-            // Relámpagos para ANDRÉ GOD
             if (data.estilo === "inscrito-lia-god") {
-                crearRelampagosGOD(lado);
-                setTimeout(() => crearRelampagosGOD(lado), 150);
-                setTimeout(() => crearRelampagosGOD(lado), 350);
+                crearRelampagosGOD(lado); setTimeout(() => crearRelampagosGOD(lado), 150); setTimeout(() => crearRelampagosGOD(lado), 350);
             }
         }
 
@@ -247,53 +209,25 @@
             const card = document.getElementById(`card-${lado}`); 
             const esperaDiv = document.getElementById(`espera-${lado}`); 
             const datosDiv = document.getElementById(`datos-${lado}`); 
-            
             card.className = 'inscrito-card estado-esperando'; 
-            datosDiv.classList.add('hidden'); 
-            esperaDiv.classList.remove('hidden'); 
+            datosDiv.classList.add('hidden'); esperaDiv.classList.remove('hidden'); 
         }
 
-        // Tu motor original de relámpagos e iluminación fractal
         function crearRelampagosGOD(lado) {
             const contenedor = document.getElementById(`card-${lado}`).parentElement;
-            contenedor.style.transition = 'background-color 0.1s';
-            contenedor.style.backgroundColor = 'rgba(0, 255, 255, 0.4)'; 
-            contenedor.classList.add('shake-activado');
-            
-            setTimeout(() => {
-                contenedor.style.backgroundColor = '';
-                contenedor.classList.remove('shake-activado');
-            }, 150);
-
+            contenedor.style.transition = 'background-color 0.1s'; contenedor.style.backgroundColor = 'rgba(0, 255, 255, 0.4)'; contenedor.classList.add('shake-activado');
+            setTimeout(() => { contenedor.style.backgroundColor = ''; contenedor.classList.remove('shake-activado'); }, 150);
             const canvas = document.createElement('canvas');
-            canvas.style.position = 'absolute'; canvas.style.top = '0'; canvas.style.left = '0';
-            canvas.width = contenedor.offsetWidth; canvas.height = contenedor.offsetHeight;
-            canvas.style.pointerEvents = 'none'; canvas.style.zIndex = '9999';
-            contenedor.appendChild(canvas);
-
-            const ctx = canvas.getContext('2d');
-            ctx.strokeStyle = '#ffffff'; ctx.shadowBlur = 20; ctx.shadowColor = '#00ffff'; ctx.lineJoin = 'miter';
-
-            ctx.lineWidth = 4;
-            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2, canvas.height);
-            ctx.lineWidth = 2;
-            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 + 150, canvas.height);
-            dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 - 150, canvas.height);
-
-            canvas.style.transition = 'opacity 0.4s ease-out';
-            setTimeout(() => canvas.style.opacity = '0', 50);
-            setTimeout(() => canvas.remove(), 500);
+            canvas.style.position = 'absolute'; canvas.style.top = '0'; canvas.style.left = '0'; canvas.width = contenedor.offsetWidth; canvas.height = contenedor.offsetHeight; canvas.style.pointerEvents = 'none'; canvas.style.zIndex = '9999'; contenedor.appendChild(canvas);
+            const ctx = canvas.getContext('2d'); ctx.strokeStyle = '#ffffff'; ctx.shadowBlur = 20; ctx.shadowColor = '#00ffff'; ctx.lineJoin = 'miter';
+            ctx.lineWidth = 4; dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2, canvas.height);
+            ctx.lineWidth = 2; dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 + 150, canvas.height); dibujarRayoFractal(ctx, canvas.width / 2, 0, canvas.width / 2 - 150, canvas.height);
+            canvas.style.transition = 'opacity 0.4s ease-out'; setTimeout(() => canvas.style.opacity = '0', 50); setTimeout(() => canvas.remove(), 500);
         }
 
         function dibujarRayoFractal(ctx, startX, startY, endX, endY) {
-            ctx.beginPath();
-            let x = startX; let y = startY;
-            ctx.moveTo(x, y);
-            while (y < endY) {
-                y += Math.random() * 40 + 10;
-                x += (Math.random() - 0.5) * 90;
-                ctx.lineTo(x, y);
-            }
+            ctx.beginPath(); let x = startX; let y = startY; ctx.moveTo(x, y);
+            while (y < endY) { y += Math.random() * 40 + 10; x += (Math.random() - 0.5) * 90; ctx.lineTo(x, y); }
             ctx.stroke();
         }
     </script> 
