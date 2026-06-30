@@ -107,19 +107,7 @@ class ConexionESP32:
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         
         self.verificar_conexion_inicial()
-        self.bases_datos = bases_datos
-        self._url_cache = {}
-        self._indices_ordenados = {}
-        
-        # ⚡ NUEVAS VARIABLES DE RAM SUPER RÁPIDA
-        self.memoria_alumnos = {}
-        self.indice_urls = {}
-        
-        self.audio_azteca()
-        print("🔄 Inicializando sistema...")
-        
-        # ⚡ LLAMAMOS A LA PRECARGA AL INICIAR
-        self.cargar_memoria_total()
+
 
     def verificar_conexion_inicial(self):
         """Verifica si el ESP32 es alcanzable al inicio"""
@@ -572,6 +560,16 @@ class QRHorarioVerificador:
         self.bases_datos = bases_datos
         self._url_cache = {}
         self._indices_ordenados = {}
+        
+        # ⚡ NUEVAS VARIABLES DE RAM SUPER RÁPIDA
+        self.memoria_alumnos = {}
+        self.indice_urls = {}
+        
+        self.audio_azteca()
+        print("🔄 Inicializando sistema...")
+        
+        # ⚡ LLAMAMOS A LA PRECARGA AL INICIAR
+        self.cargar_memoria_total()
         
         self.audio_azteca()
         print("🔄 Inicializando sistema...")
