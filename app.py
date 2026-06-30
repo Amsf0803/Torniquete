@@ -262,6 +262,24 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
             url_codigo = verificador.memoria_alumnos[url_codigo]['url_origen']
             print("🔄 Boleta traducida a enlace DAE")
     
+
+    # --- ⚡ NUEVO FILTRO ANTI-REBOTE ---
+    # Necesitamos obtener la boleta primero para saber quién es
+    boleta_intento = verificador.indice_urls.get(url_codigo)
+    
+    if boleta_intento:
+        ahora = time.time()
+        ultimo_tiempo = verificador.ultimos_accesos.get(boleta_intento, 0)
+        
+        # Si el escaneo ocurrió hace menos de X segundos, ignoramos todo
+        if (ahora - ultimo_tiempo) < verificador.cooldown_segundos:
+            print(f"⚠️ [REBOTE] Ignorando escaneo repetido de {boleta_intento}")
+            return True # Retornamos True para que el hilo no haga nada más
+        
+        # Si pasó el tiempo, actualizamos el registro
+        verificador.ultimos_accesos[boleta_intento] = ahora
+    # -----------------------------------
+
     comando_esp = "2" if es_lado_izquierdo else "3"
     
     print(f"\n🔄 [PROCESANDO {lado_key.upper()}] Código recibido...")
@@ -571,6 +589,11 @@ class QRHorarioVerificador:
         # ⚡ LLAMAMOS A LA PRECARGA AL INICIAR
         self.cargar_memoria_total()
         
+
+        # Dentro del __init__ de QRHorarioVerificador:
+        self.ultimos_accesos = {}  # Diccionario: {boleta: timestamp_del_ultimo_acceso}
+        self.cooldown_segundos = 4 # Tiempo para ignorar escaneos repetidos
+
         self.audio_azteca()
         print("🔄 Inicializando sistema...")
     
