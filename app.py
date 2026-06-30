@@ -107,6 +107,19 @@ class ConexionESP32:
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         
         self.verificar_conexion_inicial()
+        self.bases_datos = bases_datos
+        self._url_cache = {}
+        self._indices_ordenados = {}
+        
+        # ⚡ NUEVAS VARIABLES DE RAM SUPER RÁPIDA
+        self.memoria_alumnos = {}
+        self.indice_urls = {}
+        
+        self.audio_azteca()
+        print("🔄 Inicializando sistema...")
+        
+        # ⚡ LLAMAMOS A LA PRECARGA AL INICIAR
+        self.cargar_memoria_total()
 
     def verificar_conexion_inicial(self):
         """Verifica si el ESP32 es alcanzable al inicio"""
@@ -254,6 +267,13 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     Procesa QR, determina permisos y DEFINE EL ESTILO VISUAL para el HTML.
     """
     lado_key = "izquierda" if es_lado_izquierdo else "derecha"
+    # ⚡ TRADUCTOR DE BOLETAS (Si escanean el código de barras)
+    if url_codigo.isdigit() and len(url_codigo) >= 8:
+        if url_codigo in verificador.memoria_alumnos:
+            # Reemplazamos la boleta por el link de su credencial
+            url_codigo = verificador.memoria_alumnos[url_codigo]['url_origen']
+            print("🔄 Boleta traducida a enlace DAE")
+    
     comando_esp = "2" if es_lado_izquierdo else "3"
     
     print(f"\n🔄 [PROCESANDO {lado_key.upper()}] Código recibido...")
@@ -657,36 +677,56 @@ class QRHorarioVerificador:
         return any(re.search(patron, texto, re.IGNORECASE) for patron in patrones_guardia)
     
 
-    def precargar_indices_grupo(self, grupo):
-            """Precarga y ordena los URLs (DAE y SAES) de un grupo para búsqueda binaria"""
-            if grupo in self._indices_ordenados:
-                return
-            
+    def cargar_memoria_total(self):
+        """Carga TODOS los alumnos y horarios de todos los grupos (y Casos_curiosos) en RAM al arrancar"""
+        print("\n🚀 INICIANDO CARGA MASIVA A RAM (MODO TURBO)...")
+        
+        for grupo in self.bases_datos:
+            # ⚡ OMITIMOS Pases_salida porque no tiene tabla de alumnos
+            if grupo == "Pases_salida":
+                continue 
+                
             try:
                 db_config_temp = self.db_config.copy()
                 db_config_temp['database'] = grupo
-                
                 with mysql.connector.connect(**db_config_temp, connection_timeout=10) as connection:
-                    with connection.cursor() as cursor:
-                        # Precargar URLs DAE
-                        query_dae = f"SELECT url_origen, boleta, nombre FROM {grupo} WHERE url_origen IS NOT NULL AND url_origen != '' ORDER BY url_origen"
-                        cursor.execute(query_dae)
-                        resultados_dae = cursor.fetchall()
-                        
-                        # Precargar URLs SAES (Nuevo)
-                        query_saes = f"SELECT url_saes, boleta, nombre FROM {grupo} WHERE url_saes IS NOT NULL AND url_saes != '' ORDER BY url_saes"
-                        cursor.execute(query_saes)
-                        resultados_saes = cursor.fetchall()
-                        
-                        self._indices_ordenados[grupo] = {
-                            "dae": resultados_dae,
-                            "saes": resultados_saes
-                        }
-                        print(f"📊 Índices cargados para {grupo}: {len(resultados_dae)} DAE, {len(resultados_saes)} SAES")
-                        
-            except Error as e:
-                print(f"⚠️ Error precargando índices de '{grupo}': {e}")
+                    with connection.cursor(dictionary=True) as cursor:
+                        # 1. Sacamos el horario grupal base
+                        try:
+                            cursor.execute("SELECT lunes, martes, miercoles, jueves, viernes FROM Horario_Grupal LIMIT 1")
+                            horario_base = cursor.fetchone() or {}
+                        except:
+                            horario_base = {}
 
+                        # 2. Sacamos a todos los alumnos (¡AHORA INCLUIMOS EL CURP!)
+                        cursor.execute(f"SELECT boleta, nombre, inscrito, url_origen, url_saes, curp FROM {grupo}")
+                        alumnos = cursor.fetchall()
+
+                        # 3. Guardamos en RAM
+                        for al in alumnos:
+                            boleta = str(al['boleta'])
+                            url_dae = al['url_origen']
+                            url_saes = al['url_saes']
+
+                            # Guardamos en el diccionario maestro
+                            self.memoria_alumnos[boleta] = {
+                                "nombre": al['nombre'],
+                                "grupo": grupo,
+                                "inscrito": al['inscrito'],
+                                "url_origen": url_dae,
+                                "curp": al['curp'],  # 🎂 <--- GUARDADO PARA EL CUMPLEAÑOS
+                                "horario": horario_base 
+                            }
+                            
+                            # Traductores instantáneos
+                            if url_dae: self.indice_urls[url_dae] = boleta
+                            if url_saes: self.indice_urls[url_saes] = boleta
+                            
+                print(f"📊 Grupo {grupo} cargado en RAM.")
+            except Error as e:
+                print(f"⚠️ Error precargando grupo '{grupo}': {e}")
+        
+        print(f"✅ CARGA COMPLETA: {len(self.memoria_alumnos)} alumnos en RAM listos.")
 
 
     
@@ -708,75 +748,81 @@ class QRHorarioVerificador:
         return None
     
 
-
     def buscar_alumno_por_url(self, url, tipo_enlace):
-            """
-            Búsqueda ultra-optimizada unificada para DAE o SAES.
-            Maneja variaciones de http/https y decodificación de caracteres especiales (%2f, %3d)
-            """
-            if url in self._url_cache:
-                print(f"⚡ Enlace {tipo_enlace.upper()} encontrado en cache")
-                return self._url_cache[url]
-            
-            print(f"\n🔍 Buscando enlace {tipo_enlace.upper()}...")
-            columna_db = "url_origen" if tipo_enlace == 'dae' else "url_saes"
-            
-            # 1. Búsqueda rápida en RAM (Búsqueda EXACTA)
-            for grupo in self.bases_datos:
-                if grupo in self._indices_ordenados and tipo_enlace in self._indices_ordenados[grupo]:
-                    resultado = self.busqueda_binaria_url(self._indices_ordenados[grupo][tipo_enlace], url)
-                    if resultado:
-                        url_encontrada, boleta, nombre = resultado
-                        print(f"✅ Encontrado en '{grupo}' (RAM)")
-                        print(f"   Boleta: {boleta} | Nombre: {nombre}")
-                        resultado_final = (grupo, boleta)
-                        self._url_cache[url] = resultado_final
-                        return resultado_final
+        """
+        Búsqueda ultra-optimizada unificada para DAE o SAES.
+        Maneja variaciones de http/https y decodificación de caracteres especiales (%2f, %3d)
+        """
+        if url in self._url_cache:
+            print(f"⚡ Enlace {tipo_enlace.upper()} encontrado en cache")
+            return self._url_cache[url]
+        
+        print(f"\n🔍 Buscando enlace {tipo_enlace.upper()}...")
+        columna_db = "url_origen" if tipo_enlace == 'dae' else "url_saes"
+        
+        # 1. Limpiamos y decodificamos desde el inicio
+        url_limpia = url.replace("https://", "").replace("http://", "").replace("www.", "").replace(":443", "").strip()
+        url_decodificada = urllib.parse.unquote(url_limpia)
 
-    # --- PREPARAR BÚSQUEDA FLEXIBLE (CORREGIDA) ---
-            # 1. Quitamos http, https, www, el puerto :443 y espacios en blanco
-            url_limpia = url.replace("https://", "").replace("http://", "").replace("www.", "").replace(":443", "").strip()
+        # ==========================================================
+        # ⚡ 2. EL NUEVO FILTRO MÁGICO DE RAM (Va aquí arriba)
+        # ==========================================================
+        if url in self.indice_urls:
+            boleta = self.indice_urls[url]
+            grupo = self.memoria_alumnos[boleta]['grupo']
+            print("⚡ Acceso ultrarrápido desde RAM (URL Cruda)")
+            return (grupo, boleta)
             
-            # 2. Decodificamos la URL (convierte %2f en /, %3d en =, etc.)
-            url_decodificada = urllib.parse.unquote(url_limpia)
-            
-            # 3. Preparamos el formato para la consulta SQL LIKE (Buscamos ambas versiones)
-            url_like_normal = f"%{url_limpia}%"
-            url_like_decodificada = f"%{url_decodificada}%"
+        if url_decodificada in self.indice_urls:
+            boleta = self.indice_urls[url_decodificada]
+            grupo = self.memoria_alumnos[boleta]['grupo']
+            print("⚡ Acceso ultrarrápido desde RAM (URL Decodificada)")
+            return (grupo, boleta)
 
-            # 2. Búsqueda directa en Base de Datos (Respaldo con búsqueda FLEXIBLE)
-            for grupo in self.bases_datos:
-                try:
-                    db_config_temp = self.db_config.copy()
-                    db_config_temp['database'] = grupo
-                    
-                    with mysql.connector.connect(**db_config_temp, connection_timeout=5) as connection:
-                        with connection.cursor() as cursor:
-                            # Buscamos si coincide con la URL cruda o con la URL decodificada
-                            query = f"""
-                                SELECT boleta, nombre, {columna_db}
-                                FROM {grupo}
-                                WHERE {columna_db} LIKE %s OR {columna_db} LIKE %s
-                                LIMIT 1
-                            """
-                            cursor.execute(query, (url_like_normal, url_like_decodificada))
-                            resultado = cursor.fetchone()
-                            
-                            if resultado:
-                                boleta, nombre, url_encontrada = resultado
-                                print(f"✅ Enlace {tipo_enlace.upper()} encontrado en '{grupo}' (DB FLEXIBLE)")
-                                print(f"   Boleta: {boleta} | Coincidencia DB: {url_encontrada}")
-                                resultado_final = (grupo, boleta)
-                                self._url_cache[url] = resultado_final
-                                return resultado_final
-                                
-                except Error as e:
-                    continue
-            
-            print(f"❌ No se encontró el enlace {tipo_enlace.upper()}")
-            return None, None
+        # ==========================================================
+        # 3. Tu código de respaldo original (Búsqueda Binaria y SQL)
+        # ==========================================================
+        for grupo in self.bases_datos:
+            if grupo in self._indices_ordenados and tipo_enlace in self._indices_ordenados[grupo]:
+                resultado = self.busqueda_binaria_url(self._indices_ordenados[grupo][tipo_enlace], url)
+                if resultado:
+                    url_encontrada, boleta, nombre = resultado
+                    print(f"✅ Encontrado en '{grupo}' (RAM Binaria Vieja)")
+                    resultado_final = (grupo, boleta)
+                    self._url_cache[url] = resultado_final
+                    return resultado_final
 
+        # Preparamos el formato para la consulta SQL LIKE 
+        url_like_normal = f"%{url_limpia}%"
+        url_like_decodificada = f"%{url_decodificada}%"
 
+        for grupo in self.bases_datos:
+            try:
+                db_config_temp = self.db_config.copy()
+                db_config_temp['database'] = grupo
+                
+                with mysql.connector.connect(**db_config_temp, connection_timeout=5) as connection:
+                    with connection.cursor() as cursor:
+                        query = f"""
+                            SELECT boleta, nombre, {columna_db}
+                            FROM {grupo}
+                            WHERE {columna_db} LIKE %s OR {columna_db} LIKE %s
+                            LIMIT 1
+                        """
+                        cursor.execute(query, (url_like_normal, url_like_decodificada))
+                        resultado = cursor.fetchone()
+                        
+                        if resultado:
+                            boleta, nombre, url_encontrada = resultado
+                            print(f"✅ Enlace {tipo_enlace.upper()} encontrado en '{grupo}' (DB FLEXIBLE)")
+                            resultado_final = (grupo, boleta)
+                            self._url_cache[url] = resultado_final
+                            return resultado_final
+            except Error as e:
+                continue
+        
+        print(f"❌ No se encontró el enlace {tipo_enlace.upper()}")
+        return None, None
 
     def buscar_horario_en_mismo_grupo(self, boleta, grupo):
         """Busca el horario SOLO en el grupo donde está la credencial"""
@@ -953,63 +999,29 @@ class QRHorarioVerificador:
             
             nombre_alumno = "Alumno (Sin registro)"
             foto_url = "/static/images/placeholder.png"
-            es_cumple = False # NUEVO: Variable bandera para el cumpleaños
+            es_cumple = False
+            inscrito_valor = 0 # Valor por defecto
             
-            if boleta and base_datos_grupo:
-                try:
-                    db_config_temp = self.db_config.copy()
-                    db_config_temp['database'] = base_datos_grupo
-                    with mysql.connector.connect(**db_config_temp, connection_timeout=5) as conn:
-                        with conn.cursor() as cursor:
-                            # Pedimos también el curp en la consulta
-                            cursor.execute(f"SELECT nombre, imagen_path, curp FROM {base_datos_grupo} WHERE boleta = %s LIMIT 1", (boleta,))
-                            res = cursor.fetchone()
-                            if res:
-                                if res[0]: nombre_alumno = res[0]
-                                if res[1] and res[1].strip(): foto_url = res[1]
-                                else: foto_url = f"/static/images/{boleta}.jpg"
-                                
-                                # NUEVO: Lógica de validación de cumpleaños
-                                if len(res) > 2 and res[2]:
-                                    curp = str(res[2]).upper()
-                                    if len(curp) >= 10:
-                                        mes_curp = curp[6:8]
-                                        dia_curp = curp[8:10]
-                                        # Comparamos con el día y mes actual
-                                        hoy = datetime.now()
-                                        if mes_curp == hoy.strftime("%m") and dia_curp == hoy.strftime("%d"):
-                                            es_cumple = True
-                                        
-                except Exception as e:
-                    print(f"⚠️ No se pudo obtener detalles del alumno: {e}")
-
-            # --- NUEVO: MODO INICIO DE SEMESTRE (ACCESO LIBRE) ---
-            if MODO_INICIO_SEMESTRE and self.comprobar_acceso_ilimitado():
-                print("🔓 MODO INICIO DE SEMESTRE ACTIVO: QR válido y sistema verificado")
+            # ⚡ 1. LEER DATOS DIRECTO DE LA RAM (Cero MySQL)
+            if boleta and boleta in self.memoria_alumnos:
+                alumno_ram = self.memoria_alumnos[boleta]
+                nombre_alumno = alumno_ram['nombre']
+                inscrito_valor = alumno_ram['inscrito']
                 
-                # Mandar a abrir directamente
-                if not solo_verificar and self.esp32 and self.esp32.conectado:
-                    self.esp32.enviar_comando(comando_torniquete)
-                    print(f"⚙️ Comando de apertura '{comando_torniquete}' enviado al ESP32.")
-
-                self.play_success_sound()
+                # Asumimos que la foto se llama igual que la boleta
+                foto_url = f"/static/images/{boleta}.jpg" 
                 
-                # Devolvemos el estado positivo PERO CON LOS DATOS REALES DEL ALUMNO
-                return {
-                    "status": "Acceso Libre",
-                    "puede_entrar": True,
-                    "mensaje": "Acceso Permitido",
-                    "nombre": nombre_alumno,
-                    "foto": foto_url,
-                    "boleta": boleta if boleta else "Pendiente"
-                }
-            elif MODO_INICIO_SEMESTRE:
-                print("🔒 Error: Modo Inicio de Semestre activo pero no se ha verificado el acceso en la DB.")
-
-            # --- LÓGICA ALUMNOS NORMAL ---
-            # Validaciones de Existencia
-            if not boleta or not base_datos_grupo:
-                print("❌ Alumno no encontrado en la base de datos.")
+                # 🎂 Lógica de validación de cumpleaños (Súper rápida en RAM)
+                curp = str(alumno_ram.get('curp', '')).upper()
+                if curp and len(curp) >= 10:
+                    mes_curp = curp[6:8]
+                    dia_curp = curp[8:10]
+                    hoy = datetime.now()
+                    if mes_curp == hoy.strftime("%m") and dia_curp == hoy.strftime("%d"):
+                        es_cumple = True
+            else:
+                # Si no está en la memoria RAM o no devolvió grupo
+                print("❌ Alumno no encontrado en la base de datos (RAM).")
                 self.play_error_sound()
                 return {
                     "status": "Error", 
@@ -1022,43 +1034,41 @@ class QRHorarioVerificador:
 
             print(f"✅ Datos recuperados -> Boleta: {boleta} | Grupo: {base_datos_grupo}")
 
-            # 3. Buscar Horario (Verificar que exista la tabla con nombre de la boleta)
-            base_datos_horario = self.buscar_horario_en_mismo_grupo(boleta, base_datos_grupo)
-            if not base_datos_horario:
-                self.play_error_sound()
+            # --- NUEVO: MODO INICIO DE SEMESTRE (ACCESO LIBRE) ---
+            if MODO_INICIO_SEMESTRE and self.comprobar_acceso_ilimitado():
+                print("🔓 MODO INICIO DE SEMESTRE ACTIVO: QR válido y sistema verificado")
+                if not solo_verificar and self.esp32 and self.esp32.conectado:
+                    self.esp32.enviar_comando(comando_torniquete)
+                self.play_success_sound()
                 return {
-                    "status": "Error", "puede_entrar": False, 
-                    "mensaje": "Sin horario registrado", "nombre": nombre_alumno,
-                    "foto": foto_url, "boleta": boleta
+                    "status": "Acceso Libre", "puede_entrar": True, "mensaje": "Acceso Permitido",
+                    "nombre": nombre_alumno, "foto": foto_url, "boleta": boleta, "es_cumple": es_cumple
                 }
+            elif MODO_INICIO_SEMESTRE:
+                print("🔒 Error: Modo Inicio de Semestre activo pero no se ha verificado el acceso en la DB.")
 
-            # 4. Validar fin de semana (Excepto para Admins)
+            # --- LÓGICA ALUMNOS NORMAL ---
+            # (NOTA: Eliminamos self.buscar_horario_en_mismo_grupo porque la RAM ya maneja el horario)
+            
+            # Validar fin de semana (Excepto para Admins)
             if datetime.now().weekday() >= 5 and boleta not in ADMIN_BOLETAS:
                 self.play_error_sound()
                 return {
-                    "status": "Fin de semana",
-                    "puede_entrar": False,
-                    "mensaje": "No hay clases hoy",
-                    "nombre": nombre_alumno,
-                    "foto": foto_url,
-                    "boleta": boleta
+                    "status": "Fin de semana", "puede_entrar": False, "mensaje": "No hay clases hoy",
+                    "nombre": nombre_alumno, "foto": foto_url, "boleta": boleta
                 }
-            
-            # 5. Obtener estado final y activar torniquete si corresponde
-            inscrito_valor = self.get_inscrito(boleta, base_datos_grupo)
             
             # --- LÓGICA PARA ADMINS ---
             if boleta in ADMIN_BOLETAS:
                 print(f"👑 ADMIN DETECTADO: {boleta} - Saltando restricciones")
                 estado = {"acceso": True, "mensaje": "Acceso Administrador"}
                 
-                # MODIFICADO: Quitamos la validación de ".conectado" para forzar el intento
                 if not solo_verificar and self.esp32:
                     print("🔄 Intentando forzar apertura de torniquete...")
                     self.esp32.enviar_comando(comando_torniquete)
-                    print(f"⚙️ Comando Admin '{comando_torniquete}' enviado al ESP32")
             else:
                 # Flujo normal para los demás alumnos
+                # Le pasamos el 'inscrito_valor' que ya sacamos de la RAM, para que no lo vuelva a buscar
                 estado = self.obtener_estado_acceso_salida(
                     boleta, 
                     inscrito_valor=inscrito_valor, 
@@ -1390,72 +1400,39 @@ class QRHorarioVerificador:
         bloquear_a = 0
         comando_torniquete = "2" if lado_izquierdo else "3"
         
-        if grupo is None:
-            grupo = self.buscar_grupo_por_boleta(boleta)
-            if not grupo:
-                print(f"❌ No se encontró grupo para boleta {boleta}")
-                return {
-                    "salir": False, 
-                    "bloquear_a": bloquear_a, 
-                    "acceso": acceso,
-                    "mensaje": "No estás registrado"
-                }
+        # ⚡ 1. LEER TODO DESDE LA RAM (0.0001 segundos)
+        if boleta not in self.memoria_alumnos:
+            print(f"❌ No se encontró registro en RAM para boleta {boleta}")
+            return {"salir": False, "bloquear_a": 0, "acceso": False, "mensaje": "No estás registrado"}
+            
+        alumno_ram = self.memoria_alumnos[boleta]
+        grupo = alumno_ram['grupo']
+        inscrito = inscrito_valor if inscrito_valor is not None else alumno_ram['inscrito']
         
-        base_datos = self.buscar_horario_en_mismo_grupo(boleta, grupo)
-        if not base_datos:
-            print(f"❌ No se encontró horario para boleta {boleta}")
-            return {
-                "salir": False, 
-                "bloquear_a": bloquear_a, 
-                "acceso": acceso,
-                "mensaje": "No estás registrado"
-            }
-        
-        if inscrito_valor is None:
-            inscrito = self.get_inscrito(boleta, grupo)
-        else:
-            inscrito = inscrito_valor
-        
+        # ⚡ 2. VALIDAR INSCRIPCIÓN
         if inscrito != 1:
             if inscrito == 2:
-                return {
-                    "salir": False, 
-                    "bloquear_a": bloquear_a, 
-                    "acceso": acceso,
-                    "mensaje": "Estas suspendido"
-                }
-            return{
-                "salir": False, 
-                "bloquear_a": bloquear_a, 
-                "acceso": acceso,
-                "mensaje": "No estás inscrito"
-            }
+                return {"salir": False, "bloquear_a": 0, "acceso": False, "mensaje": "Estas suspendido"}
+            return {"salir": False, "bloquear_a": 0, "acceso": False, "mensaje": "No estás inscrito"}
         
+        # ⚡ 3. OBTENER HORARIO DEL DÍA DESDE LA RAM
         dia_actual = datetime.now().weekday()
         dia_nombre = self.dias_semana.get(dia_actual, 'desconocido')
+        horario_hoy = alumno_ram['horario'].get(dia_nombre, "")
         
-        horarios_dia = self.obtener_horario_dia(boleta, base_datos, dia_nombre)
-        if not horarios_dia:
-            return {
-                "salir": False, 
-                "bloquear_a": bloquear_a, 
-                "acceso": acceso,
-                "mensaje": "Sin clases hoy"
-            }
-        
-        primera_info, ultima_info = self.obtener_primera_y_ultima_hora(horarios_dia)
-        if not (primera_info and ultima_info):
-            return {
-                "salir": False, 
-                "bloquear_a": bloquear_a, 
-                "acceso": acceso,
-                "mensaje": "Error en horario"
-            }
-        
+        if not horario_hoy or horario_hoy.strip() == "":
+            return {"salir": False, "bloquear_a": 0, "acceso": False, "mensaje": "Sin clases hoy"}
+            
+        # ⚡ 4. PARSEAR LAS HORAS (Tu formato es "12:00 - 13:00")
+        try:
+            hora_inicio_str, hora_fin_str = horario_hoy.split(" - ")
+            hora_inicio_str = hora_inicio_str.strip()
+            hora_fin_str = hora_fin_str.strip()
+        except ValueError:
+            return {"salir": False, "bloquear_a": 0, "acceso": False, "mensaje": "Error en horario"}
+
         ahora = datetime.now()
         hoy = ahora.date()
-        hora_inicio_str = primera_info[1]['horario'].split(" - ")[0]
-        hora_fin_str = ultima_info[1]['horario'].split(" - ")[1]
         
         hora_entrada_dt = datetime.strptime(hora_inicio_str, "%H:%M")
         hora_salida_dt = datetime.strptime(hora_fin_str, "%H:%M")
@@ -1510,7 +1487,7 @@ class QRHorarioVerificador:
                 SELECT hora_inicio, hora_fin
                 FROM modificaciones_temporales
                 WHERE grupo = %s
-            """, (base_datos,))
+            """, (grupo,))
             pase = cursor_pase.fetchone()
             
             cursor_pase.close()
@@ -1684,15 +1661,6 @@ print("✅ Bases de datos cargadas:", bases_datos)
 
 # Crear instancia del verificador CON ESP32
 verificador = QRHorarioVerificador(db_config=db_config, esp32_conexion=esp32)
-
-# Precargar índices
-print("🔄 Precargando índices...")
-try:
-    verificador.precargar_todos_los_indices()
-    print("✅ Índices precargados")
-except Exception as e:
-    print(f"⚠️ No se pudieron precargar índices: {e}")
-
 
 
 @app.route('/')
