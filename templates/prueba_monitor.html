@@ -9,7 +9,6 @@
     <style> 
         body { 
             margin: 0; padding: 0; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden;
-            /* SE MANTIENE EL FONDO AZUL OSCURO EXACTO EN EL SANDBOX TAMBIÉN */
             background: url("/static/images/logo-ipn-blanco.png") no-repeat center center, 
                         linear-gradient(135deg, #0a192f 0%, #1a365d 100%); 
             background-size: 550px, cover; background-attachment: fixed; background-blend-mode: overlay; 
@@ -27,7 +26,6 @@
             z-index: 5;
         } 
         
-        /* Modificación enfocada en las Tarjetas */
         .inscrito-card { 
             width: 85%; max-width: 600px; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; 
             display: flex; flex-direction: column; align-items: center; text-align: center; 
@@ -35,7 +33,6 @@
             min-height: 500px;
         } 
 
-        /* Círculos geométricos en la tarjeta */
         .inscrito-card::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             opacity: 0.1;
@@ -43,10 +40,7 @@
             background-size: 50px; pointer-events: none; z-index: 0;
         }
 
-        .estado-esperando { 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 2px dashed rgba(255, 255, 255, 0.3); color: #ffffff; 
-            justify-content: center; 
-        } 
+        .estado-esperando { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 2px dashed rgba(255, 255, 255, 0.3); color: #ffffff; justify-content: center; } 
         .inscrito-activo { background: linear-gradient(90deg,rgb(33, 36, 32) 0%, #1d6c2e 45%, rgba(255, 255, 255, 1) 150%); color: #ffffff; border: none; } 
         .inscrito-suspendido { background: linear-gradient(145deg, #fff9c0 0%, #ffb701 100%); color: #92400e; border: 2px solid #fbbf24; } 
         .inscrito-inactivo { background: linear-gradient(145deg, #bd6161 0%, #760000 100%); color: #ffffff; border: none; } 
@@ -63,29 +57,54 @@
         .content-wrapper { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; } 
         .hidden { display: none !important; } 
 
-        /* Ajuste posicional del logo interno de la tarjeta */
-        .background-logo-card { 
-            position: absolute; top: 50%; left: 80%; transform: translate(-50%, -50%); 
-            opacity: 0.35; width: 300px; height: auto; pointer-events: none; z-index: 0; 
-        } 
-        .background-logo-card-izq { 
-            position: absolute; top: 50%; left: 20%; transform: translate(-50%, -50%); 
-            opacity: 0.35; width: 250px; height: auto; pointer-events: none; z-index: 0; 
-        } 
-        .inscrito-cumple {
-            background: linear-gradient(135deg, #ff007f, #ff8c00, #ffd700, #00bfff, #8a2be2);
-            background-size: 300% 300%; animation: fiestaGradient 4s ease infinite;
-            color: white; border: 3px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-        }
+        .background-logo-card { position: absolute; top: 50%; left: 80%; transform: translate(-50%, -50%); opacity: 0.35; width: 300px; height: auto; pointer-events: none; z-index: 0; } 
+        .background-logo-card-izq { position: absolute; top: 50%; left: 20%; transform: translate(-50%, -50%); opacity: 0.35; width: 250px; height: auto; pointer-events: none; z-index: 0; } 
+        
+        .inscrito-cumple { background: linear-gradient(135deg, #ff007f, #ff8c00, #ffd700, #00bfff, #8a2be2); background-size: 300% 300%; animation: fiestaGradient 4s ease infinite; color: white; border: 3px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
         @keyframes fiestaGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .inscrito-lia-god {
-            background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%); color: #ffffff;
-            border: 3px solid #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); animation: pulsoNeon 2s infinite;
-        }
+        .inscrito-lia-god { background: linear-gradient(145deg, #0d0121 0%, #2a0a5e 100%); color: #ffffff; border: 3px solid #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); animation: pulsoNeon 2s infinite; }
         @keyframes pulsoNeon { 0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; } 50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.5); border-color: #ffffff; } 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); border-color: #00ffff; } }
         @keyframes shakeTerremoto { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-2px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
         .shake-activado { animation: shakeTerremoto 0.4s ease-in-out; }
+
+        /* --- ESTILO PARA TU NOVIA --- */
+        .inscrito-novia {
+            background: linear-gradient(145deg, #ff758c 0%, #ff7eb3 100%); 
+            color: #ffffff;
+            border: 3px solid #ff0844; 
+            box-shadow: 0 0 20px rgba(255, 117, 140, 0.6); 
+            animation: latidoRomantico 2s infinite;
+        }
+
+        .inscrito-novia .boleta-display, 
+        .inscrito-novia .mochila-operation {
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        @keyframes latidoRomantico {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 117, 140, 0.5); }
+            50% { transform: scale(1.02); box-shadow: 0 0 35px rgba(255, 117, 140, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 117, 140, 0.5); }
+        }
+
+        .corazon-flotante {
+            position: absolute;
+            bottom: -50px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            animation: flotarArriba ease-in forwards;
+        }
+
+        @keyframes flotarArriba {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-110vh) scale(1.5) rotate(360deg); opacity: 0; }
+        }
 
         /* Panel de Control Inferior */
         .sandbox-controls {
@@ -93,15 +112,13 @@
             padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px;
             justify-content: center; align-items: center; position: relative; z-index: 10;
         }
-        .row-controls { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: center; }
-        .sandbox-btn {
-            background: rgba(255, 255, 255, 0.1); color: #64ffda; border: 1px solid #64ffda;
-            padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold;
-            transition: all 0.2s; font-size: 0.85rem;
-        }
+        .row-controls { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: center; flex-wrap: wrap; }
+        .sandbox-btn { background: rgba(255, 255, 255, 0.1); color: #64ffda; border: 1px solid #64ffda; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 0.85rem; }
         .sandbox-btn:hover { background: #64ffda; color: #0a192f; box-shadow: 0 0 10px #64ffda; }
         .sandbox-btn.danger { border-color: #ff3366; color: #ff3366; }
         .sandbox-btn.danger:hover { background: #ff3366; color: white; }
+        .sandbox-btn.btn-novia { border-color: #ff758c; color: #ff758c; }
+        .sandbox-btn.btn-novia:hover { background: #ff758c; color: white; box-shadow: 0 0 10px #ff758c; }
         select { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid #64ffda; padding: 5px; border-radius: 5px; font-weight: bold; }
         select option { background: #0a192f; color: white; }
     </style>
@@ -164,6 +181,8 @@
             <button class="sandbox-btn" onclick="lanzarPrueba('mochila')">🎒 Op. Mochila</button>
             <button class="sandbox-btn" onclick="lanzarPrueba('cumple')">🎂 Cumpleaños</button>
             <button class="sandbox-btn" onclick="lanzarPrueba('god')">⚡ ANDRÉ GOD</button>
+            <!-- BOTÓN NUEVO PARA TU NOVIA -->
+            <button class="sandbox-btn btn-novia" onclick="lanzarPrueba('novia')">💖 Novia</button>
         </div>
     </div>
 
@@ -177,7 +196,9 @@
             guardia: { boleta: "Seguridad IPN", titulo: "Personal de Guardia", mochila: "Cuerpo de Vigilancia", foto: "https://picsum.photos/id/1025/200/240", estilo: "inscrito-Especial" },
             mochila: { boleta: "2024600111", titulo: "Operación Mochila", mochila: "⚠️ FAVOR DE MOSTRAR MOCHILA ⚠️", foto: "https://picsum.photos/id/338/200/240", estilo: "inscrito-mochila" },
             cumple: { boleta: "2022601555", titulo: "¡Feliz Cumpleaños!", mochila: "🎉 ¡Que tengas un excelente día! 🥳", foto: "https://picsum.photos/id/342/200/240", estilo: "inscrito-cumple" },
-            god: { boleta: "2024160385", titulo: "Integrante de LIA - André", mochila: "🔧 Lead Coder -- Backend -- GOD 💻", foto: "https://picsum.photos/id/1074/200/240", estilo: "inscrito-lia-god" }
+            god: { boleta: "2024160385", titulo: "Integrante de LIA - André", mochila: "🔧 Lead Coder -- Backend -- GOD 💻", foto: "https://picsum.photos/id/1074/200/240", estilo: "inscrito-lia-god" },
+            // EL NUEVO CASO DE PRUEBA PARA TU NOVIA:
+            novia: { boleta: "2026160572", titulo: "Mi Princesa ❤️", mochila: "💖 Te amo muchísimo 💖", foto: "https://picsum.photos/id/1011/200/240", estilo: "inscrito-novia" }
         };
 
         function lanzarPrueba(tipoCasos) {
@@ -201,6 +222,10 @@
             }
             if (data.estilo === "inscrito-lia-god") {
                 crearRelampagosGOD(lado); setTimeout(() => crearRelampagosGOD(lado), 150); setTimeout(() => crearRelampagosGOD(lado), 350);
+            }
+            // SE AGREGA LA ANIMACIÓN PARA TU NOVIA
+            if (data.estilo === "inscrito-novia") {
+                crearLluviaCorazones(lado);
             }
         }
 
@@ -229,6 +254,30 @@
             ctx.beginPath(); let x = startX; let y = startY; ctx.moveTo(x, y);
             while (y < endY) { y += Math.random() * 40 + 10; x += (Math.random() - 0.5) * 90; ctx.lineTo(x, y); }
             ctx.stroke();
+        }
+
+        // FUNCIÓN NUEVA: Lluvia de corazones
+        function crearLluviaCorazones(lado) {
+            const contenedor = document.getElementById(`card-${lado}`).parentElement;
+            const tiposCorazones = ['❤️', '💖', '💕', '💗', '💓', '✨']; 
+            
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const corazon = document.createElement('div');
+                    corazon.className = 'corazon-flotante';
+                    corazon.innerText = tiposCorazones[Math.floor(Math.random() * tiposCorazones.length)];
+                    
+                    corazon.style.left = Math.random() * 100 + '%';
+                    
+                    const duracion = Math.random() * 2 + 3; 
+                    corazon.style.animationDuration = duracion + 's';
+                    corazon.style.fontSize = (Math.random() * 25 + 20) + 'px'; 
+                    
+                    contenedor.appendChild(corazon);
+                    
+                    setTimeout(() => corazon.remove(), duracion * 1000);
+                }, i * 70); 
+            }
         }
     </script> 
 </body> 

@@ -44,7 +44,7 @@ contra_db = "P3l0n100j0t3$"
 MODO_INICIO_SEMESTRE = True 
 
 # LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
-ADMIN_BOLETAS = ["2024160385", "2024160324", "2024160550", "2024160095" , "2024160104" , "2024160378" , "2024160383","2024160227","2025160403","2024160152"] 
+ADMIN_BOLETAS = ["2026160572","2024160385", "2024160324", "2024160550", "2024160095" , "2024160104" , "2024160378" , "2024160383","2024160227","2025160403","2024160152"] 
 
 # CONFIGURACIÓN ESP32 CON IP PÚBLICA
 ESP32_IP = "201.66.195.11"
@@ -336,6 +336,13 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
         primer_nombre = nombre_alumno.split()[0] if nombre_alumno else "Alumno"
         titulo_tarjeta = f"¡Feliz Cumpleaños {primer_nombre}! 🎂"
         mensaje_mochila = "🎉 ¡Que tengas un excelente día! 🥳"
+
+    #Clausula especial para mi amorsito hermoso
+    elif boleta == "2026160572":
+        # Estilo romántico para tu novia
+        estilo_css = "my-love"
+        titulo_tarjeta = "Bienvenida Moor" 
+        mensaje_mochila = "💖 Te amo muchísimo 💖"
 
     # C) BOLETAS ESPECIALES (LIA)
     elif boleta == "2024160324":
