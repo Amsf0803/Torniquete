@@ -50,9 +50,6 @@ ADMIN_BOLETAS = ["2026160572","2024160385", "2024160324", "2024160550", "2024160
 ESP32_IP = "201.66.195.11"
 ESP32_PORT = 80
 
-# LISTA DE ADMINS (Boletas que saltan el límite diario y restricciones de horario)
-
-
 
 # ESTADO GLOBAL PARA EL MONITOR DIVIDIDO (MEMORIA RAM)
 # Esto permite que el HTML se actualice sin consultar la DB constantemente
@@ -255,14 +252,6 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
     Procesa QR, determina permisos y DEFINE EL ESTILO VISUAL para el HTML.
     """
     lado_key = "izquierda" if es_lado_izquierdo else "derecha"
-    # ⚡ TRADUCTOR DE BOLETAS (Si escanean el código de barras)
-    if url_codigo.isdigit() and len(url_codigo) >= 8:
-        if url_codigo in verificador.memoria_alumnos:
-            # Reemplazamos la boleta por el link de su credencial
-            url_codigo = verificador.memoria_alumnos[url_codigo]['url_origen']
-            print("🔄 Boleta traducida a enlace DAE")
-    
-
     # Filtro anti-rebote trasladado al final (solo afecta al frontend)
 
     comando_esp = "2" if es_lado_izquierdo else "3"
@@ -1003,10 +992,14 @@ class QRHorarioVerificador:
                 }
 
             # Validar si es un enlace reconocido del IPN
+            es_boleta_directa = False
             if "servicios.dae.ipn.mx" in url.lower():
                 tipo_enlace = 'dae'
             elif "saes.cecyt16.ipn.mx" in url.lower():
                 tipo_enlace = 'saes'
+            elif url.isdigit() and len(url) >= 8:
+                tipo_enlace = 'boleta'
+                es_boleta_directa = True
             else:
                 self.play_error_sound()
                 return {
@@ -1020,7 +1013,15 @@ class QRHorarioVerificador:
 
             # ---> PRIMERO BUSCAMOS AL ALUMNO PARA TENER SUS DATOS <---
             print(f"📇 Enlace {tipo_enlace.upper()} detectado")
-            base_datos_grupo, boleta = self.buscar_alumno_por_url(url, tipo_enlace)
+            
+            if es_boleta_directa:
+                boleta = url
+                if boleta in self.memoria_alumnos:
+                    base_datos_grupo = self.memoria_alumnos[boleta]['grupo']
+                else:
+                    base_datos_grupo = self.buscar_grupo_por_boleta(boleta)
+            else:
+                base_datos_grupo, boleta = self.buscar_alumno_por_url(url, tipo_enlace)
             
             nombre_alumno = "Alumno (Sin registro)"
             foto_url = "/static/images/placeholder.png"
@@ -1444,6 +1445,16 @@ class QRHorarioVerificador:
         dia_actual = datetime.now().weekday()
         dia_nombre = self.dias_semana.get(dia_actual, 'desconocido')
         horario_hoy = alumno_ram['horario'].get(dia_nombre, "")
+        
+        # ⚡ 3.5 FALLBACK PARA HORARIOS INDIVIDUALES (Ej. Casos_curiosos o RAM vacía)
+        if not horario_hoy or horario_hoy.strip() == "" or grupo == "Casos_curiosos":
+            print(f"🔄 Buscando horario individual para {boleta} en {grupo}...")
+            horarios_dia = self.obtener_horario_dia(boleta, grupo, dia_nombre)
+            primera_y_ultima = self.obtener_primera_y_ultima_hora(horarios_dia)
+            if primera_y_ultima != (None, None):
+                primera, ultima = primera_y_ultima
+                horario_hoy = f"{primera[0]} - {ultima[0]}"
+                print(f"✅ Horario individual encontrado: {horario_hoy}")
         
         if not horario_hoy or horario_hoy.strip() == "":
             return {"salir": False, "bloquear_a": 0, "acceso": False, "mensaje": "Sin clases hoy"}

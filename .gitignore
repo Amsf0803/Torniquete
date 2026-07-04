@@ -10,3 +10,9 @@ log_reinicio.txt
 static/image
 
 entradas/
+
+
+
+qrs_especiales/
+
+generador_qr.py
