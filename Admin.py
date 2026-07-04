@@ -23,6 +23,19 @@ import smtplib
 from email.mime.text import MIMEText
 import pandas as pd
 
+# Cargar variables de entorno
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r') as f:
+            for line in f:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, val = line.strip().split('=', 1)
+                    os.environ.setdefault(key, val)
+
 def cifrar_texto(texto):
     # Cifrado sencillo y eficiente
     clave = "L1A_K3Y"
@@ -2855,7 +2868,9 @@ def acceso_verificacion():
 
             # --- FASE 1: Verificación de contraseña ---
             if accion == 'verificar_password':
-                if data.get('password') == "C16_4dm1n_4cC3s0":
+                admin_password = os.environ.get('ADMIN_ACCESS_PASSWORD')
+                
+                if admin_password and data.get('password') == admin_password:
                     cursor.execute("SELECT verificacion FROM acceso LIMIT 1")
                     fila = cursor.fetchone()
                     

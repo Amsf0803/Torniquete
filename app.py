@@ -263,22 +263,7 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
             print("🔄 Boleta traducida a enlace DAE")
     
 
-    # --- ⚡ NUEVO FILTRO ANTI-REBOTE ---
-    # Necesitamos obtener la boleta primero para saber quién es
-    boleta_intento = verificador.indice_urls.get(url_codigo)
-    
-    if boleta_intento:
-        ahora = time.time()
-        ultimo_tiempo = verificador.ultimos_accesos.get(boleta_intento, 0)
-        
-        # Si el escaneo ocurrió hace menos de X segundos, ignoramos todo
-        if (ahora - ultimo_tiempo) < verificador.cooldown_segundos:
-            print(f"⚠️ [REBOTE] Ignorando escaneo repetido de {boleta_intento}")
-            return True # Retornamos True para que el hilo no haga nada más
-        
-        # Si pasó el tiempo, actualizamos el registro
-        verificador.ultimos_accesos[boleta_intento] = ahora
-    # -----------------------------------
+    # Filtro anti-rebote trasladado al final (solo afecta al frontend)
 
     comando_esp = "2" if es_lado_izquierdo else "3"
     
@@ -427,35 +412,47 @@ def procesar_entrada_dual(url_codigo, es_lado_izquierdo):
             titulo_tarjeta = "Acceso Denegado"
             mensaje_mochila = mensaje_estado # Muestra el error crudo si no está clasificado
 
-    # --- 3. SONIDOS ---
-    if acceso_concedido:
-        try:
-            pygame.mixer.Sound("static/sounds/success.wav").play()
-        except:
-            pass
-    else:
-        try:
-            pygame.mixer.Sound("static/sounds/error.wav").play()
-        except:
-            pass
+    # --- 3. DELAY AL FRONTEND (Evitar mensaje de "Ya entraste" en doble escaneo) ---
+    ahora = time.time()
+    ultimo_estado = datos_accesos[lado_key]
+    es_misma_boleta = (ultimo_estado["boleta"] == boleta)
+    tiempo_transcurrido = ahora - ultimo_estado.get("timestamp", 0)
+    
+    # Si es el mismo alumno, pasaron menos de 4 segundos, y el acceso fue denegado 
+    # (ej. porque en la primera lectura sí entró y en la segunda sale "Ya entraste")
+    # ignoramos esta actualización visual y sonora para que no se sobreescriba el mensaje de éxito.
+    ignorar_frontend = False
+    if es_misma_boleta and tiempo_transcurrido < 4.0 and not acceso_concedido:
+        print(f"⚠️ [FRONTEND DELAY] Ignorando actualización visual para {boleta} (Doble escaneo accidental: {tiempo_transcurrido:.1f}s)")
+        ignorar_frontend = True
 
-    # --- 4. ACTUALIZAR MEMORIA GLOBAL ---
-    # FIX: .update() modifica el mismo objeto en RAM compartida entre hilos.
-    # Reasignar datos_accesos[lado_key] = {...} puede crear un objeto nuevo
-    # que el hilo de Flask no ve si tiene una referencia al anterior.
-    ts = time.time()
-    datos_accesos[lado_key].update({
-        "boleta": boleta,
-        "nombre": nombre_alumno,
-        "mensaje": mensaje_estado,
-        "foto": foto_url,
-        "estilo": estilo_css,
-        "titulo": titulo_tarjeta,
-        "mochila": mensaje_mochila,
-        "timestamp": ts
-    })
-    print(f"{'✅' if acceso_concedido else '❌'} [{lado_key.upper()}] {nombre_alumno} - {mensaje_estado}")
-    print(f"🕐 timestamp guardado = {ts}")
+    if not ignorar_frontend:
+        # --- 4. SONIDOS ---
+        if acceso_concedido:
+            try:
+                pygame.mixer.Sound("static/sounds/success.wav").play()
+            except:
+                pass
+        else:
+            try:
+                pygame.mixer.Sound("static/sounds/error.wav").play()
+            except:
+                pass
+
+        # --- 5. ACTUALIZAR MEMORIA GLOBAL ---
+        datos_accesos[lado_key].update({
+            "boleta": boleta,
+            "nombre": nombre_alumno,
+            "mensaje": mensaje_estado,
+            "foto": foto_url,
+            "estilo": estilo_css,
+            "titulo": titulo_tarjeta,
+            "mochila": mensaje_mochila,
+            "timestamp": ahora
+        })
+        print(f"{'✅' if acceso_concedido else '❌'} [{lado_key.upper()}] {nombre_alumno} - {mensaje_estado}")
+        print(f"🕐 timestamp guardado = {ahora}")
+
     return acceso_concedido
 
 
