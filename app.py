@@ -1034,8 +1034,13 @@ class QRHorarioVerificador:
                 nombre_alumno = alumno_ram['nombre']
                 inscrito_valor = alumno_ram['inscrito']
                 
-                # Asumimos que la foto se llama igual que la boleta
-                foto_url = f"/static/images/{boleta}.jpg" 
+                # Buscar foto en ambas carpetas o usar placeholder
+                if os.path.exists(os.path.join("static", "image", f"{boleta}.jpg")):
+                    foto_url = f"/static/image/{boleta}.jpg"
+                elif os.path.exists(os.path.join("static", "images", f"{boleta}.jpg")):
+                    foto_url = f"/static/images/{boleta}.jpg"
+                else:
+                    foto_url = "/static/images/placeholder.png"
                 
                 # 🎂 Lógica de validación de cumpleaños (Súper rápida en RAM)
                 curp = str(alumno_ram.get('curp', '')).upper()
@@ -1317,8 +1322,9 @@ class QRHorarioVerificador:
             patron_hora = r'(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})'
             match = re.search(patron_hora, horario_str)
             if match:
-                hora_inicio = match.group(1)
-                hora_fin = match.group(2)
+                # Rellenar horas de un dígito (ej. 8:00 -> 08:00) para ordenar bien
+                hora_inicio = match.group(1).zfill(5)
+                hora_fin = match.group(2).zfill(5)
                 horas.append((hora_inicio, hora_fin, horario))
         
         if not horas:
@@ -1327,9 +1333,11 @@ class QRHorarioVerificador:
         horas.sort(key=lambda x: x[0])
         
         primera_clase = horas[0][2]
-        ultima_clase = horas[-1][2]
         primera_hora = horas[0][0]
-        ultima_hora = horas[-1][1]
+        
+        # Encontrar la hora de fin máxima
+        ultima_hora = max([h[1] for h in horas])
+        ultima_clase = next(h[2] for h in horas if h[1] == ultima_hora)
         
         return (primera_hora, primera_clase), (ultima_hora, ultima_clase)
 
@@ -1496,7 +1504,8 @@ class QRHorarioVerificador:
             resultado_abrio = cursor_grupo.fetchone()
             
             if resultado_abrio:
-                abrio_actual = int(resultado_abrio["abrio"]) if resultado_abrio["abrio"] is not None else 0
+                abrio_val = str(resultado_abrio["abrio"]).strip() if resultado_abrio["abrio"] is not None else "0"
+                abrio_actual = int(abrio_val) if abrio_val.isdigit() else 0
                 if abrio_actual == 1:
                     bloquear_a = 1
                     mensaje = "Ya entraste"
